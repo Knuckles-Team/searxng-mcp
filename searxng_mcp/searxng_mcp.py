@@ -7,9 +7,26 @@ import logging
 import requests
 import yaml
 import random
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from fastmcp import FastMCP, Context
 from pydantic import Field
+
+
+def to_boolean(string: Union[str, bool] = None) -> bool:
+    if isinstance(string, bool):
+        return string
+    if not string:
+        return False
+    normalized = str(string).strip().lower()
+    true_values = {"t", "true", "y", "yes", "1"}
+    false_values = {"f", "false", "n", "no", "0"}
+    if normalized in true_values:
+        return True
+    elif normalized in false_values:
+        return False
+    else:
+        raise ValueError(f"Cannot convert '{string}' to boolean")
+
 
 # Global variables for SearXNG configuration
 SEARXNG_INSTANCE_URL = os.environ.get("SEARXNG_INSTANCE_URL", None)
@@ -17,13 +34,16 @@ SEARXNG_USERNAME = os.environ.get("SEARXNG_USERNAME", None)
 SEARXNG_PASSWORD = os.environ.get("SEARXNG_PASSWORD", None)
 HAS_BASIC_AUTH = bool(SEARXNG_USERNAME and SEARXNG_PASSWORD)
 INSTANCES_LIST_URL = "https://raw.githubusercontent.com/searxng/searx-instances/refs/heads/master/searxinstances/instances.yml"
-USE_RANDOM_INSTANCE = os.environ.get("USE_RANDOM_INSTANCE", "true").lower() not in {"false", "0", "no", "f", "n"}
+USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "true").lower())
+
 
 # Setup logging for MCP server (logs to file)
 def setup_logging(is_mcp_server: bool = False, log_file: str = None):
     logger = logging.getLogger("SearXNG")
     logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     if is_mcp_server and log_file:
         file_handler = logging.FileHandler(log_file)
@@ -33,9 +53,11 @@ def setup_logging(is_mcp_server: bool = False, log_file: str = None):
 
     return logger
 
+
 setup_logging(is_mcp_server=True, log_file="searxng_mcp.log")
 
 mcp = FastMCP(name="SearXNGServer")
+
 
 # Function to fetch and select a random SearXNG instance
 def get_random_searxng_instance() -> str:
@@ -55,9 +77,8 @@ def get_random_searxng_instance() -> str:
             network_type = instance_data.get("network_type")
 
             if (
-                    (not comments or ("hidden" not in comments and "onion" not in comments)) and
-                    (not network_type or network_type == "normal")
-            ):
+                not comments or ("hidden" not in comments and "onion" not in comments)
+            ) and (not network_type or network_type == "normal"):
                 standard_instances.append(url)
 
         logger.debug(f"[SearXNG] Found {len(standard_instances)} standard instances")
@@ -73,6 +94,7 @@ def get_random_searxng_instance() -> str:
         logger.error(f"[SearXNG] Error fetching instances: {str(e)}")
         raise ValueError("Failed to fetch SearXNG instances list") from e
 
+
 @mcp.tool(
     annotations={
         "title": "SearXNG Search",
@@ -83,16 +105,42 @@ def get_random_searxng_instance() -> str:
     },
     tags={"search"},
 )
-async def searxngsearch(
-        query: str = Field(description="Search query", default=None),
-        language: str = Field(description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'", default="en"),
-        time_range: Optional[str] = Field(description="Time range for search results. Options: 'day', 'week', 'month', 'year'. Default: null (no time restriction).", default=None, enum=["day", "week", "month", "year"]),
-        categories: Optional[List[str]] = Field(description="Categories to search in (e.g., 'general', 'images', 'news'). Default: null (all categories).", default=None),
-        engines: Optional[List[str]] = Field(description="Specific search engines to use. Default: null (all available engines).", default=None),
-        safesearch: int = Field(description="Safe search level: 0 (off), 1 (moderate), 2 (strict). Default: 1 (moderate).", default=1, enum=[0, 1, 2]),
-        pageno: int = Field(description="Page number for results. Must be minimum 1. Default: 1.", default=1, ge=1),
-        max_results: int = Field(description="Maximum number of search results to return. Range: 1-50. Default: 10.", default=10, ge=1, le=50),
-        ctx: Context = Field(description="MCP context for progress reporting.", default=None),
+async def web_search(
+    query: str = Field(description="Search query", default=None),
+    language: str = Field(
+        description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'",
+        default="en",
+    ),
+    time_range: Optional[str] = Field(
+        description="Time range for search results. Options: 'day', 'week', 'month', 'year'. Default: null (no time restriction).",
+        default=None,
+    ),
+    categories: Optional[List[str]] = Field(
+        description="Categories to search in (e.g., 'general', 'images', 'news'). Default: null (all categories).",
+        default=None,
+    ),
+    engines: Optional[List[str]] = Field(
+        description="Specific search engines to use. Default: null (all available engines).",
+        default=None,
+    ),
+    safesearch: int = Field(
+        description="Safe search level: 0 (off), 1 (moderate), 2 (strict). Default: 1 (moderate).",
+        default=1,
+    ),
+    pageno: int = Field(
+        description="Page number for results. Must be minimum 1. Default: 1.",
+        default=1,
+        ge=1,
+    ),
+    max_results: int = Field(
+        description="Maximum number of search results to return. Range: 1-50. Default: 10.",
+        default=10,
+        ge=1,
+        le=50,
+    ),
+    ctx: Context = Field(
+        description="MCP context for progress reporting.", default=None
+    ),
 ) -> Dict[str, Any]:
     """
     Perform web searches using SearXNG, a privacy-respecting metasearch engine. Returns relevant web content with customizable parameters.
@@ -132,7 +180,9 @@ async def searxngsearch(
 
         # Make request to SearXNG
         auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD) if HAS_BASIC_AUTH else None
-        response = requests.get(f"{SEARXNG_INSTANCE_URL}/search", params=search_params, auth=auth)
+        response = requests.get(
+            f"{SEARXNG_INSTANCE_URL}/search", params=search_params, auth=auth
+        )
         response.raise_for_status()
         search_response: Dict[str, Any] = response.json()
 
@@ -180,27 +230,9 @@ async def searxngsearch(
             "error": str(e),
         }
 
+
 def searxng_mcp():
-    global SEARXNG_INSTANCE_URL
     logger = logging.getLogger("SearXNG")
-
-    # Determine SearXNG instance
-    searxng_url = os.environ.get("SEARXNG_URL")
-    if searxng_url:
-        SEARXNG_INSTANCE_URL = searxng_url
-        logger.debug(f"[SearXNG] Using specified instance: {SEARXNG_INSTANCE_URL}")
-    elif USE_RANDOM_INSTANCE:
-        logger.debug("[SearXNG] No URL specified, using a random instance")
-        try:
-            SEARXNG_INSTANCE_URL = get_random_searxng_instance()
-            logger.debug(f"[SearXNG] Using random instance: {SEARXNG_INSTANCE_URL}")
-        except Exception as e:
-            logger.error(f"[SearXNG] Error getting random instance: {str(e)}")
-            sys.exit(1)
-    else:
-        logger.error("[SearXNG] SEARXNG_URL environment variable is required when USE_RANDOM_INSTANCE is false")
-        sys.exit(1)
-
     parser = argparse.ArgumentParser(description="Run SearXNG MCP server.")
     parser.add_argument(
         "-t",
@@ -232,7 +264,9 @@ def searxng_mcp():
     logger.info(f"SearXNG MCP server starting with transport: {args.transport}")
     logger.info(f"Connected to SearXNG instance at: {SEARXNG_INSTANCE_URL}")
     logger.info(f"Basic auth: {'Enabled' if HAS_BASIC_AUTH else 'Disabled'}")
-    logger.info(f"Random instance selection: {'Enabled' if USE_RANDOM_INSTANCE else 'Disabled'}")
+    logger.info(
+        f"Random instance selection: {'Enabled' if USE_RANDOM_INSTANCE else 'Disabled'}"
+    )
 
     if args.transport == "stdio":
         mcp.run(transport="stdio")
@@ -243,6 +277,7 @@ def searxng_mcp():
     else:
         logger.error("Transport not supported")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     searxng_mcp()

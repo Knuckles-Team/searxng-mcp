@@ -6,8 +6,7 @@ import inspect
 
 # List of modules to import from
 MODULES = [
-    "repository_manager.repository_manager",
-    "repository_manager.repository_manager_mcp",
+    "searxng_mcp.searxng_mcp",
 ]
 
 # Initialize __all__ to expose all public classes and functions
@@ -25,7 +24,7 @@ for module_name in MODULES:
             __all__.append(name)
 
 """
-report-manager
+searxng-mcp
 
-Manage your git projects
+SearXNG Search Engine MCP Server!
 """
