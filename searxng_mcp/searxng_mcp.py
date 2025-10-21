@@ -41,7 +41,7 @@ SEARXNG_USERNAME = os.environ.get("SEARXNG_USERNAME", None)
 SEARXNG_PASSWORD = os.environ.get("SEARXNG_PASSWORD", None)
 HAS_BASIC_AUTH = bool(SEARXNG_USERNAME and SEARXNG_PASSWORD)
 INSTANCES_LIST_URL = "https://raw.githubusercontent.com/searxng/searx-instances/refs/heads/master/searxinstances/instances.yml"
-USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "true").lower())
+USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "false").lower())
 
 
 # Setup logging for MCP server (logs to file)
