@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.0.4*
+*Version: 0.0.5*
 
 Perform privacy-respecting web searches using SearXNG through an MCP server!
 
