@@ -24,6 +24,10 @@
 
 Perform privacy-respecting web searches using SearXNG through an MCP server!
 
+<a href="https://glama.ai/mcp/servers/@Knuckles-Team/searxng-mcp">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@Knuckles-Team/searxng-mcp/badge" alt="SearXNG Server MCP server" />
+</a>
+
 This repository is actively maintained - Contributions are welcome!
 
 ### Supports:
