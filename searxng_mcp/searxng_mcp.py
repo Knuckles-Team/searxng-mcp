@@ -113,7 +113,6 @@ class JWTClaimsLoggingMiddleware(Middleware):
             )
 
 
-
 # Function to fetch and select a random SearXNG instance
 def get_random_searxng_instance() -> str:
     logger = logging.getLogger("SearXNG")
@@ -148,6 +147,7 @@ def get_random_searxng_instance() -> str:
     except Exception as e:
         logger.error(f"[SearXNG] Error fetching instances: {str(e)}")
         raise ValueError("Failed to fetch SearXNG instances list") from e
+
 
 def register_tools(mcp: FastMCP):
     @mcp.tool(
@@ -493,7 +493,7 @@ def searxng_mcp():
     config["oidc_config_url"] = args.oidc_config_url or config["oidc_config_url"]
     config["oidc_client_id"] = args.oidc_client_id or config["oidc_client_id"]
     config["oidc_client_secret"] = (
-            args.oidc_client_secret or config["oidc_client_secret"]
+        args.oidc_client_secret or config["oidc_client_secret"]
     )
 
     # Configure delegation if enabled
@@ -505,11 +505,11 @@ def searxng_mcp():
             logger.error("audience is required for delegation")
             sys.exit(1)
         if not all(
-                [
-                    config["oidc_config_url"],
-                    config["oidc_client_id"],
-                    config["oidc_client_secret"],
-                ]
+            [
+                config["oidc_config_url"],
+                config["oidc_client_id"],
+                config["oidc_client_secret"],
+            ]
         ):
             logger.error(
                 "Delegation requires complete OIDC configuration (oidc-config-url, oidc-client-id, oidc-client-secret)"
@@ -647,14 +647,14 @@ def searxng_mcp():
             sys.exit(1)
     elif args.auth_type == "oauth-proxy":
         if not (
-                args.oauth_upstream_auth_endpoint
-                and args.oauth_upstream_token_endpoint
-                and args.oauth_upstream_client_id
-                and args.oauth_upstream_client_secret
-                and args.oauth_base_url
-                and args.token_jwks_uri
-                and args.token_issuer
-                and args.token_audience
+            args.oauth_upstream_auth_endpoint
+            and args.oauth_upstream_token_endpoint
+            and args.oauth_upstream_client_id
+            and args.oauth_upstream_client_secret
+            and args.oauth_base_url
+            and args.token_jwks_uri
+            and args.token_issuer
+            and args.token_audience
         ):
             print(
                 "oauth-proxy requires oauth-upstream-auth-endpoint, oauth-upstream-token-endpoint, "
@@ -692,10 +692,10 @@ def searxng_mcp():
         )
     elif args.auth_type == "oidc-proxy":
         if not (
-                args.oidc_config_url
-                and args.oidc_client_id
-                and args.oidc_client_secret
-                and args.oidc_base_url
+            args.oidc_config_url
+            and args.oidc_client_id
+            and args.oidc_client_secret
+            and args.oidc_base_url
         ):
             logger.error(
                 "oidc-proxy requires oidc-config-url, oidc-client-id, oidc-client-secret, oidc-base-url",
@@ -715,11 +715,11 @@ def searxng_mcp():
         )
     elif args.auth_type == "remote-oauth":
         if not (
-                args.remote_auth_servers
-                and args.remote_base_url
-                and args.token_jwks_uri
-                and args.token_issuer
-                and args.token_audience
+            args.remote_auth_servers
+            and args.remote_base_url
+            and args.token_jwks_uri
+            and args.token_issuer
+            and args.token_audience
         ):
             logger.error(
                 "remote-oauth requires remote-auth-servers, remote-base-url, token-jwks-uri, token-issuer, token-audience",
