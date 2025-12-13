@@ -25,7 +25,7 @@ from fastmcp.utilities.logging import get_logger
 
 # Thread-local storage for user token
 local = local()
-logger = get_logger(name="ServiceNow.TokenMiddleware")
+logger = get_logger(name="SearXNG.TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 
 
@@ -55,7 +55,7 @@ USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "false").
 
 config = {
     "enable_delegation": to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
-    "audience": os.environ.get("SERVICENOW_AUDIENCE", None),
+    "audience": os.environ.get("AUDIENCE", None),
     "delegated_scopes": os.environ.get("DELEGATED_SCOPES", "api"),
     "token_endpoint": None,  # Will be fetched dynamically from OIDC config
     "oidc_client_id": os.environ.get("OIDC_CLIENT_ID", None),
@@ -360,7 +360,7 @@ def searxng_mcp():
     parser.add_argument(
         "--required-scopes",
         default=os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES"),
-        help="Comma-separated list of required scopes (e.g., servicenow.read,servicenow.write).",
+        help="Comma-separated list of required scopes (e.g., searxng.read,searxng.write).",
     )
     # OAuth Proxy params
     parser.add_argument(
@@ -428,17 +428,17 @@ def searxng_mcp():
         "--enable-delegation",
         action="store_true",
         default=to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
-        help="Enable OIDC token delegation to ServiceNow",
+        help="Enable OIDC token delegation",
     )
     parser.add_argument(
         "--audience",
-        default=os.environ.get("SERVICENOW_AUDIENCE", None),
-        help="Audience for the delegated ServiceNow token",
+        default=os.environ.get("AUDIENCE", None),
+        help="Audience for the delegated token",
     )
     parser.add_argument(
         "--delegated-scopes",
         default=os.environ.get("DELEGATED_SCOPES", "api"),
-        help="Scopes for the delegated ServiceNow token (space-separated)",
+        help="Scopes for the delegated token (space-separated)",
     )
     parser.add_argument(
         "--openapi-file",
@@ -448,7 +448,7 @@ def searxng_mcp():
     parser.add_argument(
         "--openapi-base-url",
         default=None,
-        help="Base URL for the OpenAPI client (overrides ServiceNow instance URL)",
+        help="Base URL for the OpenAPI client (overrides instance URL)",
     )
     parser.add_argument(
         "--openapi-use-token",
@@ -791,7 +791,7 @@ def searxng_mcp():
     for mw in middlewares:
         mcp.add_middleware(mw)
 
-    print("\nStarting ServiceNow MCP Server")
+    print("\nStarting SearXNG MCP Server")
     print(f"  Transport: {args.transport.upper()}")
     print(f"  Auth: {args.auth_type}")
     print(f"  Delegation: {'ON' if config['enable_delegation'] else 'OFF'}")
