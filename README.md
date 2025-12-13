@@ -1,4 +1,4 @@
-# SearXNG MCP Server
+# SearXNG - A2A & MCP Server
 
 ![PyPI - Version](https://img.shields.io/pypi/v/searxng-mcp)
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/searxng-mcp)
@@ -21,6 +21,10 @@
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
 *Version: 0.0.8*
+
+SearXNG MCP Server + A2A Server
+
+It includes a Model Context Protocol (MCP) server and an out of the box Agent2Agent (A2A) agent
 
 Perform privacy-respecting web searches using SearXNG through an MCP server!
 
