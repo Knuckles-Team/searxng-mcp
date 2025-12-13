@@ -7,6 +7,7 @@ import inspect
 # List of modules to import from
 MODULES = [
     "searxng_mcp.searxng_mcp",
+    "searxng_mcp.searxng_a2a",
 ]
 
 # Initialize __all__ to expose all public classes and functions
