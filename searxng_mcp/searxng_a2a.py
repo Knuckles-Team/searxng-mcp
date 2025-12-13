@@ -15,25 +15,23 @@ DEFAULT_PROVIDER = "openai"
 DEFAULT_MODEL_ID = "qwen3:4b"
 DEFAULT_OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://ollama.arpa/v1")
 DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
-DEFAULT_MCP_URL = "http://media-downloader-mcp.arpa/mcp"
+DEFAULT_MCP_URL = "http://searxng-mcp:8000/mcp"
 DEFAULT_ALLOWED_TOOLS: List[str] = [
-    "download_media",
+    "web_search",
 ]
 
-AGENT_NAME = "MediaDownloaderAgent"
-AGENT_DESCRIPTION = "A specialist agent for downloading media content from the web."
+AGENT_NAME = "SearxngAgent"
+AGENT_DESCRIPTION = "A specialist agent for researching information using SearXNG."
 INSTRUCTIONS = (
-    "You are a friendly media retrieval expert specialized in downloading media files.\n\n"
-    "Your primary tool is 'download_media', which allows you to download videos or audio "
-    "from various platforms (e.g., YouTube). "
-    "By default, save downloaded files to the ~/Downloads directory "
-    "unless the user explicitly directs you to use a different directory.\n\n"
+    "You are a friendly research assistant personalized for web search tasks.\n\n"
+    "Your primary tool is 'web_search', which allows you to perform web searches using SearXNG. "
+    "You can customize your search with parameters like language, time_range, categories, and engines.\n\n"
     "Key capabilities:\n"
-    "- Download either full video or audio-only formats.\n"
-    "- Support batch downloading of multiple media files in a single request.\n\n"
-    "Always clearly state the full save path(s) of the downloaded file(s) in your final response.\n\n"
-    "Maintain a warm, friendly, and helpful tone in all interactions with the user.\n"
-    "Handle any errors gracefully: if a download fails, explain the issue politely and suggest alternatives if possible."
+    "- Perform detailed web searches to answer user queries.\n"
+    "- Summarize search results effectively.\n"
+    "- Provide citations URLs when possible.\n\n"
+    "Maintain a professional, objective, and helpful tone in all interactions with the user.\n"
+    "Handle any errors gracefully: if a search fails, explain the issue politely and suggest alternatives if possible."
 )
 
 
@@ -107,11 +105,11 @@ agent = create_agent()
 # Define skills for the Agent Card
 skills = [
     Skill(
-        id="download_media",
-        name="Download Media",
-        description="Download videos or audio from various platforms (YouTube, Twitter, etc.) to the local filesystem.",
-        tags=["media", "video", "audio", "download"],
-        examples=["Download this youtube video: https://youtu.be/example"],
+        id="web_search",
+        name="Web Search",
+        description="Perform web searches using SearXNG to find information on various topics.",
+        tags=["search", "research", "web"],
+        examples=["Search for the latest AI news"],
         input_modes=["text"],
         output_modes=["text"],
     )
@@ -171,7 +169,7 @@ def agent_server():
         allowed_tools=args.allowed_tools,
     )
     cli_app = cli_agent.to_a2a(
-        name=AGENT_NAME, description=AGENT_DESCRIPTION, version="0.0.7", skills=skills
+        name=AGENT_NAME, description=AGENT_DESCRIPTION, version="0.0.8", skills=skills
     )
 
     uvicorn.run(

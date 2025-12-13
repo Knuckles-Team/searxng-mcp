@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.0.7*
+*Version: 0.0.8*
 
 Perform privacy-respecting web searches using SearXNG through an MCP server!
 
@@ -95,6 +95,59 @@ Search completed successfully. Found 10 results for "artificial intelligence":
 2. **AI Overview**
    URL: https://example.org/ai-overview
    Content: AI encompasses machine learning, deep learning, and more...
+```
+
+### Agentic AI
+`searxng-mcp` is designed to be used by Agentic AI systems. It provides a set of tools that allow agents to search the web using SearXNG.
+
+## Agent-to-Agent (A2A)
+
+This package also includes an A2A agent server that can be used to interact with the SearXNG MCP server.
+
+### CLI
+
+| Argument          | Description                                                    | Default                        |
+|-------------------|----------------------------------------------------------------|--------------------------------|
+| `--host`          | Host to bind the server to                                     | `0.0.0.0`                      |
+| `--port`          | Port to bind the server to                                     | `8000`                         |
+| `--reload`        | Enable auto-reload                                             | `False`                        |
+| `--provider`      | LLM Provider (openai, anthropic, google, huggingface)          | `openai`                       |
+| `--model-id`      | LLM Model ID                                                   | `qwen3:4b`                     |
+| `--base-url`      | LLM Base URL (for OpenAI compatible providers)                 | `http://ollama.arpa/v1`        |
+| `--api-key`       | LLM API Key                                                    | `ollama`                       |
+| `--mcp-url`       | MCP Server URL                                                 | `http://searxng-mcp:8000/mcp`  |
+| `--allowed-tools` | List of allowed MCP tools                                      | `web_search`                   |
+
+### Examples
+
+#### Run A2A Server
+```bash
+searxng-a2a --provider openai --model-id gpt-4 --api-key sk-... --mcp-url http://localhost:8000/mcp
+```
+
+#### Run with Docker
+```bash
+docker run -e CMD=searxng-a2a -p 8000:8000 searxng-mcp
+```
+
+## Docker
+
+### Build
+
+```bash
+docker build -t searxng-mcp .
+```
+
+### Run MCP Server
+
+```bash
+docker run -p 8000:8000 searxng-mcp
+```
+
+### Run A2A Server
+
+```bash
+docker run -e CMD=searxng-a2a -p 8001:8001 searxng-mcp
 ```
 
 ### Deploy MCP Server as a Service
