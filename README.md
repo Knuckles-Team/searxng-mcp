@@ -1,6 +1,7 @@
 # SearXNG - A2A & MCP Server
 
 ![PyPI - Version](https://img.shields.io/pypi/v/searxng-mcp)
+![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/searxng-mcp)
 ![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/searxng-mcp)
 ![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/searxng-mcp)
@@ -20,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.0.9*
+*Version: 0.0.10*
 
 SearXNG MCP Server + A2A Server
 
@@ -110,13 +111,142 @@ This package also includes an A2A agent server that can be used to interact with
 
 ### CLI
 
+| Argument          | Description
+## A2A Agent
+
+### Architecture:
+
+```mermaid
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph subGraph0["Agent Capabilities"]
+        C["Agent"]
+        B["A2A Server - Uvicorn/FastAPI"]
+        D["MCP Tools"]
+        F["Agent Skills"]
+  end
+    C --> D & F
+    A["User Query"] --> B
+    B --> C
+    D --> E["Platform API"]
+
+     C:::agent
+     B:::server
+     A:::server
+    classDef server fill:#f9f,stroke:#333
+    classDef agent fill:#bbf,stroke:#333,stroke-width:2px
+    style B stroke:#000000,fill:#FFD600
+    style D stroke:#000000,fill:#BBDEFB
+    style F fill:#BBDEFB
+    style A fill:#C8E6C9
+    style subGraph0 fill:#FFF9C4
+```
+
+### Component Interaction Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Server as A2A Server
+    participant Agent as Agent
+    participant Skill as Agent Skills
+    participant MCP as MCP Tools
+
+    User->>Server: Send Query
+    Server->>Agent: Invoke Agent
+    Agent->>Skill: Analyze Skills Available
+    Skill->>Agent: Provide Guidance on Next Steps
+    Agent->>MCP: Invoke Tool
+    MCP-->>Agent: Tool Response Returned
+    Agent-->>Agent: Return Results Summarized
+    Agent-->>Server: Final Response
+    Server-->>User: Output
+```
+
+## Usage
+
+### CLI
+
+| Short Flag | Long Flag        | Description                            |
+|------------|------------------|----------------------------------------|
+| -h         | --help           | See Usage                              |
+
+### MCP CLI
+
+| Short Flag | Long Flag                          | Description                                                                 |
+|------------|------------------------------------|-----------------------------------------------------------------------------|
+| -h         | --help                             | Display help information                                                    |
+| -t         | --transport                        | Transport method: 'stdio', 'http', or 'sse' [legacy] (default: stdio)       |
+| -s         | --host                             | Host address for HTTP transport (default: 0.0.0.0)                          |
+| -p         | --port                             | Port number for HTTP transport (default: 8000)                              |
+|            | --auth-type                        | Authentication type: 'none', 'static', 'jwt', 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (default: none) |
+|            | --eunomia-type                     | Eunomia authorization type: 'none', 'embedded', 'remote' (default: none)   |
+
+
+### A2A CLI
+
+| Short Flag | Long Flag         | Description                                                            |
+|------------|-------------------|------------------------------------------------------------------------|
+| -h         | --help            | Display help information                                               |
+|            | --host            | Host to bind the server to (default: 0.0.0.0)                          |
+|            | --port            | Port to bind the server to (default: 9000)                             |
+|            | --reload          | Enable auto-reload                                                     |
+|            | --provider        | LLM Provider: 'openai', 'anthropic', 'google', 'huggingface'           |
+|            | --model-id        | LLM Model ID (default: qwen/qwen3-8b)                                  |
+|            | --base-url        | LLM Base URL (for OpenAI compatible providers)                         |
+|            | --api-key         | LLM API Key                                                            |
+|            | --mcp-url         | MCP Server URL (default: http://localhost:8000/mcp)                    |
+
+### Using as an MCP Server
+The MCP Server can be run in two modes: `stdio` (for local testing) or `http` (for networked access). To start the server, use the following commands:
+
+#### Run in stdio mode (default):
+```bash
+searxng-mcp --transport "stdio"
+```
+
+#### Run in HTTP mode:
+```bash
+searxng-mcp --transport "http"  --host "0.0.0.0"  --port "8000"
+```
+
+AI Prompt:
+```text
+Search for information about artificial intelligence
+```
+
+AI Response:
+```text
+Search completed successfully. Found 10 results for "artificial intelligence":
+
+1. **What is Artificial Intelligence?**
+   URL: https://example.com/ai
+   Content: Artificial intelligence (AI) refers to the simulation of human intelligence in machines...
+
+2. **AI Overview**
+   URL: https://example.org/ai-overview
+   Content: AI encompasses machine learning, deep learning, and more...
+```
+
+### Agentic AI
+`searxng-mcp` is designed to be used by Agentic AI systems. It provides a set of tools that allow agents to search the web using SearXNG.
+
+## Agent-to-Agent (A2A)
+
+This package also includes an A2A agent server that can be used to interact with the SearXNG MCP server.
+
+### CLI
+
 | Argument          | Description                                                    | Default                        |
 |-------------------|----------------------------------------------------------------|--------------------------------|
 | `--host`          | Host to bind the server to                                     | `0.0.0.0`                      |
-| `--port`          | Port to bind the server to                                     | `8000`                         |
+| `--port`          | Port to bind the server to                                     | `9000`                         |
 | `--reload`        | Enable auto-reload                                             | `False`                        |
 | `--provider`      | LLM Provider (openai, anthropic, google, huggingface)          | `openai`                       |
-| `--model-id`      | LLM Model ID                                                   | `qwen3:4b`                     |
+| `--model-id`      | LLM Model ID                                                   | `qwen/qwen3-8b`                |
 | `--base-url`      | LLM Base URL (for OpenAI compatible providers)                 | `http://ollama.arpa/v1`        |
 | `--api-key`       | LLM API Key                                                    | `ollama`                       |
 | `--mcp-url`       | MCP Server URL                                                 | `http://searxng-mcp:8000/mcp`  |

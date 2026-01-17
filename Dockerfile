@@ -45,15 +45,13 @@ ENV ALLOWED_CLIENT_REDIRECT_URIS=${ALLOWED_CLIENT_REDIRECT_URIS}
 ENV EUNOMIA_TYPE=${EUNOMIA_TYPE}
 ENV EUNOMIA_POLICY_FILE=${EUNOMIA_POLICY_FILE}
 ENV EUNOMIA_REMOTE_URL=${EUNOMIA_REMOTE_URL}
+ENV DENO_INSTALL="/root/.deno"
+ENV PATH="/usr/local/bin:$DENO_INSTALL/bin:${PATH}"
+ENV UV_HTTP_TIMEOUT=3600
 ENV PATH="/usr/local/bin:${PATH}"
 
-ENV UV_HTTP_TIMEOUT=3600
 
 RUN pip install uv \
-    && uv pip install --system --upgrade searxng-mcp[all]>=0.0.9
+    && uv pip install --system --upgrade searxng-mcp[all]>=0.0.10
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["searxng-mcp"]
