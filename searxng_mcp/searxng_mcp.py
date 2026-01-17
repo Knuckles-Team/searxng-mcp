@@ -7,7 +7,6 @@ import requests
 import yaml
 import random
 import logging
-from threading import local
 from typing import Optional, Dict, List, Union, Any
 
 from eunomia_mcp.middleware import EunomiaMcpMiddleware
@@ -16,36 +15,39 @@ from fastmcp import FastMCP, Context
 from fastmcp.server.auth.oidc_proxy import OIDCProxy
 from fastmcp.server.auth import OAuthProxy, RemoteAuthProvider
 from fastmcp.server.auth.providers.jwt import JWTVerifier, StaticTokenVerifier
-from fastmcp.server.middleware import MiddlewareContext, Middleware
 from fastmcp.server.middleware.logging import LoggingMiddleware
 from fastmcp.server.middleware.timing import TimingMiddleware
 from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
 from fastmcp.utilities.logging import get_logger
 
-# Thread-local storage for user token
-local = local()
-logger = get_logger(name="SearXNG.TokenMiddleware")
-logger.setLevel(logging.DEBUG)
+from searxng_mcp.utils import to_boolean, to_integer
+from searxng_mcp.middlewares import UserTokenMiddleware, JWTClaimsLoggingMiddleware
 
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = get_logger("SearXNGMCPServer")
 
-def to_boolean(string: Union[str, bool] = None) -> bool:
-    if isinstance(string, bool):
-        return string
-    if not string:
-        return False
-    normalized = str(string).strip().lower()
-    true_values = {"t", "true", "y", "yes", "1"}
-    false_values = {"f", "false", "n", "no", "0"}
-    if normalized in true_values:
-        return True
-    elif normalized in false_values:
-        return False
-    else:
-        raise ValueError(f"Cannot convert '{string}' to boolean")
+config = {
+    "enable_delegation": to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
+    "audience": os.environ.get("AUDIENCE", None),
+    "delegated_scopes": os.environ.get("DELEGATED_SCOPES", "api"),
+    "token_endpoint": None,  # Will be fetched dynamically from OIDC config
+    "oidc_client_id": os.environ.get("OIDC_CLIENT_ID", None),
+    "oidc_client_secret": os.environ.get("OIDC_CLIENT_SECRET", None),
+    "oidc_config_url": os.environ.get("OIDC_CONFIG_URL", None),
+    "jwt_jwks_uri": os.getenv("FASTMCP_SERVER_AUTH_JWT_JWKS_URI", None),
+    "jwt_issuer": os.getenv("FASTMCP_SERVER_AUTH_JWT_ISSUER", None),
+    "jwt_audience": os.getenv("FASTMCP_SERVER_AUTH_JWT_AUDIENCE", None),
+    "jwt_algorithm": os.getenv("FASTMCP_SERVER_AUTH_JWT_ALGORITHM", None),
+    "jwt_secret": os.getenv("FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY", None),
+    "jwt_required_scopes": os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES", None),
+}
 
-
-# Global variables for SearXNG configuration
+DEFAULT_TRANSPORT = os.environ.get("TRANSPORT", "stdio")
+DEFAULT_HOST = os.environ.get("HOST", "0.0.0.0")
+DEFAULT_PORT = to_integer(os.environ.get("PORT", "8000"))
 SEARXNG_INSTANCE_URL = os.environ.get("SEARXNG_INSTANCE_URL", None)
 SEARXNG_USERNAME = os.environ.get("SEARXNG_USERNAME", None)
 SEARXNG_PASSWORD = os.environ.get("SEARXNG_PASSWORD", None)
@@ -68,49 +70,6 @@ config = {
     "jwt_secret": os.getenv("FASTMCP_SERVER_AUTH_JWT_PUBLIC_KEY", None),
     "jwt_required_scopes": os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES", None),
 }
-
-
-class UserTokenMiddleware(Middleware):
-    async def on_request(self, context: MiddlewareContext, call_next):
-        logger.debug(f"Delegation enabled: {config['enable_delegation']}")
-        if config["enable_delegation"]:
-            headers = getattr(context.message, "headers", {})
-            auth = headers.get("Authorization")
-            if auth and auth.startswith("Bearer "):
-                token = auth.split(" ")[1]
-                local.user_token = token
-                local.user_claims = None  # Will be populated by JWTVerifier
-
-                # Extract claims if JWTVerifier already validated
-                if hasattr(context, "auth") and hasattr(context.auth, "claims"):
-                    local.user_claims = context.auth.claims
-                    logger.info(
-                        "Stored JWT claims for delegation",
-                        extra={"subject": context.auth.claims.get("sub")},
-                    )
-                else:
-                    logger.debug("JWT claims not yet available (will be after auth)")
-
-                logger.info("Extracted Bearer token for delegation")
-            else:
-                logger.error("Missing or invalid Authorization header")
-                raise ValueError("Missing or invalid Authorization header")
-        return await call_next(context)
-
-
-class JWTClaimsLoggingMiddleware(Middleware):
-    async def on_response(self, context: MiddlewareContext, call_next):
-        response = await call_next(context)
-        logger.info(f"JWT Response: {response}")
-        if hasattr(context, "auth") and hasattr(context.auth, "claims"):
-            logger.info(
-                "JWT Authentication Success",
-                extra={
-                    "subject": context.auth.claims.get("sub"),
-                    "client_id": context.auth.claims.get("client_id"),
-                    "scopes": context.auth.claims.get("scope"),
-                },
-            )
 
 
 # Function to fetch and select a random SearXNG instance
@@ -298,21 +257,21 @@ def searxng_mcp():
     parser.add_argument(
         "-t",
         "--transport",
-        default="stdio",
-        choices=["stdio", "http", "sse"],
-        help="Transport method: 'stdio', 'http', or 'sse' [legacy] (default: stdio)",
+        default=DEFAULT_TRANSPORT,
+        choices=["stdio", "streamable-http", "sse"],
+        help="Transport method: 'stdio', 'streamable-http', or 'sse' [legacy] (default: stdio)",
     )
     parser.add_argument(
         "-s",
         "--host",
-        default="0.0.0.0",
+        default=DEFAULT_HOST,
         help="Host address for HTTP transport (default: 0.0.0.0)",
     )
     parser.add_argument(
         "-p",
         "--port",
         type=int,
-        default=8000,
+        default=DEFAULT_PORT,
         help="Port number for HTTP transport (default: 8000)",
     )
     parser.add_argument(
@@ -360,7 +319,7 @@ def searxng_mcp():
     parser.add_argument(
         "--required-scopes",
         default=os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES"),
-        help="Comma-separated list of required scopes (e.g., searxng.read,searxng.write).",
+        help="Comma-separated list of required scopes (e.g., gitlab.read,gitlab.write).",
     )
     # OAuth Proxy params
     parser.add_argument(
@@ -762,9 +721,8 @@ def searxng_mcp():
         LoggingMiddleware(),
         JWTClaimsLoggingMiddleware(),
     ]
-
     if config["enable_delegation"] or args.auth_type == "jwt":
-        middlewares.insert(0, UserTokenMiddleware())  # Must be first
+        middlewares.insert(0, UserTokenMiddleware(config=config))  # Must be first
 
     if args.eunomia_type in ["embedded", "remote"]:
         try:
@@ -784,9 +742,8 @@ def searxng_mcp():
             logger.error("Failed to load Eunomia middleware", extra={"error": str(e)})
             sys.exit(1)
 
-    mcp = FastMCP(name="SearXNGServer", auth=auth)
+    mcp = FastMCP(name="SearXNGMCP", auth=auth)
     register_tools(mcp)
-    register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
@@ -799,8 +756,8 @@ def searxng_mcp():
 
     if args.transport == "stdio":
         mcp.run(transport="stdio")
-    elif args.transport == "http":
-        mcp.run(transport="http", host=args.host, port=args.port)
+    elif args.transport == "streamable-http":
+        mcp.run(transport="streamable-http", host=args.host, port=args.port)
     elif args.transport == "sse":
         mcp.run(transport="sse", host=args.host, port=args.port)
     else:

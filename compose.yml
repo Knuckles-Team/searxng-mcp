@@ -1,0 +1,70 @@
+---
+services:
+  searxng-mcp:
+    image: docker.io/knucklessg1/searxng-mcp:latest
+    # build: . # Debug
+    container_name: searxng-mcp
+    hostname: searxng-mcp
+    command: ["searxng-mcp"]
+    depends_on:
+      - searxng
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=8001"
+      - "TRANSPORT=streamable-http"
+      - "SEARXNG_INSTANCE_URL=${SEARXNG_INSTANCE_URL}"
+    ports:
+      - "8001:8001"
+
+  searxng-a2a:
+    image: docker.io/knucklessg1/searxng-mcp:latest
+    # build: . # Debug
+    container_name: searxng-a2a
+    hostname: searxng-a2a
+    command: ["searxng-a2a"]
+    depends_on:
+      - searxng-mcp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=9001"
+      - "MCP_URL=http://searxng-mcp:8001/mcp"
+      - "PROVIDER=openai"
+      - "OPENAI_BASE_URL=http://localhost:1234/v1"
+      - "OPENAI_API_KEY=llama"
+      - "MODEL_ID=qwen/qwen3-8b"
+      - "DEBUG=False"
+    ports:
+      - "9001:9001"
+
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    container_name: searxng_config
+    hostname: searxng
+    volumes:
+      - "./mcp/searxng_config:/etc/searxng:rw"
+      - "./mcp/searxng_data:/var/cache/searxng:rw"
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    ports:
+      - "8080:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

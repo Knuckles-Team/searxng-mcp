@@ -23,6 +23,8 @@
 
 *Version: 0.0.10*
 
+## Overview
+
 SearXNG MCP Server + A2A Server
 
 It includes a Model Context Protocol (MCP) server and an out of the box Agent2Agent (A2A) agent
@@ -39,36 +41,14 @@ This repository is actively maintained - Contributions are welcome!
 - Basic authentication support
 - Random instance selection
 
-<details>
-  <summary><b>Usage:</b></summary>
+## MCP
 
-### MCP CLI
+### MCP Tools
 
-| Short Flag | Long Flag                          | Description                                                                 |
-|------------|------------------------------------|-----------------------------------------------------------------------------|
-| -h         | --help                             | Display help information                                                    |
-| -t         | --transport                        | Transport method: 'stdio', 'http', or 'sse' [legacy] (default: stdio)       |
-| -s         | --host                             | Host address for HTTP transport (default: 0.0.0.0)                          |
-| -p         | --port                             | Port number for HTTP transport (default: 8000)                              |
-|            | --auth-type                        | Authentication type: 'none', 'static', 'jwt', 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (default: none) |
-|            | --token-jwks-uri                   | JWKS URI for JWT verification                                              |
-|            | --token-issuer                     | Issuer for JWT verification                                                |
-|            | --token-audience                   | Audience for JWT verification                                              |
-|            | --oauth-upstream-auth-endpoint     | Upstream authorization endpoint for OAuth Proxy                             |
-|            | --oauth-upstream-token-endpoint    | Upstream token endpoint for OAuth Proxy                                    |
-|            | --oauth-upstream-client-id         | Upstream client ID for OAuth Proxy                                         |
-|            | --oauth-upstream-client-secret     | Upstream client secret for OAuth Proxy                                     |
-|            | --oauth-base-url                   | Base URL for OAuth Proxy                                                   |
-|            | --oidc-config-url                  | OIDC configuration URL                                                     |
-|            | --oidc-client-id                   | OIDC client ID                                                             |
-|            | --oidc-client-secret               | OIDC client secret                                                         |
-|            | --oidc-base-url                    | Base URL for OIDC Proxy                                                    |
-|            | --remote-auth-servers              | Comma-separated list of authorization servers for Remote OAuth             |
-|            | --remote-base-url                  | Base URL for Remote OAuth                                                  |
-|            | --allowed-client-redirect-uris     | Comma-separated list of allowed client redirect URIs                       |
-|            | --eunomia-type                     | Eunomia authorization type: 'none', 'embedded', 'remote' (default: none)   |
-|            | --eunomia-policy-file              | Policy file for embedded Eunomia (default: mcp_policies.json)              |
-|            | --eunomia-remote-url               | URL for remote Eunomia server                                              |
+| Function Name | Description                                                                                                                            | Tag(s)   |
+|:--------------|:---------------------------------------------------------------------------------------------------------------------------------------|:---------|
+| `web_search`  | Perform web searches using SearXNG, a privacy-respecting metasearch engine. Returns relevant web content with customizable parameters. | `search` |
+
 
 ### Using as an MCP Server
 
@@ -102,17 +82,9 @@ Search completed successfully. Found 10 results for "artificial intelligence":
    Content: AI encompasses machine learning, deep learning, and more...
 ```
 
-### Agentic AI
-`searxng-mcp` is designed to be used by Agentic AI systems. It provides a set of tools that allow agents to search the web using SearXNG.
-
-## Agent-to-Agent (A2A)
+## A2A Agent
 
 This package also includes an A2A agent server that can be used to interact with the SearXNG MCP server.
-
-### CLI
-
-| Argument          | Description
-## A2A Agent
 
 ### Architecture:
 
@@ -168,12 +140,6 @@ sequenceDiagram
 
 ## Usage
 
-### CLI
-
-| Short Flag | Long Flag        | Description                            |
-|------------|------------------|----------------------------------------|
-| -h         | --help           | See Usage                              |
-
 ### MCP CLI
 
 | Short Flag | Long Flag                          | Description                                                                 |
@@ -183,7 +149,24 @@ sequenceDiagram
 | -s         | --host                             | Host address for HTTP transport (default: 0.0.0.0)                          |
 | -p         | --port                             | Port number for HTTP transport (default: 8000)                              |
 |            | --auth-type                        | Authentication type: 'none', 'static', 'jwt', 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (default: none) |
+|            | --token-jwks-uri                   | JWKS URI for JWT verification                                              |
+|            | --token-issuer                     | Issuer for JWT verification                                                |
+|            | --token-audience                   | Audience for JWT verification                                              |
+|            | --oauth-upstream-auth-endpoint     | Upstream authorization endpoint for OAuth Proxy                             |
+|            | --oauth-upstream-token-endpoint    | Upstream token endpoint for OAuth Proxy                                    |
+|            | --oauth-upstream-client-id         | Upstream client ID for OAuth Proxy                                         |
+|            | --oauth-upstream-client-secret     | Upstream client secret for OAuth Proxy                                     |
+|            | --oauth-base-url                   | Base URL for OAuth Proxy                                                   |
+|            | --oidc-config-url                  | OIDC configuration URL                                                     |
+|            | --oidc-client-id                   | OIDC client ID                                                             |
+|            | --oidc-client-secret               | OIDC client secret                                                         |
+|            | --oidc-base-url                    | Base URL for OIDC Proxy                                                    |
+|            | --remote-auth-servers              | Comma-separated list of authorization servers for Remote OAuth             |
+|            | --remote-base-url                  | Base URL for Remote OAuth                                                  |
+|            | --allowed-client-redirect-uris     | Comma-separated list of allowed client redirect URIs                       |
 |            | --eunomia-type                     | Eunomia authorization type: 'none', 'embedded', 'remote' (default: none)   |
+|            | --eunomia-policy-file              | Policy file for embedded Eunomia (default: mcp_policies.json)              |
+|            | --eunomia-remote-url               | URL for remote Eunomia server                                              |
 
 
 ### A2A CLI
@@ -413,12 +396,7 @@ docker-compose up -d
 }
 ```
 
-</details>
-
-<details>
-  <summary><b>Installation Instructions:</b></summary>
-
-Install Python Package
+## Install Python Package
 
 ```bash
 python -m pip install searxng-mcp
@@ -427,13 +405,10 @@ python -m pip install searxng-mcp
 uv pip install searxng-mcp
 ```
 
-</details>
-
-<details>
-  <summary><b>Repository Owners:</b></summary>
+## Repository Owners
 
 <img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
-</details>
+
