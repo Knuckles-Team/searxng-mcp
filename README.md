@@ -1,4 +1,4 @@
-# SearXNG - A2A & MCP Server
+# SearXNG - A2A | AG-UI | MCP
 
 ![PyPI - Version](https://img.shields.io/pypi/v/searxng-mcp)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
@@ -170,6 +170,10 @@ sequenceDiagram
 
 
 ### A2A CLI
+#### Endpoints
+- **Web UI**: `http://localhost:8000/` (if enabled)
+- **A2A**: `http://localhost:8000/a2a` (Discovery: `/a2a/.well-known/agent.json`)
+- **AG-UI**: `http://localhost:8000/ag-ui` (POST)
 
 | Short Flag | Long Flag         | Description                                                            |
 |------------|-------------------|------------------------------------------------------------------------|
@@ -182,6 +186,8 @@ sequenceDiagram
 |            | --base-url        | LLM Base URL (for OpenAI compatible providers)                         |
 |            | --api-key         | LLM API Key                                                            |
 |            | --mcp-url         | MCP Server URL (default: http://localhost:8000/mcp)                    |
+|            | --web             | Enable Pydantic AI Web UI                                              | False (Env: ENABLE_WEB_UI) |
+
 
 ### Using as an MCP Server
 The MCP Server can be run in two modes: `stdio` (for local testing) or `http` (for networked access). To start the server, use the following commands:
@@ -239,12 +245,12 @@ This package also includes an A2A agent server that can be used to interact with
 
 #### Run A2A Server
 ```bash
-searxng-a2a --provider openai --model-id gpt-4 --api-key sk-... --mcp-url http://localhost:8000/mcp
+searxng-agent --provider openai --model-id gpt-4 --api-key sk-... --mcp-url http://localhost:8000/mcp
 ```
 
 #### Run with Docker
 ```bash
-docker run -e CMD=searxng-a2a -p 8000:8000 searxng-mcp
+docker run -e CMD=searxng-agent -p 8000:8000 searxng-mcp
 ```
 
 ## Docker
@@ -264,7 +270,7 @@ docker run -p 8000:8000 searxng-mcp
 ### Run A2A Server
 
 ```bash
-docker run -e CMD=searxng-a2a -p 8001:8001 searxng-mcp
+docker run -e CMD=searxng-agent -p 8001:8001 searxng-mcp
 ```
 
 ### Deploy MCP Server as a Service
@@ -411,4 +417,3 @@ uv pip install searxng-mcp
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
-

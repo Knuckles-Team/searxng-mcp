@@ -14,7 +14,7 @@ CORE_MODULES = [
 
 # Optional modules
 OPTIONAL_MODULES = {
-    "searxng_mcp.searxng_a2a": "a2a",
+    "searxng_mcp.searxng_agent": "a2a",
     "searxng_mcp.searxng_mcp": "mcp",
 }
 
@@ -54,7 +54,7 @@ for module_name, extra_name in OPTIONAL_MODULES.items():
 _MCP_AVAILABLE = OPTIONAL_MODULES.get("searxng_mcp.searxng_mcp") in [
     m.__name__ for m in globals().values() if hasattr(m, "__name__")
 ]
-_A2A_AVAILABLE = "searxng_mcp.searxng_a2a" in globals()
+_A2A_AVAILABLE = "searxng_mcp.searxng_agent" in globals()
 
 __all__.extend(["_MCP_AVAILABLE", "_A2A_AVAILABLE"])
 

@@ -194,8 +194,14 @@ def register_tools(mcp: FastMCP):
 
             # Make request to SearXNG
             auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD) if HAS_BASIC_AUTH else None
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
             response = requests.get(
-                f"{SEARXNG_INSTANCE_URL}/search", params=search_params, auth=auth
+                f"{SEARXNG_INSTANCE_URL}/search",
+                params=search_params,
+                auth=auth,
+                headers=headers,
             )
             response.raise_for_status()
             search_response: Dict[str, Any] = response.json()

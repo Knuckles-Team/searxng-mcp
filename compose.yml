@@ -6,6 +6,8 @@ services:
     container_name: searxng-mcp
     hostname: searxng-mcp
     command: ["searxng-mcp"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - searxng
     logging:
@@ -18,16 +20,18 @@ services:
       - "HOST=0.0.0.0"
       - "PORT=8001"
       - "TRANSPORT=streamable-http"
-      - "SEARXNG_INSTANCE_URL=${SEARXNG_INSTANCE_URL}"
+      - "SEARXNG_INSTANCE_URL=${SEARXNG_INSTANCE_URL:-http://searxng:8080}"
     ports:
       - "8001:8001"
 
-  searxng-a2a:
+  searxng-agent:
     image: docker.io/knucklessg1/searxng-mcp:latest
     # build: . # Debug
-    container_name: searxng-a2a
-    hostname: searxng-a2a
-    command: ["searxng-a2a"]
+    container_name: searxng-agent
+    hostname: searxng-agent
+    command: ["searxng-agent"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - searxng-mcp
     logging:
@@ -45,13 +49,29 @@ services:
       - "OPENAI_API_KEY=llama"
       - "MODEL_ID=qwen/qwen3-8b"
       - "DEBUG=False"
+      - "ENABLE_WEB_UI=True"
     ports:
       - "9001:9001"
 
   searxng:
     image: docker.io/searxng/searxng:latest
-    container_name: searxng_config
+    container_name: searxng
     hostname: searxng
+    environment:
+      - SEARXNG_SECRET_KEY=veryLongRandomStringHereAtLeast32chars
+      - SEARXNG_INSTANCE_NAME=Private SearXNG
+      - SEARXNG_BIND_ADDRESS=0.0.0.0:8080
+      - SEARXNG_PORT=8080
+      - SEARXNG_LIMITER=false
+      - SEARXNG_PUBLIC_INSTANCE=false
+      - SEARXNG_IMAGE_PROXY=false
+      - SEARXNG_METHOD=POST
+      - SEARXNG_DEFAULT_THEME=simple
+      - SEARXNG_DEFAULT_LOCALE=en
+      - SEARXNG_SAFE_SEARCH=0
+      - SEARXNG_FORMATS=html,json
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - "./mcp/searxng_config:/etc/searxng:rw"
       - "./mcp/searxng_data:/var/cache/searxng:rw"
