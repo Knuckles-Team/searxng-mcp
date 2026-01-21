@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "searxng-mcp"
-version = "0.0.11"
+version = "0.0.12"
 description = "SearXNG Search Engine MCP Server for Agentic AI!"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -21,12 +21,14 @@ requires-python = ">=3.10"
 [project.optional-dependencies]
 mcp = [
     "fastmcp>=2.13.0.2",
-    "eunomia-mcp>=0.3.10"
+    "eunomia-mcp>=0.3.10",
+    "fastapi>=0.128.0"
 ]
 
 a2a = [
     "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a,ag-ui,web]>=1.32.0",
     "pydantic-ai-skills",
+    "fastapi>=0.128.0"
 ]
 
 all = [
@@ -34,6 +36,7 @@ all = [
     "eunomia-mcp>=0.3.10",
     "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a,ag-ui,web]>=1.32.0",
     "pydantic-ai-skills",
+    "fastapi>=0.128.0"
 ]
 
 [project.scripts]
