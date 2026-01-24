@@ -5,7 +5,7 @@ services:
     # build: . # Debug
     container_name: searxng-mcp
     hostname: searxng-mcp
-    command: ["searxng-mcp"]
+    command: [ "searxng-mcp" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -23,13 +23,19 @@ services:
       - "SEARXNG_INSTANCE_URL=${SEARXNG_INSTANCE_URL:-http://searxng:8080}"
     ports:
       - "8001:8001"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   searxng-agent:
     image: docker.io/knucklessg1/searxng-mcp:latest
     # build: . # Debug
     container_name: searxng-agent
     hostname: searxng-agent
-    command: ["searxng-agent"]
+    command: [ "searxng-agent" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -52,6 +58,12 @@ services:
       - "ENABLE_WEB_UI=True"
     ports:
       - "9001:9001"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9001/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   searxng:
     image: docker.io/searxng/searxng:latest
