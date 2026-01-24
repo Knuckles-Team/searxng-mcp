@@ -52,6 +52,6 @@ ENV PATH="/usr/local/bin:${PATH}"
 
 
 RUN pip install uv \
-    && uv pip install --system --upgrade searxng-mcp[all]>=0.0.12
+    && uv pip install --system --upgrade searxng-mcp[all]>=0.0.13
 
 CMD ["searxng-mcp"]
