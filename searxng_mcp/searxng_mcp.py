@@ -26,6 +26,8 @@ from fastmcp.utilities.logging import get_logger
 from searxng_mcp.utils import to_boolean, to_integer
 from searxng_mcp.middlewares import UserTokenMiddleware, JWTClaimsLoggingMiddleware
 
+__version__ = "0.0.17"
+
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -760,6 +762,7 @@ def searxng_mcp():
     for mw in middlewares:
         mcp.add_middleware(mw)
 
+    print(f"SearXNG MCP v{__version__}")
     print("\nStarting SearXNG MCP Server")
     print(f"  Transport: {args.transport.upper()}")
     print(f"  Auth: {args.auth_type}")
