@@ -2,7 +2,9 @@
 services:
   searxng-mcp:
     image: docker.io/knucklessg1/searxng-mcp:latest
-    # build: . # Debug
+    #    build:
+    #      context: . # Debug
+    #      dockerfile: debug.Dockerfile
     container_name: searxng-mcp
     hostname: searxng-mcp
     command: [ "searxng-mcp" ]
@@ -32,7 +34,9 @@ services:
 
   searxng-agent:
     image: docker.io/knucklessg1/searxng-mcp:latest
-    # build: . # Debug
+    #    build:
+    #      context: . # Debug
+    #      dockerfile: debug.Dockerfile
     container_name: searxng-agent
     hostname: searxng-agent
     command: [ "searxng-agent" ]
