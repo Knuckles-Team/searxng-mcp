@@ -7,7 +7,6 @@ import os
 import argparse
 import logging
 import uvicorn
-from contextlib import asynccontextmanager
 from typing import Optional, Any
 
 from fastmcp import Client
@@ -35,7 +34,7 @@ from pydantic import ValidationError
 from pydantic_ai.ui import SSE_CONTENT_TYPE
 from pydantic_ai.ui.ag_ui import AGUIAdapter
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 # Configure logging
 logging.basicConfig(
@@ -206,16 +205,11 @@ def create_agent_server(
         debug=debug,
     )
 
-    @asynccontextmanager
-    async def lifespan(app: FastAPI):
-        yield
-
     # Create main FastAPI app
     app = FastAPI(
         title=f"{AGENT_NAME} - A2A + AG-UI Server",
         description=AGENT_DESCRIPTION,
         debug=debug,
-        lifespan=lifespan,
     )
 
     @app.get("/health")
