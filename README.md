@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.1.4*
+*Version: 0.1.5*
 
 ## Overview
 
@@ -182,7 +182,7 @@ sequenceDiagram
 |            | --port            | Port to bind the server to (default: 9000)                             |
 |            | --reload          | Enable auto-reload                                                     |
 |            | --provider        | LLM Provider: 'openai', 'anthropic', 'google', 'huggingface'           |
-|            | --model-id        | LLM Model ID (default: qwen/qwen3-4b-2507)                                  |
+|            | --model-id        | LLM Model ID (default: qwen/qwen3-coder-next)                                  |
 |            | --base-url        | LLM Base URL (for OpenAI compatible providers)                         |
 |            | --api-key         | LLM API Key                                                            |
 |            | --mcp-url         | MCP Server URL (default: http://localhost:8000/mcp)                    |
@@ -235,7 +235,7 @@ This package also includes an A2A agent server that can be used to interact with
 | `--port`          | Port to bind the server to                                     | `9000`                         |
 | `--reload`        | Enable auto-reload                                             | `False`                        |
 | `--provider`      | LLM Provider (openai, anthropic, google, huggingface)          | `openai`                       |
-| `--model-id`      | LLM Model ID                                                   | `qwen/qwen3-4b-2507`                |
+| `--model-id`      | LLM Model ID                                                   | `qwen/qwen3-coder-next`                |
 | `--base-url`      | LLM Base URL (for OpenAI compatible providers)                 | `http://ollama.arpa/v1`        |
 | `--api-key`       | LLM API Key                                                    | `ollama`                       |
 | `--mcp-url`       | MCP Server URL                                                 | `http://searxng-mcp:8000/mcp`  |
