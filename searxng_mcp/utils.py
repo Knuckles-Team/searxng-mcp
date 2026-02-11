@@ -287,8 +287,8 @@ def create_model(
         # If we have a custom client or specific settings, we might want to use the explicit provider object
         if http_client and AsyncOpenAI and OpenAIProvider:
             client = AsyncOpenAI(
-                api_key=target_api_key or os.environ.get("LLM_API_KEY"),
-                base_url=target_base_url or os.environ.get("LLM_BASE_URL"),
+                api_key=target_api_key or os.environ.get("OPENAI_API_KEY"),
+                base_url=target_base_url or os.environ.get("OPENAI_BASE_URL"),
                 http_client=http_client,
             )
             provider_instance = OpenAIProvider(openai_client=client)
@@ -296,9 +296,9 @@ def create_model(
 
         # Fallback to standard env vars
         if target_base_url:
-            os.environ["LLM_BASE_URL"] = target_base_url
+            os.environ["OPENAI_BASE_URL"] = target_base_url
         if target_api_key:
-            os.environ["LLM_API_KEY"] = target_api_key
+            os.environ["OPENAI_API_KEY"] = target_api_key
         return OpenAIChatModel(model_name=model_id, provider="openai")
 
     elif provider == "ollama":
@@ -315,13 +315,13 @@ def create_model(
             provider_instance = OpenAIProvider(openai_client=client)
             return OpenAIChatModel(model_name=model_id, provider=provider_instance)
 
-        os.environ["LLM_BASE_URL"] = target_base_url
-        os.environ["LLM_API_KEY"] = target_api_key
+        os.environ["OPENAI_BASE_URL"] = target_base_url
+        os.environ["OPENAI_API_KEY"] = target_api_key
         return OpenAIChatModel(model_name=model_id, provider="openai")
 
     elif provider == "anthropic":
         if api_key:
-            os.environ["LLM_API_KEY"] = api_key
+            os.environ["ANTHROPIC_API_KEY"] = api_key
 
         # AnthropicModel supports http_client directly via some paths,
         # but pydantic-ai might prefer we pass the client to the provider or use a custom client
@@ -329,7 +329,7 @@ def create_model(
         try:
             if http_client and AsyncAnthropic and AnthropicProvider:
                 client = AsyncAnthropic(
-                    api_key=api_key or os.environ.get("LLM_API_KEY"),
+                    api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"),
                     http_client=http_client,
                 )
                 provider_instance = AnthropicProvider(anthropic_client=client)
@@ -341,17 +341,17 @@ def create_model(
 
     elif provider == "google":
         if api_key:
-            os.environ["LLM_API_KEY"] = api_key
+            os.environ["GEMINI_API_KEY"] = api_key
         # Google SSL disable is tricky with genai, skipping for now unless specifically requested/researched
         return GoogleModel(model_name=model_id)
 
     elif provider == "groq":
         if api_key:
-            os.environ["LLM_API_KEY"] = api_key
+            os.environ["GROQ_API_KEY"] = api_key
 
         if http_client and AsyncGroq and GroqProvider:
             client = AsyncGroq(
-                api_key=api_key or os.environ.get("LLM_API_KEY"),
+                api_key=api_key or os.environ.get("GROQ_API_KEY"),
                 http_client=http_client,
             )
             provider_instance = GroqProvider(groq_client=client)
@@ -361,7 +361,7 @@ def create_model(
 
     elif provider == "mistral":
         if api_key:
-            os.environ["LLM_API_KEY"] = api_key
+            os.environ["MISTRAL_API_KEY"] = api_key
 
         if http_client and Mistral and MistralProvider:
             # Assuming mistral_client argument for MistralProvider
@@ -375,7 +375,7 @@ def create_model(
 
     elif provider == "huggingface":
         if api_key:
-            os.environ["LLM_API_KEY"] = api_key
+            os.environ["HUGGING_FACE_API_KEY"] = api_key
         return HuggingFaceModel(model_name=model_id)
 
     return OpenAIChatModel(model_name=model_id, provider="openai")
