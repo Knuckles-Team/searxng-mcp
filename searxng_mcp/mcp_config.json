@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "searxng": {
-      "url": "${MCP_URL:-http://localhost:8000/mcp}",
+      "url": "${MCP_URL:-http://searxng-mcp:8001/mcp}",
       "timeout": 300000
     }
   }

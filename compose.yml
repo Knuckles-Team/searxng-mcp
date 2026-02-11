@@ -1,10 +1,10 @@
 ---
 services:
   searxng-mcp:
-    image: docker.io/knucklessg1/searxng-mcp:latest
-    #    build:
-    #      context: . # Debug
-    #      dockerfile: debug.Dockerfile
+    # image: docker.io/knucklessg1/searxng-mcp:latest
+    build:
+      context: . # Debug
+      dockerfile: debug.Dockerfile
     container_name: searxng-mcp
     hostname: searxng-mcp
     command: [ "searxng-mcp" ]
@@ -33,10 +33,10 @@ services:
       start_period: 10s
 
   searxng-agent:
-    image: docker.io/knucklessg1/searxng-mcp:latest
-    #    build:
-    #      context: . # Debug
-    #      dockerfile: debug.Dockerfile
+    # image: docker.io/knucklessg1/searxng-mcp:latest
+    build:
+      context: . # Debug
+      dockerfile: debug.Dockerfile
     container_name: searxng-agent
     hostname: searxng-agent
     command: [ "searxng-agent" ]
@@ -55,8 +55,8 @@ services:
       - "PORT=9001"
       - "MCP_URL=http://searxng-mcp:8001/mcp"
       - "PROVIDER=openai"
-      - "OPENAI_BASE_URL=http://host.docker.internal:1234/v1"
-      - "OPENAI_API_KEY=llama"
+      - "LLM_BASE_URL=http://10.0.0.18:1234/v1"
+      - "LLM_API_KEY=llama"
       - "MODEL_ID=${MODEL_ID:-qwen/qwen3-coder-next}"
       - "DEBUG=False"
       - "ENABLE_WEB_UI=True"

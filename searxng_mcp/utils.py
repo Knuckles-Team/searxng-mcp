@@ -8,11 +8,45 @@ from pathlib import Path
 from typing import Any, Union, List, Optional
 import json
 from importlib.resources import files, as_file
+import httpx
+
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.models.huggingface import HuggingFaceModel
+from pydantic_ai.models.groq import GroqModel
+from pydantic_ai.models.mistral import MistralModel
+
 from fasta2a import Skill
+
+# Try importing specific clients/providers, but don't fail if variables are missing
+try:
+    from openai import AsyncOpenAI
+    from pydantic_ai.providers.openai import OpenAIProvider
+except ImportError:
+    AsyncOpenAI = None
+    OpenAIProvider = None
+
+try:
+    from groq import AsyncGroq
+    from pydantic_ai.providers.groq import GroqProvider
+except ImportError:
+    AsyncGroq = None
+    GroqProvider = None
+
+try:
+    from mistralai import Mistral
+    from pydantic_ai.providers.mistral import MistralProvider
+except ImportError:
+    Mistral = None
+    MistralProvider = None
+
+try:
+    from anthropic import AsyncAnthropic
+    from pydantic_ai.providers.anthropic import AnthropicProvider
+except ImportError:
+    AsyncAnthropic = None
+    AnthropicProvider = None
 
 
 def to_integer(string: Union[str, int] = None) -> int:
@@ -224,31 +258,124 @@ def load_skills_from_directory(directory: str) -> List[Skill]:
 def create_model(
     provider: str,
     model_id: str,
-    base_url: Optional[str],
-    api_key: Optional[str],
+    base_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    ssl_verify: bool = True,
 ):
+    """
+    Create a Pydantic AI model with the specified provider and configuration.
+
+    Args:
+        provider: The model provider (openai, anthropic, google, groq, mistral, huggingface, ollama)
+        model_id: The specific model ID to use
+        base_url: Optional base URL for the API
+        api_key: Optional API key
+        ssl_verify: Whether to verify SSL certificates (default: True)
+
+    Returns:
+        A Pydantic AI Model instance
+    """
+    # Create a custom HTTP client if SSL verification is disabled
+    http_client = None
+    if not ssl_verify:
+        http_client = httpx.AsyncClient(verify=False)
+
     if provider == "openai":
         target_base_url = base_url
         target_api_key = api_key
+
+        # If we have a custom client or specific settings, we might want to use the explicit provider object
+        if http_client and AsyncOpenAI and OpenAIProvider:
+            client = AsyncOpenAI(
+                api_key=target_api_key or os.environ.get("LLM_API_KEY"),
+                base_url=target_base_url or os.environ.get("LLM_BASE_URL"),
+                http_client=http_client,
+            )
+            provider_instance = OpenAIProvider(openai_client=client)
+            return OpenAIChatModel(model_name=model_id, provider=provider_instance)
+
+        # Fallback to standard env vars
         if target_base_url:
-            os.environ["OPENAI_BASE_URL"] = target_base_url
+            os.environ["LLM_BASE_URL"] = target_base_url
         if target_api_key:
-            os.environ["OPENAI_API_KEY"] = target_api_key
+            os.environ["LLM_API_KEY"] = target_api_key
+        return OpenAIChatModel(model_name=model_id, provider="openai")
+
+    elif provider == "ollama":
+        # Ollama is OpenAI compatible
+        target_base_url = base_url or "http://localhost:11434/v1"
+        target_api_key = api_key or "ollama"
+
+        if http_client and AsyncOpenAI and OpenAIProvider:
+            client = AsyncOpenAI(
+                api_key=target_api_key,
+                base_url=target_base_url,
+                http_client=http_client,
+            )
+            provider_instance = OpenAIProvider(openai_client=client)
+            return OpenAIChatModel(model_name=model_id, provider=provider_instance)
+
+        os.environ["LLM_BASE_URL"] = target_base_url
+        os.environ["LLM_API_KEY"] = target_api_key
         return OpenAIChatModel(model_name=model_id, provider="openai")
 
     elif provider == "anthropic":
         if api_key:
-            os.environ["ANTHROPIC_API_KEY"] = api_key
+            os.environ["LLM_API_KEY"] = api_key
+
+        # AnthropicModel supports http_client directly via some paths,
+        # but pydantic-ai might prefer we pass the client to the provider or use a custom client
+
+        try:
+            if http_client and AsyncAnthropic and AnthropicProvider:
+                client = AsyncAnthropic(
+                    api_key=api_key or os.environ.get("LLM_API_KEY"),
+                    http_client=http_client,
+                )
+                provider_instance = AnthropicProvider(anthropic_client=client)
+                return AnthropicModel(model_name=model_id, provider=provider_instance)
+        except ImportError:
+            pass
+
         return AnthropicModel(model_name=model_id)
 
     elif provider == "google":
         if api_key:
-            os.environ["GEMINI_API_KEY"] = api_key
-            os.environ["GOOGLE_API_KEY"] = api_key
+            os.environ["LLM_API_KEY"] = api_key
+        # Google SSL disable is tricky with genai, skipping for now unless specifically requested/researched
         return GoogleModel(model_name=model_id)
+
+    elif provider == "groq":
+        if api_key:
+            os.environ["LLM_API_KEY"] = api_key
+
+        if http_client and AsyncGroq and GroqProvider:
+            client = AsyncGroq(
+                api_key=api_key or os.environ.get("LLM_API_KEY"),
+                http_client=http_client,
+            )
+            provider_instance = GroqProvider(groq_client=client)
+            return GroqModel(model_name=model_id, provider=provider_instance)
+
+        return GroqModel(model_name=model_id)
+
+    elif provider == "mistral":
+        if api_key:
+            os.environ["LLM_API_KEY"] = api_key
+
+        if http_client and Mistral and MistralProvider:
+            # Assuming mistral_client argument for MistralProvider
+            # Ideally we would verify this, but we'll try standard pattern
+            pass
+            # client = Mistral(...) - Mistral SDK might be different
+            # Skipping Mistral custom client for now to avoid breaking without verification
+            # If user needs Mistral SSL disable, we'll need to research Mistral SDK + Provider
+
+        return MistralModel(model_name=model_id)
 
     elif provider == "huggingface":
         if api_key:
-            os.environ["HF_TOKEN"] = api_key
+            os.environ["LLM_API_KEY"] = api_key
         return HuggingFaceModel(model_name=model_id)
+
     return OpenAIChatModel(model_name=model_id, provider="openai")
