@@ -26,7 +26,7 @@ from fastmcp.utilities.logging import get_logger
 from searxng_mcp.utils import to_boolean, to_integer
 from searxng_mcp.middlewares import UserTokenMiddleware, JWTClaimsLoggingMiddleware
 
-__version__ = "0.1.7"
+__version__ = "0.1.8"
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -37,7 +37,7 @@ config = {
     "enable_delegation": to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
     "audience": os.environ.get("AUDIENCE", None),
     "delegated_scopes": os.environ.get("DELEGATED_SCOPES", "api"),
-    "token_endpoint": None,  # Will be fetched dynamically from OIDC config
+    "token_endpoint": None,
     "oidc_client_id": os.environ.get("OIDC_CLIENT_ID", None),
     "oidc_client_secret": os.environ.get("OIDC_CLIENT_SECRET", None),
     "oidc_config_url": os.environ.get("OIDC_CONFIG_URL", None),
@@ -63,7 +63,7 @@ config = {
     "enable_delegation": to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
     "audience": os.environ.get("AUDIENCE", None),
     "delegated_scopes": os.environ.get("DELEGATED_SCOPES", "api"),
-    "token_endpoint": None,  # Will be fetched dynamically from OIDC config
+    "token_endpoint": None,
     "oidc_client_id": os.environ.get("OIDC_CLIENT_ID", None),
     "oidc_client_secret": os.environ.get("OIDC_CLIENT_SECRET", None),
     "oidc_config_url": os.environ.get("OIDC_CONFIG_URL", None),
@@ -76,7 +76,6 @@ config = {
 }
 
 
-# Function to fetch and select a random SearXNG instance
 def get_random_searxng_instance() -> str:
     logger = logging.getLogger("SearXNG")
     logger.debug("[SearXNG] Fetching list of SearXNG instances...")
@@ -85,7 +84,6 @@ def get_random_searxng_instance() -> str:
         response.raise_for_status()
         instances_data = yaml.safe_load(response.text)
 
-        # Filter for standard internet instances (not onion or hidden)
         standard_instances: List[str] = []
 
         for url, data in instances_data.items():
@@ -103,7 +101,6 @@ def get_random_searxng_instance() -> str:
         if not standard_instances:
             raise ValueError("No standard SearXNG instances found")
 
-        # Select a random instance
         random_instance = random.choice(standard_instances)
         logger.debug(f"[SearXNG] Selected random instance: {random_instance}")
         return random_instance
@@ -180,7 +177,6 @@ def register_tools(mcp: FastMCP):
                     "error": "query must not be empty",
                 }
 
-            # Prepare search parameters
             search_params = {
                 "q": query,
                 "format": "json",
@@ -195,12 +191,10 @@ def register_tools(mcp: FastMCP):
             if engines:
                 search_params["engines"] = ",".join(engines)
 
-            # Report initial progress if ctx is available
             if ctx:
                 await ctx.report_progress(progress=0, total=100)
                 logger.debug("Reported initial progress: 0/100")
 
-            # Make request to SearXNG
             auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD) if HAS_BASIC_AUTH else None
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -214,17 +208,14 @@ def register_tools(mcp: FastMCP):
             response.raise_for_status()
             search_response: Dict[str, Any] = response.json()
 
-            # Limit results
             limited_results = search_response.get("results", [])[:max_results]
 
-            # Construct final response
             final_response = {
                 **search_response,
                 "results": limited_results,
                 "number_of_results": len(limited_results),
             }
 
-            # Report completion
             if ctx:
                 await ctx.report_progress(progress=100, total=100)
                 logger.debug("Reported final progress: 100/100")
@@ -260,7 +251,6 @@ def register_tools(mcp: FastMCP):
 
 
 def register_prompts(mcp: FastMCP):
-    # Prompts
     @mcp.prompt
     def search(topic) -> str:
         return f"Searching the web for: {topic}."
@@ -294,7 +284,6 @@ def searxng_mcp():
         choices=["none", "static", "jwt", "oauth-proxy", "oidc-proxy", "remote-oauth"],
         help="Authentication type for MCP server: 'none' (disabled), 'static' (internal), 'jwt' (external token verification), 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (external) (default: none)",
     )
-    # JWT/Token params
     parser.add_argument(
         "--token-jwks-uri", default=None, help="JWKS URI for JWT verification"
     )
@@ -335,7 +324,6 @@ def searxng_mcp():
         default=os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES"),
         help="Comma-separated list of required scopes (e.g., gitlab.read,gitlab.write).",
     )
-    # OAuth Proxy params
     parser.add_argument(
         "--oauth-upstream-auth-endpoint",
         default=None,
@@ -359,14 +347,12 @@ def searxng_mcp():
     parser.add_argument(
         "--oauth-base-url", default=None, help="Base URL for OAuth Proxy"
     )
-    # OIDC Proxy params
     parser.add_argument(
         "--oidc-config-url", default=None, help="OIDC configuration URL"
     )
     parser.add_argument("--oidc-client-id", default=None, help="OIDC client ID")
     parser.add_argument("--oidc-client-secret", default=None, help="OIDC client secret")
     parser.add_argument("--oidc-base-url", default=None, help="Base URL for OIDC Proxy")
-    # Remote OAuth params
     parser.add_argument(
         "--remote-auth-servers",
         default=None,
@@ -375,13 +361,11 @@ def searxng_mcp():
     parser.add_argument(
         "--remote-base-url", default=None, help="Base URL for Remote OAuth"
     )
-    # Common
     parser.add_argument(
         "--allowed-client-redirect-uris",
         default=None,
         help="Comma-separated list of allowed client redirect URIs",
     )
-    # Eunomia params
     parser.add_argument(
         "--eunomia-type",
         default="none",
@@ -396,7 +380,6 @@ def searxng_mcp():
     parser.add_argument(
         "--eunomia-remote-url", default=None, help="URL for remote Eunomia server"
     )
-    # Delegation params
     parser.add_argument(
         "--enable-delegation",
         action="store_true",
@@ -467,7 +450,6 @@ def searxng_mcp():
         print(f"Error: Port {args.port} is out of valid range (0-65535).")
         sys.exit(1)
 
-    # Update config with CLI arguments
     config["enable_delegation"] = args.enable_delegation
     config["audience"] = args.audience or config["audience"]
     config["delegated_scopes"] = args.delegated_scopes or config["delegated_scopes"]
@@ -477,7 +459,6 @@ def searxng_mcp():
         args.oidc_client_secret or config["oidc_client_secret"]
     )
 
-    # Configure delegation if enabled
     if config["enable_delegation"]:
         if args.auth_type != "oidc-proxy":
             logger.error("Token delegation requires auth-type=oidc-proxy")
@@ -497,7 +478,6 @@ def searxng_mcp():
             )
             sys.exit(1)
 
-        # Fetch OIDC configuration to get token_endpoint
         try:
             logger.info(
                 "Fetching OIDC configuration",
@@ -522,7 +502,6 @@ def searxng_mcp():
             )
             sys.exit(1)
 
-    # Set auth based on type
     auth = None
     allowed_uris = (
         args.allowed_client_redirect_uris.split(",")
@@ -540,7 +519,6 @@ def searxng_mcp():
             }
         )
     elif args.auth_type == "jwt":
-        # Fallback to env vars if not provided via CLI
         jwks_uri = args.token_jwks_uri or os.getenv("FASTMCP_SERVER_AUTH_JWT_JWKS_URI")
         issuer = args.token_issuer or os.getenv("FASTMCP_SERVER_AUTH_JWT_ISSUER")
         audience = args.token_audience or os.getenv("FASTMCP_SERVER_AUTH_JWT_AUDIENCE")
@@ -557,7 +535,6 @@ def searxng_mcp():
             logger.error("JWT requires --token-issuer and --token-audience")
             sys.exit(1)
 
-        # Load static public key from file if path is given
         if args.token_public_key and os.path.isfile(args.token_public_key):
             try:
                 with open(args.token_public_key, "r") as f:
@@ -568,15 +545,13 @@ def searxng_mcp():
                 logger.error(f"Failed to read public key file: {e}")
                 sys.exit(1)
         elif args.token_public_key:
-            public_key_pem = args.token_public_key  # Inline PEM
+            public_key_pem = args.token_public_key
 
-        # Validation: Conflicting options
         if jwks_uri and (algorithm or secret_or_key):
             logger.warning(
                 "JWKS mode ignores --token-algorithm and --token-secret/--token-public-key"
             )
 
-        # HMAC mode
         if algorithm and algorithm.startswith("HS"):
             if not secret_or_key:
                 logger.error(f"HMAC algorithm {algorithm} requires --token-secret")
@@ -588,7 +563,6 @@ def searxng_mcp():
         else:
             public_key = public_key_pem
 
-        # Required scopes
         required_scopes = None
         if args.required_scopes:
             required_scopes = [
@@ -725,7 +699,6 @@ def searxng_mcp():
             base_url=args.remote_base_url,
         )
 
-    # === 2. Build Middleware List ===
     middlewares: List[
         Union[
             UserTokenMiddleware,
@@ -744,7 +717,7 @@ def searxng_mcp():
         JWTClaimsLoggingMiddleware(),
     ]
     if config["enable_delegation"] or args.auth_type == "jwt":
-        middlewares.insert(0, UserTokenMiddleware(config=config))  # Must be first
+        middlewares.insert(0, UserTokenMiddleware(config=config))
 
     if args.eunomia_type in ["embedded", "remote"]:
         try:
