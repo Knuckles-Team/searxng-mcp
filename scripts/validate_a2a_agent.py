@@ -4,7 +4,6 @@ import httpx
 import json
 import uuid
 
-# Configuration
 A2A_URL = "http://searxng-agent.arpa/a2a/"
 
 
@@ -16,13 +15,11 @@ async def main():
     ]
 
     async with httpx.AsyncClient(timeout=10000.0) as client:
-        # First, let's verify connectivity and maybe infer output schema
 
         for q in questions:
             print(f"\n\n\nUser: {q}")
             print("--- Sending Request ---")
 
-            # Construct JSON-RPC payload
             payload = {
                 "jsonrpc": "2.0",
                 "method": "message/send",
@@ -38,7 +35,6 @@ async def main():
             }
 
             try:
-                # Attempt POST to root
                 url = A2A_URL
                 print(f"Trying POST {url} with JSON-RPC (message/send)...")
                 resp = await client.post(
@@ -57,9 +53,8 @@ async def main():
                                 f"\nTask Submitted with ID: {task_id}. Polling for result..."
                             )
 
-                            # Poll tasks/get
                             while True:
-                                await asyncio.sleep(2)  # Wait a bit
+                                await asyncio.sleep(2)
                                 poll_payload = {
                                     "jsonrpc": "2.0",
                                     "method": "tasks/get",
@@ -80,16 +75,14 @@ async def main():
                                             "submitted",
                                             "running",
                                             "working",
-                                        ]:  # Assuming terminal states
+                                        ]:
                                             print(
                                                 f"\nTask Finished with state: {state}"
                                             )
 
-                                            # Extract final result
                                             if "history" in poll_data["result"]:
                                                 history = poll_data["result"]["history"]
                                                 if history:
-                                                    # Find last non-user message
                                                     last_msg = None
                                                     for msg in reversed(history):
                                                         if msg.get("role") != "user":
