@@ -38,7 +38,7 @@ from pydantic import ValidationError
 from pydantic_ai.ui import SSE_CONTENT_TYPE
 from pydantic_ai.ui.ag_ui import AGUIAdapter
 
-__version__ = "0.1.10"
+__version__ = "0.1.11"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -205,7 +205,6 @@ def create_agent_server(
         mcp_config=mcp_config,
         skills_directory=skills_directory,
         ssl_verify=ssl_verify,
-        timeout=DEFAULT_TIMEOUT,
     )
 
     if skills_directory and os.path.exists(skills_directory):
