@@ -20,7 +20,9 @@ services:
     restart: always
     env_file:
       - .env
+
     environment:
+      - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"
       - "PORT=8001"
       - "TRANSPORT=streamable-http"
@@ -54,7 +56,9 @@ services:
     restart: always
     env_file:
       - .env
+
     environment:
+      - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"
       - "PORT=9001"
       - "MCP_URL=http://searxng-mcp:8001/mcp"
@@ -77,7 +81,9 @@ services:
     image: docker.io/searxng/searxng:latest
     container_name: searxng
     hostname: searxng
+
     environment:
+      - "PYTHONUNBUFFERED=1"
       - SEARXNG_SECRET_KEY=veryLongRandomStringHereAtLeast32chars
       - SEARXNG_INSTANCE_NAME=Private SearXNG
       - SEARXNG_BIND_ADDRESS=0.0.0.0:8080
