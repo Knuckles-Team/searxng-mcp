@@ -26,7 +26,7 @@ from fastmcp.utilities.logging import get_logger
 from searxng_mcp.utils import to_boolean, to_integer
 from searxng_mcp.middlewares import UserTokenMiddleware, JWTClaimsLoggingMiddleware
 
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
