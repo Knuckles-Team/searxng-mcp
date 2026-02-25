@@ -1,6 +1,7 @@
 ---
-name: searxng-mcp-search
+name: searxng-search
 description: Searxng Mcp Search capabilities for A2A Agent.
+tags: [search]
 ---
 ### Overview
 This skill provides access to search operations.

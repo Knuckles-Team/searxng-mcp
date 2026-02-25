@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "searxng-mcp"
-version = "0.1.17"
+version = "0.1.18"
 description = "SearXNG Search Engine MCP Server for Agentic AI!"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -18,39 +18,31 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "tree-sitter>=0.23.2",
+    "agent-utilities>=0.1.9",
 ]
 
 [project.optional-dependencies]
 mcp = [
-    "fastmcp>=3.0.0b1",
-    "eunomia-mcp>=0.3.10",
-    "fastapi>=0.128.0"
+    "agent-utilities[mcp]>=0.1.9",
 ]
 
-a2a = [
-    "pydantic-ai-slim[fastmcp,openai,groq,anthropic,mistral,google,huggingface,a2a,ag-ui,web]>=1.60.0",
-    "pydantic-ai-skills>=v0.4.0",
-    "fastapi>=0.128.0"
+agent = [
+    "agent-utilities[agent]>=0.1.9",
 ]
 
 all = [
-    "fastmcp>=3.0.0b1",
-    "eunomia-mcp>=0.3.10",
-    "pydantic-ai-slim[fastmcp,openai,groq,anthropic,mistral,google,huggingface,a2a,ag-ui,web]>=1.60.0",
-    "pydantic-ai-skills>=v0.4.0",
-    "fastapi>=0.128.0"
+    "agent-utilities[mcp,agent]>=0.1.9",
 ]
 
 [project.scripts]
-searxng-mcp = "searxng_mcp.searxng_mcp:searxng_mcp"
-searxng-agent = "searxng_mcp.searxng_agent:agent_server"
+searxng-mcp = "searxng_mcp.mcp:mcp_server"
+searxng-agent = "searxng_mcp.agent:agent_server"
 
 [tool.setuptools.packages.find]
 where = ["."]
 
 [tool.setuptools.package-data]
-searxng_mcp = ["mcp_config.json", "skills/**"]
+searxng_mcp = ["mcp_config.json", "skills/**", "agent/**"]
 
 [tool.setuptools]
 include-package-data = true
