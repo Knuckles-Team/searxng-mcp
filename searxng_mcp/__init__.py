@@ -8,7 +8,7 @@ from typing import List
 __all__: List[str] = []
 
 CORE_MODULES = [
-    "searxng_mcp.searxng_mcp",
+    "searxng_mcp.mcp",
 ]
 
 OPTIONAL_MODULES = {
