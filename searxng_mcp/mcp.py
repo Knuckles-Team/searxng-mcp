@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
+from dotenv import load_dotenv, find_dotenv
 import os
 import sys
 import requests
@@ -31,7 +32,7 @@ from agent_utilities.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
-__version__ = "0.1.27"
+__version__ = "0.1.28"
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -80,11 +81,12 @@ def get_random_searxng_instance() -> str:
         raise ValueError("Failed to fetch SearXNG instances list") from e
 
 
-def register_tools(mcp: FastMCP):
-    @mcp.custom_route("/health", methods=["GET"])
+def register_misc_tools(mcp: FastMCP):
     async def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
+
+def register_search_tools(mcp: FastMCP):
     @mcp.tool(
         annotations={
             "title": "SearXNG Search",
@@ -228,6 +230,7 @@ def register_prompts(mcp: FastMCP):
 
 
 def mcp_server():
+    load_dotenv(find_dotenv())
     parser = create_mcp_parser()
     parser.description = "SearXNG MCP Server"
     args = parser.parse_args()
@@ -530,7 +533,12 @@ def mcp_server():
             sys.exit(1)
 
     mcp = FastMCP(name="SearXNGMCP", auth=auth)
-    register_tools(mcp)
+    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
+    if DEFAULT_MISCTOOL:
+        register_misc_tools(mcp)
+    DEFAULT_SEARCHTOOL = to_boolean(os.getenv("SEARCHTOOL", "True"))
+    if DEFAULT_SEARCHTOOL:
+        register_search_tools(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
