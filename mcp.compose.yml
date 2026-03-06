@@ -1,15 +1,17 @@
 ---
 services:
-  searxng-agent:
+  searxng-mcp:
     # image: docker.io/knucklessg1/searxng-mcp:latest
     build:
       context: . # Debug
       dockerfile: debug.Dockerfile
-    container_name: searxng-agent
-    hostname: searxng-agent
-    command: [ "searxng-agent" ]
+    container_name: searxng-mcp
+    hostname: searxng-mcp
+    command: [ "searxng-mcp" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      - searxng
     logging:
       driver: json-file
       options:
@@ -21,9 +23,43 @@ services:
     environment:
       - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"
-      - "PORT=9101"
-      - "TRANSPORT=stdio"
+      - "PORT=8001"
+      - "TRANSPORT=streamable-http"
       - "SEARXNG_INSTANCE_URL=${SEARXNG_INSTANCE_URL:-http://searxng:8080}"
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  searxng-agent:
+    # image: docker.io/knucklessg1/searxng-mcp:latest
+    build:
+      context: . # Debug
+      dockerfile: debug.Dockerfile
+    container_name: searxng-agent
+    hostname: searxng-agent
+    command: [ "searxng-agent" ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - searxng-mcp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - "PYTHONUNBUFFERED=1"
+      - "HOST=0.0.0.0"
+      - "PORT=9001"
+      - "MCP_URL=http://searxng-mcp:8001/mcp"
       - "PROVIDER=openai"
       - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       - "LLM_API_KEY=${LLM_API_KEY:-llama}"
@@ -36,9 +72,9 @@ services:
       - "SCHEDULER_TOOLS=True"
       - "DYNAMIC_TOOLS=True"
     ports:
-      - "9101:9101"
+      - "9001:9001"
     healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9101/health')" ]
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9001/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
