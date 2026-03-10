@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "searxng-mcp"
-version = "0.1.40"
+version = "0.1.42"
 description = "SearXNG Search Engine MCP Server for Agentic AI!"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -17,27 +17,27 @@ classifiers = [
     "Programming Language :: Python :: 3"]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities>=0.2.23"]
+    "agent-utilities>=0.2.25"]
 
 [project.optional-dependencies]
 mcp = [
-    "agent-utilities[mcp]>=0.2.23"]
+    "agent-utilities[mcp]>=0.2.25"]
 
 agent = [
-    "agent-utilities[agent,logfire]>=0.2.23"]
+    "agent-utilities[agent,logfire]>=0.2.25"]
 
 all = [
-    "agent-utilities[mcp,agent,logfire]>=0.2.23"]
+    "agent-utilities[mcp,agent,logfire]>=0.2.25"]
 
 [project.scripts]
-searxng-mcp = "searxng_mcp.mcp:mcp_server"
-searxng-agent = "searxng_mcp.agent:agent_server"
+searxng-mcp = "searxng_mcp.mcp_server:mcp_server"
+searxng-agent = "searxng_mcp.agent_server:agent_server"
 
 [tool.setuptools.packages.find]
 where = ["."]
 
 [tool.setuptools.package-data]
-searxng_mcp = ["mcp_config.json", "agent/**"]
+searxng_mcp = ["mcp_config.json", "agent_data/**"]
 
 [tool.setuptools]
 include-package-data = true

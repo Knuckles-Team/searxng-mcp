@@ -20,7 +20,7 @@ from agent_utilities.mcp_utilities import (
     config,
 )
 
-__version__ = "0.1.40"
+__version__ = "0.1.42"
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -226,32 +226,6 @@ def mcp_server():
         instructions="SearXNG MCP Server — Privacy-respecting metasearch engine to find information across multiple search engines.",
     )
 
-    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
-    if DEFAULT_MISCTOOL:
-        register_misc_tools(mcp)
-    DEFAULT_SEARCHTOOL = to_boolean(os.getenv("SEARCHTOOL", "True"))
-    if DEFAULT_SEARCHTOOL:
-        register_search_tools(mcp)
-
-    for mw in middlewares:
-        mcp.add_middleware(mw)
-
-    print(f"SearXNG MCP v{__version__}")
-    print("\nStarting SearXNG MCP Server")
-    print(f"  Transport: {args.transport.upper()}")
-    print(f"  Auth: {args.auth_type}")
-    print(f"  Delegation: {'ON' if config['enable_delegation'] else 'OFF'}")
-    print(f"  Eunomia: {args.eunomia_type}")
-
-    if args.transport == "stdio":
-        mcp.run(transport="stdio")
-    elif args.transport == "streamable-http":
-        mcp.run(transport="streamable-http", host=args.host, port=args.port)
-    elif args.transport == "sse":
-        mcp.run(transport="sse", host=args.host, port=args.port)
-    else:
-        logger.error("Invalid transport", extra={"transport": args.transport})
-        sys.exit(1)
     DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
     if DEFAULT_MISCTOOL:
         register_misc_tools(mcp)
