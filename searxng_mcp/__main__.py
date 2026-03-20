@@ -1,6 +1,4 @@
-#!/usr/bin/python
-# coding: utf-8
-from searxng_mcp.mcp_server import searxng_mcp
+from searxng_mcp.agent_server import agent_server
 
 if __name__ == "__main__":
-    searxng_mcp()
+    agent_server()
