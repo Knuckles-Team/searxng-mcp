@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "searxng": {
+      "command": "searxng-mcp",
+      "args": ["--transport", "stdio"],
+      "env": {
+        "SEARXNG_URL": "${SEARXNG_URL:-http://localhost:8080}",
+        "SEARXNG_TOKEN": "${SEARXNG_TOKEN}"
+      }
+    }
+  }
+}
