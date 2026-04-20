@@ -2647,7 +2647,7 @@ wheels = [
 
 [[package]]
 name = "searxng-mcp"
-version = "0.1.56"
+version = "0.1.57"
 source = { editable = "." }
 dependencies = [
     { name = "agent-utilities" },
