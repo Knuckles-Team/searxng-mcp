@@ -15,24 +15,24 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
-from dotenv import load_dotenv, find_dotenv
+import logging
 import os
+import random
 import sys
+from typing import Any
+
 import requests
 import yaml
-import random
-import logging
-from typing import Optional, Dict, List, Any
-
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from pydantic import Field
-from fastmcp import FastMCP, Context
-from fastmcp.utilities.logging import get_logger
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
+from dotenv import find_dotenv, load_dotenv
+from fastmcp import Context, FastMCP
+from fastmcp.utilities.logging import get_logger
+from pydantic import Field
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 __version__ = "0.1.57"
 
@@ -58,7 +58,7 @@ def get_random_searxng_instance() -> str:
         response.raise_for_status()
         instances_data = yaml.safe_load(response.text)
 
-        standard_instances: List[str] = []
+        standard_instances: list[str] = []
 
         for url, data in instances_data.items():
             instance_data = data or {}
@@ -108,15 +108,15 @@ def register_search_tools(mcp: FastMCP):
             description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'",
             default="en",
         ),
-        time_range: Optional[str] = Field(
+        time_range: str | None = Field(
             description="Time range for search results. Options: 'day', 'week', 'month', 'year'. Default: null (no time restriction).",
             default=None,
         ),
-        categories: Optional[List[str]] = Field(
+        categories: list[str] | None = Field(
             description="Categories to search in (e.g., 'general', 'images', 'news'). Default: null (all categories).",
             default=None,
         ),
-        engines: Optional[List[str]] = Field(
+        engines: list[str] | None = Field(
             description="Specific search engines to use. Default: null (all available engines).",
             default=None,
         ),
@@ -138,7 +138,7 @@ def register_search_tools(mcp: FastMCP):
         ctx: Context = Field(
             description="MCP context for progress reporting.", default=None
         ),
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Perform web searches using SearXNG, a privacy-respecting metasearch engine. Returns relevant web content with customizable parameters.
         Returns a Dictionary response with status, message, data (search results), and error if any.
@@ -184,7 +184,7 @@ def register_search_tools(mcp: FastMCP):
                 headers=headers,
             )
             response.raise_for_status()
-            search_response: Dict[str, Any] = response.json()
+            search_response: dict[str, Any] = response.json()
 
             limited_results = search_response.get("results", [])[:max_results]
 
