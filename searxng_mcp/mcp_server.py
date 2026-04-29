@@ -26,6 +26,8 @@ import yaml
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
+    ctx_log,
+    ctx_sample,
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
@@ -144,7 +146,7 @@ def register_search_tools(mcp: FastMCP):
         Returns a Dictionary response with status, message, data (search results), and error if any.
         """
         logger = logging.getLogger("SearXNG")
-        logger.debug(f"[SearXNG] Searching for: {query}")
+        ctx_log(ctx, logger, "debug", f"[SearXNG] Searching for: {query}")
 
         try:
             if not query:
@@ -171,7 +173,7 @@ def register_search_tools(mcp: FastMCP):
 
             if ctx:
                 await ctx.report_progress(progress=0, total=100)
-                logger.debug("Reported initial progress: 0/100")
+                ctx_log(ctx, logger, "debug", "Reported initial progress: 0/100")
 
             auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD) if HAS_BASIC_AUTH else None
             headers = {
@@ -196,9 +198,17 @@ def register_search_tools(mcp: FastMCP):
 
             if ctx:
                 await ctx.report_progress(progress=100, total=100)
-                logger.debug("Reported final progress: 100/100")
+                ctx_log(ctx, logger, "debug", "Reported final progress: 100/100")
 
-            logger.debug(f"[SearXNG] Search completed for query: {query}")
+            ctx_log(
+                ctx, logger, "debug", f"[SearXNG] Search completed for query: {query}"
+            )
+            summary = await ctx_sample(
+                ctx,
+                f"Summarize these SearXNG search results concisely: {final_response}",
+            )
+            if summary:
+                final_response["ai_summary"] = summary
             return {
                 "status": 200,
                 "message": "Search completed successfully",
@@ -211,7 +221,7 @@ def register_search_tools(mcp: FastMCP):
                 error_msg = "Authentication failed. Please check your SearXNG username and password."
             else:
                 error_msg = f"SearXNG API error: {e.response.json().get('message', str(e)) if e.response else str(e)}"
-            logger.error(f"[SearXNG Error] {error_msg}")
+            ctx_log(ctx, logger, "error", f"[SearXNG Error] {error_msg}")
             return {
                 "status": status_code or 500,
                 "message": "Failed to perform search",
@@ -219,7 +229,7 @@ def register_search_tools(mcp: FastMCP):
                 "error": error_msg,
             }
         except Exception as e:
-            logger.error(f"[SearXNG Error] {str(e)}")
+            ctx_log(ctx, logger, "error", f"[SearXNG Error] {str(e)}")
             return {
                 "status": 500,
                 "message": "Failed to perform search",
