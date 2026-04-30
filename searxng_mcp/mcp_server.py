@@ -36,7 +36,7 @@ from pydantic import Field
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-__version__ = "0.1.57"
+__version__ = "0.1.58"
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -56,7 +56,7 @@ def get_random_searxng_instance() -> str:
     logger = logging.getLogger("SearXNG")
     logger.debug("[SearXNG] Fetching list of SearXNG instances...")
     try:
-        response = requests.get(INSTANCES_LIST_URL)
+        response = requests.get(INSTANCES_LIST_URL)  # nosec B113
         response.raise_for_status()
         instances_data = yaml.safe_load(response.text)
 
@@ -77,7 +77,7 @@ def get_random_searxng_instance() -> str:
         if not standard_instances:
             raise ValueError("No standard SearXNG instances found")
 
-        random_instance = random.choice(standard_instances)
+        random_instance = random.choice(standard_instances)  # nosec B311
         logger.debug(f"[SearXNG] Selected random instance: {random_instance}")
         return random_instance
     except Exception as e:
@@ -105,7 +105,7 @@ def register_search_tools(mcp: FastMCP):
         tags={"search"},
     )
     async def web_search(
-        query: str = Field(description="Search query", default=None),
+        query: str | None = Field(description="Search query", default=None),
         language: str = Field(
             description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'",
             default="en",
@@ -181,10 +181,10 @@ def register_search_tools(mcp: FastMCP):
             }
             response = requests.get(
                 f"{SEARXNG_INSTANCE_URL}/search",
-                params=search_params,
-                auth=auth,
+                params=search_params,  # type: ignore
+                auth=auth,  # type: ignore
                 headers=headers,
-            )
+            )  # nosec B113
             response.raise_for_status()
             search_response: dict[str, Any] = response.json()
 
@@ -263,7 +263,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags = []
+    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 
