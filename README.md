@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.1.59*
+*Version: 0.2.0*
 
 ## Overview
 
