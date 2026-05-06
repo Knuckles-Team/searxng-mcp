@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "searxng-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "searxng-mcp"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
+        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
+        "MCP_URL": "<YOUR_MCP_URL>",
+        "MISCTOOL": "True",
+        "MODEL_ID": "<YOUR_MODEL_ID>",
+        "SEARCHTOOL": "True",
+        "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
+        "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
+        "SEARXNG_USERNAME": "<YOUR_SEARXNG_USERNAME>",
+        "USE_RANDOM_INSTANCE": "<YOUR_USE_RANDOM_INSTANCE>"
+      }
+    }
+  }
+}

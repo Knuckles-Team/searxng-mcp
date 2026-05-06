@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.5.0*
+*Version: 0.6.0*
 
 ## Overview
 
@@ -417,3 +417,74 @@ uv pip install searxng-mcp
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+
+
+## MCP Configuration Examples
+
+### 1. Standard IO (stdio) Deployment
+
+```json
+{
+  "mcpServers": {
+    "searxng-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "searxng-mcp"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
+        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
+        "MCP_URL": "<YOUR_MCP_URL>",
+        "MISCTOOL": "True",
+        "MODEL_ID": "<YOUR_MODEL_ID>",
+        "SEARCHTOOL": "True",
+        "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
+        "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
+        "SEARXNG_USERNAME": "<YOUR_SEARXNG_USERNAME>",
+        "USE_RANDOM_INSTANCE": "<YOUR_USE_RANDOM_INSTANCE>"
+      }
+    }
+  }
+}
+```
+
+### 2. Streamable HTTP (SSE) Deployment
+
+```json
+{
+  "mcpServers": {
+    "searxng-mcp": {
+      "command": "uv",
+      "args": [
+        "run",
+        "searxng-mcp",
+        "--transport",
+        "http",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
+        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
+        "MCP_URL": "<YOUR_MCP_URL>",
+        "MISCTOOL": "True",
+        "MODEL_ID": "<YOUR_MODEL_ID>",
+        "SEARCHTOOL": "True",
+        "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
+        "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
+        "SEARXNG_USERNAME": "<YOUR_SEARXNG_USERNAME>",
+        "USE_RANDOM_INSTANCE": "<YOUR_USE_RANDOM_INSTANCE>"
+      }
+    }
+  }
+}
+```
