@@ -2,7 +2,7 @@ FROM python:3-slim
 
 ARG HOST=0.0.0.0
 ARG PORT=8000
-ARG TRANSPORT="http"
+ARG TRANSPORT="streamable-http"
 ARG AUTH_TYPE="none"
 ARG TOKEN_JWKS_URI=""
 ARG TOKEN_ISSUER=""
@@ -57,7 +57,7 @@ RUN apt-get update \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
      && curl -sS https://starship.rs/install.sh | sh -s -- --yes \
     && mkdir -p /root/.config \
-    && echo 'eval "$(starship init bash)"' >> /root/.bashrc \ \
+    && echo 'eval "$(starship init bash)"' >> /root/.bashrc \
     && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow searxng-mcp[all]>=0.10.0
 
 COPY starship.toml /root/.config/starship.toml
