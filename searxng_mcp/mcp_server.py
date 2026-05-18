@@ -89,7 +89,7 @@ def register_misc_tools(mcp: FastMCP):
     pass
     pass
 
-    async def health_check(_request: Request) -> JSONResponse:
+    async def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
 
@@ -105,35 +105,35 @@ def register_search_tools(mcp: FastMCP):
         tags={"search"},
     )
     async def web_search(
-        query: str | None = Field(description="Search query", default=None),
+        query: str | None = Field(default=None, description="Search query"),
         language: str = Field(
-            description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'",
             default="en",
+            description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'",
         ),
         time_range: str | None = Field(
-            description="Time range for search results. Options: 'day', 'week', 'month', 'year'. Default: null (no time restriction).",
             default=None,
+            description="Time range for search results. Options: 'day', 'week', 'month', 'year'. Default: null (no time restriction).",
         ),
         categories: list[str] | None = Field(
-            description="Categories to search in (e.g., 'general', 'images', 'news'). Default: null (all categories).",
             default=None,
+            description="Categories to search in (e.g., 'general', 'images', 'news'). Default: null (all categories).",
         ),
         engines: list[str] | None = Field(
-            description="Specific search engines to use. Default: null (all available engines).",
             default=None,
+            description="Specific search engines to use. Default: null (all available engines).",
         ),
         safesearch: int = Field(
-            description="Safe search level: 0 (off), 1 (moderate), 2 (strict). Default: 1 (moderate).",
             default=1,
+            description="Safe search level: 0 (off), 1 (moderate), 2 (strict). Default: 1 (moderate).",
         ),
         pageno: int = Field(
-            description="Page number for results. Must be minimum 1. Default: 1.",
             default=1,
+            description="Page number for results. Must be minimum 1. Default: 1.",
             ge=1,
         ),
         max_results: int = Field(
-            description="Maximum number of search results to return. Range: 1-50. Default: 10.",
             default=10,
+            description="Maximum number of search results to return. Range: 1-50. Default: 10.",
             ge=1,
             le=50,
         ),
