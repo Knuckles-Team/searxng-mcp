@@ -1,0 +1,132 @@
+{
+  "feature_id": "code-enhancement-20260512",
+  "title": "Code Enhancement: searxng-mcp",
+  "created": "2026-05-12T14:14:41.030749+00:00",
+  "overview": "Automated code enhancement review for searxng-mcp. Covers 17 analysis domains.",
+  "user_stories": [
+    {
+      "role": "developer",
+      "action": "address Project Analysis findings (grade: C, score: 74)",
+      "value": "improve project project analysis from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Coverage findings (grade: D, score: 65)",
+      "value": "improve project test coverage from D to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Concept Traceability findings (grade: F, score: 52)",
+      "value": "improve project concept traceability from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Changelog Audit findings (grade: C, score: 75)",
+      "value": "improve project changelog audit from C to at least B (80+)"
+    }
+  ],
+  "functional_requirements": [
+    {
+      "id": "FR-001",
+      "description": "Test suite lacks intent diversity (only one type)",
+      "testable": true
+    },
+    {
+      "id": "FR-002",
+      "description": "36 potential doc-test drift items",
+      "testable": true
+    },
+    {
+      "id": "FR-003",
+      "description": "README.md missing sections: installation",
+      "testable": true
+    },
+    {
+      "id": "FR-004",
+      "description": "README missing: Has a Table of Contents",
+      "testable": true
+    },
+    {
+      "id": "FR-005",
+      "description": "README missing: References /docs directory material",
+      "testable": true
+    },
+    {
+      "id": "FR-006",
+      "description": "No discernible layer architecture (no domain/service/adapter separation)",
+      "testable": true
+    },
+    {
+      "id": "FR-007",
+      "description": "Low traceability ratio: 0% concepts fully traced",
+      "testable": true
+    },
+    {
+      "id": "FR-008",
+      "description": "4 test functions missing concept markers",
+      "testable": true
+    },
+    {
+      "id": "FR-009",
+      "description": "Total lint findings: 5 (high/error: 2, medium/warning: 3, low: 0)",
+      "testable": true
+    },
+    {
+      "id": "FR-010",
+      "description": "2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit",
+      "testable": true
+    },
+    {
+      "id": "FR-011",
+      "description": "2 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/validate_agent.py, scripts/validate_a2a_agent.py",
+      "testable": true
+    },
+    {
+      "id": "FR-012",
+      "description": "CHANGELOG.md exists but could not be parsed \u2014 check format compliance",
+      "testable": true
+    },
+    {
+      "id": "FR-013",
+      "description": "No changelog entries within the last 30 days",
+      "testable": true
+    },
+    {
+      "id": "FR-014",
+      "description": "keepachangelog not installed \u2014 pip install 'universal-skills[code-enhancer]'",
+      "testable": true
+    },
+    {
+      "id": "FR-015",
+      "description": "1 tests have no assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-016",
+      "description": "Undocumented env vars: EUNOMIA_REMOTE_URL, OAUTH_BASE_URL, OAUTH_UPSTREAM_AUTH_ENDPOINT, OAUTH_UPSTREAM_CLIENT_ID, OAUTH_UPSTREAM_CLIENT_SECRET, OAUTH_UPSTREAM_TOKEN_ENDPOINT, PATH, REMOTE_AUTH_SERVERS, REMOTE_BASE_URL, TOKEN_AUDIENCE",
+      "testable": true
+    },
+    {
+      "id": "FR-017",
+      "description": "11 Python env vars not in .env.example: DEFAULT_AGENT_NAME, LLM_API_KEY, LLM_BASE_URL, MCP_URL, MISCTOOL",
+      "testable": true
+    }
+  ],
+  "success_criteria": [
+    {
+      "metric": "Overall GPA",
+      "current": 3.0,
+      "target": 3.0
+    },
+    {
+      "metric": "Domains at B or above",
+      "current": 13,
+      "target": 17
+    },
+    {
+      "metric": "Actionable findings",
+      "current": 17,
+      "target": 0
+    }
+  ]
+}
