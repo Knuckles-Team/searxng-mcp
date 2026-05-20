@@ -13,6 +13,9 @@ jobs:
   publish-docker:
     needs: publish-pypi
     uses: Knuckles-Team/pipelines/.github/workflows/container_pipeline.yml@latest
+    with:
+      dockerfile: docker/Dockerfile
+      context: .
     secrets:
       DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
