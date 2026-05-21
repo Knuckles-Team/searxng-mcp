@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 0.11.0*
+*Version: 0.11.1*
 
 ## Overview
 
@@ -253,6 +253,42 @@ searxng-agent --provider openai --model-id gpt-4 --api-key sk-... --mcp-url http
 docker run -e CMD=searxng-agent -p 8000:8000 searxng-mcp
 ```
 
+## Security & Governance
+
+This project is built on [`agent-utilities`](https://github.com/Knuckles-Team/agent-utilities), inheriting enterprise-grade security and governance features.
+
+### Authentication & Authorization
+| Feature | Description |
+|---------|-------------|
+| **OIDC Token Delegation** | RFC 8693 token exchange for user-context propagation from A2A → MCP |
+| **Eunomia Policies** | Fine-grained, policy-driven tool authorization (`none`, `embedded`, `remote`) |
+| **Scoped Credentials** | Tools execute with the caller's scoped identity where possible |
+| **3LO / OAuth / API Token** | Multiple auth strategies with graceful fallback |
+
+### Eunomia Policy Enforcement
+Eunomia provides a policy enforcement point for all tool calls:
+- **Embedded mode**: Load local `mcp_policies.json` for role-based access, sensitivity gating, and audit logging
+- **Remote mode**: Forward authorization decisions to a central Eunomia policy server for multi-agent governance
+- Enable via CLI: `--eunomia-type embedded --eunomia-policy-file mcp_policies.json`
+
+### Runtime Protections
+| Protection | Description |
+|------------|-------------|
+| **Tool Guard** | Sensitivity detection with human-in-the-loop approval gating |
+| **Prompt Injection Defense** | Input scanning and repetition/loop guards |
+| **Content Filtering** | Output schema enforcement and cost budget controls |
+| **Stuck Loop Detection** | Automatic detection and recovery from agent loops |
+| **Context Limit Warnings** | Proactive alerts before context window exhaustion |
+
+### Graph Agent Architecture
+The A2A agent uses `pydantic-graph` orchestration with:
+- **RouterNode**: Lightweight classifier that routes queries to specialized domains
+- **DomainNode**: Focused executor with only relevant tools loaded, preventing tool hallucination
+- **Approval Gates**: Policy-driven approval workflows before sensitive operations
+- **Usage Guards**: Budget and rate limiting enforcement
+
+> **Production Recommendation**: Enable `--eunomia-type embedded` (or `remote`) + OIDC delegation + containerized deployment. See [`agent-utilities` documentation](https://github.com/Knuckles-Team/agent-utilities) for full policy configuration.
+
 ## Docker
 
 ### Build
@@ -421,69 +457,28 @@ uv pip install searxng-mcp
 
 ## MCP Configuration Examples
 
-### 1. Standard IO (stdio) Deployment
-
+### stdio (recommended for local development)
 ```json
 {
   "mcpServers": {
-    "searxng-mcp": {
-      "command": "uv",
-      "args": [
-        "run",
-        "searxng-mcp"
-      ],
+    "searxng": {
+      "command": ".venv/bin/searxng-mcp",
+      "args": [],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
-        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
-        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
-        "MCP_URL": "<YOUR_MCP_URL>",
-        "MISCTOOL": "True",
-        "MODEL_ID": "<YOUR_MODEL_ID>",
-        "SEARCHTOOL": "True",
-        "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
-        "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
-        "SEARXNG_USERNAME": "<YOUR_SEARXNG_USERNAME>",
-        "USE_RANDOM_INSTANCE": "<YOUR_USE_RANDOM_INSTANCE>"
-      }
+        "SEARXNG_INSTANCE_URL": "",
+        "USE_RANDOM_INSTANCE": "false"
+}
     }
   }
 }
 ```
 
-### 2. Streamable HTTP (SSE) Deployment
-
+### Streamable HTTP (recommended for production)
 ```json
 {
   "mcpServers": {
-    "searxng-mcp": {
-      "command": "uv",
-      "args": [
-        "run",
-        "searxng-mcp",
-        "--transport",
-        "http",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000"
-      ],
-      "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
-        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
-        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
-        "MCP_URL": "<YOUR_MCP_URL>",
-        "MISCTOOL": "True",
-        "MODEL_ID": "<YOUR_MODEL_ID>",
-        "SEARCHTOOL": "True",
-        "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
-        "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
-        "SEARXNG_USERNAME": "<YOUR_SEARXNG_USERNAME>",
-        "USE_RANDOM_INSTANCE": "<YOUR_USE_RANDOM_INSTANCE>"
-      }
+    "searxng": {
+      "url": "http://localhost:8080/searxng-mcp/mcp"
     }
   }
 }

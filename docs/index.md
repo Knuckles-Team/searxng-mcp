@@ -433,14 +433,7 @@ uv pip install searxng-mcp
         "searxng-mcp"
       ],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
-        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
-        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
-        "MCP_URL": "<YOUR_MCP_URL>",
         "MISCTOOL": "True",
-        "MODEL_ID": "<YOUR_MODEL_ID>",
         "SEARCHTOOL": "True",
         "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
         "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
@@ -470,14 +463,7 @@ uv pip install searxng-mcp
         "8000"
       ],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
-        "LLM_API_KEY": "<YOUR_LLM_API_KEY>",
-        "LLM_BASE_URL": "<YOUR_LLM_BASE_URL>",
-        "MCP_URL": "<YOUR_MCP_URL>",
         "MISCTOOL": "True",
-        "MODEL_ID": "<YOUR_MODEL_ID>",
         "SEARCHTOOL": "True",
         "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
         "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",

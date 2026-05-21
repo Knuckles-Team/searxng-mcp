@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import warnings
 
 # Filter RequestsDependencyWarning early to prevent log spam
@@ -15,6 +14,12 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
+"""
+SearXNG MCP Server.
+
+Privacy-respecting metasearch engine to query search results across various platforms.
+"""
+
 import logging
 import os
 import random
@@ -26,37 +31,29 @@ import yaml
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
-    ctx_log,
-    ctx_sample,
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
-__version__ = "0.11.0"
+__version__ = "0.11.1"
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = get_logger("SearXNGMCPServer")
-
+logger.setLevel(logging.INFO)
 
 SEARXNG_INSTANCE_URL = os.environ.get("SEARXNG_INSTANCE_URL", None)
 SEARXNG_USERNAME = os.environ.get("SEARXNG_USERNAME", None)
 SEARXNG_PASSWORD = os.environ.get("SEARXNG_PASSWORD", None)
 HAS_BASIC_AUTH = bool(SEARXNG_USERNAME and SEARXNG_PASSWORD)
 INSTANCES_LIST_URL = "https://raw.githubusercontent.com/searxng/searx-instances/refs/heads/master/searxinstances/instances.yml"
-USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "false").lower())
+USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "false"))
 
 
 def get_random_searxng_instance() -> str:
-    logger = logging.getLogger("SearXNG")
-    logger.debug("[SearXNG] Fetching list of SearXNG instances...")
+    logger.info("[SearXNG] Fetching list of SearXNG instances...")
     try:
-        response = requests.get(INSTANCES_LIST_URL)  # nosec B113
+        response = requests.get(INSTANCES_LIST_URL, timeout=10)
         response.raise_for_status()
         instances_data = yaml.safe_load(response.text)
 
@@ -72,179 +69,26 @@ def get_random_searxng_instance() -> str:
             ) and (not network_type or network_type == "normal"):
                 standard_instances.append(url)
 
-        logger.debug(f"[SearXNG] Found {len(standard_instances)} standard instances")
+        logger.info(f"[SearXNG] Found {len(standard_instances)} standard instances")
 
         if not standard_instances:
             raise ValueError("No standard SearXNG instances found")
 
-        random_instance = random.choice(standard_instances)  # nosec B311
-        logger.debug(f"[SearXNG] Selected random instance: {random_instance}")
+        random_instance = random.SystemRandom().choice(standard_instances)  # noqa: S311
+        logger.info(f"[SearXNG] Selected random instance: {random_instance}")
         return random_instance
     except Exception as e:
         logger.error(f"[SearXNG] Error fetching instances: {str(e)}")
         raise ValueError("Failed to fetch SearXNG instances list") from e
 
 
-def register_misc_tools(mcp: FastMCP):
-    pass
-    pass
-
-    async def health_check(request: Request) -> JSONResponse:
-        return JSONResponse({"status": "OK"})
-
-
-def register_search_tools(mcp: FastMCP):
-    @mcp.tool(
-        annotations={
-            "title": "SearXNG Search",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "idempotentHint": True,
-            "openWorldHint": False,
-        },
-        tags={"search"},
-    )
-    async def web_search(
-        query: str | None = Field(default=None, description="Search query"),
-        language: str = Field(
-            default="en",
-            description="Language code for search results (e.g., 'en', 'de', 'fr'). Default: 'en'",
-        ),
-        time_range: str | None = Field(
-            default=None,
-            description="Time range for search results. Options: 'day', 'week', 'month', 'year'. Default: null (no time restriction).",
-        ),
-        categories: list[str] | None = Field(
-            default=None,
-            description="Categories to search in (e.g., 'general', 'images', 'news'). Default: null (all categories).",
-        ),
-        engines: list[str] | None = Field(
-            default=None,
-            description="Specific search engines to use. Default: null (all available engines).",
-        ),
-        safesearch: int = Field(
-            default=1,
-            description="Safe search level: 0 (off), 1 (moderate), 2 (strict). Default: 1 (moderate).",
-        ),
-        pageno: int = Field(
-            default=1,
-            description="Page number for results. Must be minimum 1. Default: 1.",
-            ge=1,
-        ),
-        max_results: int = Field(
-            default=10,
-            description="Maximum number of search results to return. Range: 1-50. Default: 10.",
-            ge=1,
-            le=50,
-        ),
-        ctx: Context = Field(
-            description="MCP context for progress reporting.", default=None
-        ),
-    ) -> dict[str, Any]:
-        """
-        Perform web searches using SearXNG, a privacy-respecting metasearch engine. Returns relevant web content with customizable parameters.
-        Returns a Dictionary response with status, message, data (search results), and error if any.
-        """
-        logger = logging.getLogger("SearXNG")
-        ctx_log(ctx, logger, "debug", f"[SearXNG] Searching for: {query}")
-
-        try:
-            if not query:
-                return {
-                    "status": 400,
-                    "message": "Invalid input: query must not be empty",
-                    "data": None,
-                    "error": "query must not be empty",
-                }
-
-            search_params = {
-                "q": query,
-                "format": "json",
-                "language": language,
-                "safesearch": safesearch,
-                "pageno": pageno,
-            }
-            if time_range:
-                search_params["time_range"] = time_range
-            if categories:
-                search_params["categories"] = ",".join(categories)
-            if engines:
-                search_params["engines"] = ",".join(engines)
-
-            if ctx:
-                await ctx.report_progress(progress=0, total=100)
-                ctx_log(ctx, logger, "debug", "Reported initial progress: 0/100")
-
-            auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD) if HAS_BASIC_AUTH else None
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            }
-            response = requests.get(
-                f"{SEARXNG_INSTANCE_URL}/search",
-                params=search_params,  # type: ignore
-                auth=auth,  # type: ignore
-                headers=headers,
-            )  # nosec B113
-            response.raise_for_status()
-            search_response: dict[str, Any] = response.json()
-
-            limited_results = search_response.get("results", [])[:max_results]
-
-            final_response = {
-                **search_response,
-                "results": limited_results,
-                "number_of_results": len(limited_results),
-            }
-
-            if ctx:
-                await ctx.report_progress(progress=100, total=100)
-                ctx_log(ctx, logger, "debug", "Reported final progress: 100/100")
-
-            ctx_log(
-                ctx, logger, "debug", f"[SearXNG] Search completed for query: {query}"
-            )
-            summary = await ctx_sample(
-                ctx,
-                f"Summarize these SearXNG search results concisely: {final_response}",
-            )
-            if summary:
-                final_response["ai_summary"] = summary
-            return {
-                "status": 200,
-                "message": "Search completed successfully",
-                "data": final_response,
-                "error": None,
-            }
-        except requests.exceptions.HTTPError as e:
-            status_code = e.response.status_code if e.response else None
-            if status_code == 401:
-                error_msg = "Authentication failed. Please check your SearXNG username and password."
-            else:
-                error_msg = f"SearXNG API error: {e.response.json().get('message', str(e)) if e.response else str(e)}"
-            ctx_log(ctx, logger, "error", f"[SearXNG Error] {error_msg}")
-            return {
-                "status": status_code or 500,
-                "message": "Failed to perform search",
-                "data": None,
-                "error": error_msg,
-            }
-        except Exception as e:
-            ctx_log(ctx, logger, "error", f"[SearXNG Error] {str(e)}")
-            return {
-                "status": 500,
-                "message": "Failed to perform search",
-                "data": None,
-                "error": str(e),
-            }
-
-
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
-    def search(topic) -> str:
+    def search(topic: str) -> str:
         return f"Searching the web for: {topic}."
 
 
-def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
+def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
     load_dotenv(find_dotenv())
 
@@ -254,12 +98,67 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
         instructions="SearXNG MCP Server — Privacy-respecting metasearch engine to find information across multiple search engines.",
     )
 
-    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
-    if DEFAULT_MISCTOOL:
-        register_misc_tools(mcp)
-    DEFAULT_SEARCHTOOL = to_boolean(os.getenv("SEARCHTOOL", "True"))
-    if DEFAULT_SEARCHTOOL:
-        register_search_tools(mcp)
+    @mcp.tool(name="web_search")
+    async def web_search(
+        query: str = Field(description="Search query to submit to SearXNG"),
+        categories: list[str] | None = Field(
+            default=None,
+            description="Optional list of categories to search in (e.g. general, news, science, files, images, videos, music, it, social_media)",
+        ),
+        engines: list[str] | None = Field(
+            default=None, description="Optional list of specific search engines to use"
+        ),
+        language: str = Field(
+            default="en-US",
+            description="Language code for search results (e.g. en-US)",
+        ),
+        pageno: int = Field(default=1, description="Page number of results to fetch"),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Perform a web search using a privacy-respecting SearXNG metasearch instance."""
+        if ctx:
+            await ctx.info(f"Performing SearXNG search for '{query}'...")
+
+        instance_url = SEARXNG_INSTANCE_URL
+        if not instance_url:
+            if USE_RANDOM_INSTANCE:
+                try:
+                    instance_url = get_random_searxng_instance()
+                except Exception as e:
+                    logger.error(f"Failed to choose random instance: {e}")
+                    instance_url = "https://searx.be"
+            else:
+                instance_url = "https://searx.be"
+
+        instance_url = instance_url.rstrip("/")
+        url = f"{instance_url}/search"
+
+        params: dict[str, Any] = {
+            "q": query,
+            "format": "json",
+            "pageno": pageno,
+            "language": language,
+        }
+        if categories:
+            params["categories"] = ",".join(categories)
+        if engines:
+            params["engines"] = ",".join(engines)
+
+        auth: tuple[str, str] | None = None
+        if SEARXNG_USERNAME is not None and SEARXNG_PASSWORD is not None:
+            auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD)
+
+        try:
+            response = requests.get(url, params=params, auth=auth, timeout=15)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error(f"Search failed: {e}")
+            return {"error": f"Failed to perform search: {str(e)}"}
+
+    register_prompts(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
