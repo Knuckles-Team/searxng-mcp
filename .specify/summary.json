@@ -1,0 +1,32 @@
+{
+  "comparison": [
+    {
+      "project": "searxng-mcp",
+      "gpa": 3.12,
+      "project_analysis": "C",
+      "dependency_audit": "A",
+      "codebase_optimization": "A",
+      "security_analysis": "A",
+      "test_coverage": "C",
+      "documentation_and_governance": "A",
+      "architecture_and_design_patterns": "B",
+      "concept_traceability": "F",
+      "linting_and_formatting": "A",
+      "pre-commit_compliance": "B",
+      "test_execution": "A",
+      "directory_organization": "A",
+      "version_sync_analysis": "A",
+      "changelog_audit": "C",
+      "pytest_quality": "B",
+      "environment_variables": "C",
+      "xdg_compliance_(kg)": "A"
+    }
+  ],
+  "integration": {},
+  "metadata": {
+    "projects_analyzed": 1,
+    "errors": 0,
+    "elapsed_seconds": 43.8,
+    "concurrency": 4
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "feature_id": "code-enhancement-20260524",
+  "title": "Code Enhancement: searxng-mcp",
+  "created": "2026-05-24T04:17:16.232490+00:00",
+  "overview": "Automated code enhancement review for searxng-mcp. Covers 17 analysis domains.",
+  "user_stories": [
+    {
+      "role": "developer",
+      "action": "address Project Analysis findings (grade: C, score: 74)",
+      "value": "improve project project analysis from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Coverage findings (grade: C, score: 75)",
+      "value": "improve project test coverage from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Concept Traceability findings (grade: F, score: 31)",
+      "value": "improve project concept traceability from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Execution findings (grade: F, score: 25)",
+      "value": "improve project test execution from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Version Sync Analysis findings (grade: D, score: 60)",
+      "value": "improve project version sync analysis from D to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Changelog Audit findings (grade: C, score: 75)",
+      "value": "improve project changelog audit from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address analyze_xdg_kg findings (grade: F, score: 0)",
+      "value": "improve project analyze_xdg_kg from F to at least B (80+)"
+    }
+  ],
+  "functional_requirements": [
+    {
+      "id": "FR-001",
+      "description": "Minor update: pytest-xdist 3.6.0 (constraint \u2014 not installed) -> 3.8.0",
+      "testable": true
+    },
+    {
+      "id": "FR-002",
+      "description": "Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0",
+      "testable": true
+    },
+    {
+      "id": "FR-003",
+      "description": "Test suite lacks intent diversity (only one type)",
+      "testable": true
+    },
+    {
+      "id": "FR-004",
+      "description": "12 potential doc-test drift items",
+      "testable": true
+    },
+    {
+      "id": "FR-005",
+      "description": "README.md missing sections: usage|quick start",
+      "testable": true
+    },
+    {
+      "id": "FR-006",
+      "description": "2 broken internal links in README.md",
+      "testable": true
+    },
+    {
+      "id": "FR-007",
+      "description": "README missing: Has a Table of Contents",
+      "testable": true
+    },
+    {
+      "id": "FR-008",
+      "description": "README missing: Has usage examples with code blocks",
+      "testable": true
+    },
+    {
+      "id": "FR-009",
+      "description": "No discernible layer architecture (no domain/service/adapter separation)",
+      "testable": true
+    },
+    {
+      "id": "FR-010",
+      "description": "Low traceability ratio: 0% concepts fully traced",
+      "testable": true
+    },
+    {
+      "id": "FR-011",
+      "description": "17 orphaned concepts (only in one source)",
+      "testable": true
+    },
+    {
+      "id": "FR-012",
+      "description": "6 concepts with drift (missing from one source)",
+      "testable": true
+    },
+    {
+      "id": "FR-013",
+      "description": "7 test functions missing concept markers",
+      "testable": true
+    },
+    {
+      "id": "FR-014",
+      "description": "Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)",
+      "testable": true
+    },
+    {
+      "id": "FR-015",
+      "description": "2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit",
+      "testable": true
+    },
+    {
+      "id": "FR-016",
+      "description": "1 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/validate_a2a_agent.py",
+      "testable": true
+    },
+    {
+      "id": "FR-017",
+      "description": "Found 5 file(s) with version '0.14.0' that are NOT tracked in .bumpversion.cfg:",
+      "testable": true
+    },
+    {
+      "id": "FR-018",
+      "description": "  - .specify/searxng-mcp/results.json",
+      "testable": true
+    },
+    {
+      "id": "FR-019",
+      "description": "  - .specify/specs/code-enhancement-20260522/tasks.json",
+      "testable": true
+    },
+    {
+      "id": "FR-020",
+      "description": "  - .specify/specs/code-enhancement-20260522/tasks.md",
+      "testable": true
+    },
+    {
+      "id": "FR-021",
+      "description": "  - .specify/specs/code-enhancement-20260522/spec.md",
+      "testable": true
+    },
+    {
+      "id": "FR-022",
+      "description": "  - .specify/specs/code-enhancement-20260522/spec.json",
+      "testable": true
+    },
+    {
+      "id": "FR-023",
+      "description": "CHANGELOG.md exists but could not be parsed \u2014 check format compliance",
+      "testable": true
+    },
+    {
+      "id": "FR-024",
+      "description": "No changelog entries within the last 30 days",
+      "testable": true
+    },
+    {
+      "id": "FR-025",
+      "description": "keepachangelog not installed \u2014 pip install 'universal-skills[code-enhancer]'",
+      "testable": true
+    },
+    {
+      "id": "FR-026",
+      "description": "No shared fixtures in conftest.py",
+      "testable": true
+    },
+    {
+      "id": "FR-027",
+      "description": "1 tests have no assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-028",
+      "description": "Partial env var documentation: 38% coverage",
+      "testable": true
+    },
+    {
+      "id": "FR-029",
+      "description": "Undocumented env vars: AUTH_TYPE, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE, OTEL_EXPORTER_OTLP_ENDPOINT, SEARXNG_INSTANCE_URL, SEARXNG_PASSWORD, SEARXNG_USERNAME, USE_RANDOM_INSTANCE",
+      "testable": true
+    },
+    {
+      "id": "FR-030",
+      "description": "Analysis error: No module named 'agent_utilities.knowledge_graph'",
+      "testable": true
+    }
+  ],
+  "success_criteria": [
+    {
+      "metric": "Overall GPA",
+      "current": 2.59,
+      "target": 3.0
+    },
+    {
+      "metric": "Domains at B or above",
+      "current": 10,
+      "target": 17
+    },
+    {
+      "metric": "Actionable findings",
+      "current": 30,
+      "target": 0
+    }
+  ]
+}
