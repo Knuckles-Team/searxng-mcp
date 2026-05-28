@@ -36,7 +36,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 
 logger = get_logger("SearXNGMCPServer")
 logger.setLevel(logging.INFO)
@@ -49,6 +49,7 @@ SEARXNG_PASSWORD = os.environ.get("SEARXNG_PASSWORD", None)
 HAS_BASIC_AUTH = bool(SEARXNG_USERNAME and SEARXNG_PASSWORD)
 INSTANCES_LIST_URL = "https://raw.githubusercontent.com/searxng/searx-instances/refs/heads/master/searxinstances/instances.yml"
 USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "false"))
+
 
 def get_random_searxng_instance() -> str:
     logger.info("[SearXNG] Fetching list of SearXNG instances...")
@@ -81,10 +82,12 @@ def get_random_searxng_instance() -> str:
         logger.error(f"[SearXNG] Error fetching instances: {str(e)}")
         raise ValueError("Failed to fetch SearXNG instances list") from e
 
+
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
     def search(topic: str) -> str:
         return f"Searching the web for: {topic}."
+
 
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
@@ -163,6 +166,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
+
 def mcp_server() -> None:
     mcp, args, middlewares, registered_tags = get_mcp_instance()
     print(f"{'searxng-mcp'} MCP v{__version__}", file=sys.stderr)
@@ -180,6 +184,7 @@ def mcp_server() -> None:
     else:
         logger.error("Invalid transport", extra={"transport": args.transport})
         sys.exit(1)
+
 
 if __name__ == "__main__":
     mcp_server()
