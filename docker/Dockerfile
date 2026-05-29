@@ -29,8 +29,8 @@ WORKDIR /app
 COPY . /app
 
 # Compile and install package in-place
-RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow searxng-mcp[all]>=0.28.0
+RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow .[all]
 
 COPY docker/starship.toml /root/.config/starship.toml
 
-CMD ["searxng-mcp"]
+CMD ["python", "-m", "searxng_mcp.mcp_server"]
