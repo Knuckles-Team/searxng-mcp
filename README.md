@@ -22,6 +22,10 @@
 
 *Version: 0.39.0*
 
+> **Documentation** — Installation, deployment, usage across the MCP tool, Python API,
+> and console scripts, and guidance for provisioning the SearXNG instance are
+> maintained in the [official documentation](https://knuckles-team.github.io/searxng-mcp/).
+
 ---
 
 ## Overview
@@ -265,6 +269,25 @@ uv pip install searxng-mcp[all]
 # Using standard pip
 python -m pip install searxng-mcp[all]
 ```
+
+---
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/searxng-mcp/) and is the
+recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/searxng-mcp/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/searxng-mcp/deployment/) | run the MCP and agent servers, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/searxng-mcp/usage/) | the `web_search` tool, the Python API, the console scripts |
+| [Backing Platform](https://knuckles-team.github.io/searxng-mcp/platform/) | deploy SearXNG with Docker |
+| [Overview](https://knuckles-team.github.io/searxng-mcp/overview/) | ecosystem role and the standardized package pattern |
+| [Concepts](https://knuckles-team.github.io/searxng-mcp/concepts/) | concept registry (`CONCEPT:SRX-*`) |
+
+`AGENTS.md` is the canonical contributor/agent guidance.
 
 ---
 

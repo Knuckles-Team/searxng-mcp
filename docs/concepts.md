@@ -2,7 +2,7 @@
 
 > **Prefix**: `CONCEPT:SRX-*`
 > **Version**: 0.14.0
-> **Bridge**: [`CONCEPT:ECO-4.0`](../../agent-utilities/docs/concepts.md) (Unified Toolkit Ingestion)
+> **Bridge**: [`CONCEPT:ECO-4.0`](https://knuckles-team.github.io/agent-utilities/concepts/) (Unified Toolkit Ingestion)
 
 ---
 
