@@ -30,8 +30,8 @@ import yaml
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
+    load_config,
 )
-from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
@@ -91,7 +91,7 @@ def register_prompts(mcp: FastMCP):
 
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Initialize and return the MCP instance, args, and middlewares."""
-    load_dotenv(find_dotenv())
+    load_config()
 
     args, mcp, middlewares = create_mcp_server(
         name="SearXNGMCP",
