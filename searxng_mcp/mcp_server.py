@@ -20,14 +20,13 @@ Privacy-respecting metasearch engine to query search results across various plat
 """
 
 import logging
-import os
 import random
 import sys
 from typing import Any
 
 import requests
 import yaml
-from agent_utilities.base_utilities import to_boolean
+from agent_utilities.core.config import setting
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     load_config,
@@ -41,14 +40,7 @@ __version__ = "0.44.0"
 logger = get_logger("SearXNGMCPServer")
 logger.setLevel(logging.INFO)
 
-SEARXNG_INSTANCE_URL = os.environ.get("SEARXNG_INSTANCE_URL") or os.environ.get(
-    "SEARXNG_URL", None
-)
-SEARXNG_USERNAME = os.environ.get("SEARXNG_USERNAME", None)
-SEARXNG_PASSWORD = os.environ.get("SEARXNG_PASSWORD", None)
-HAS_BASIC_AUTH = bool(SEARXNG_USERNAME and SEARXNG_PASSWORD)
 INSTANCES_LIST_URL = "https://raw.githubusercontent.com/searxng/searx-instances/refs/heads/master/searxinstances/instances.yml"
-USE_RANDOM_INSTANCE = to_boolean(os.environ.get("USE_RANDOM_INSTANCE", "false"))
 
 
 def get_random_searxng_instance() -> str:
@@ -122,9 +114,9 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         if ctx:
             await ctx.info(f"Performing SearXNG search for '{query}'...")
 
-        instance_url = SEARXNG_INSTANCE_URL
+        instance_url = setting("SEARXNG_INSTANCE_URL", "") or setting("SEARXNG_URL", "")
         if not instance_url:
-            if USE_RANDOM_INSTANCE:
+            if bool(setting("USE_RANDOM_INSTANCE", False)):
                 try:
                     instance_url = get_random_searxng_instance()
                 except Exception as e:
@@ -148,8 +140,10 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
             params["engines"] = ",".join(engines)
 
         auth: tuple[str, str] | None = None
-        if SEARXNG_USERNAME is not None and SEARXNG_PASSWORD is not None:
-            auth = (SEARXNG_USERNAME, SEARXNG_PASSWORD)
+        username = setting("SEARXNG_USERNAME", "")
+        password = setting("SEARXNG_PASSWORD", "")
+        if username and password:
+            auth = (username, password)
 
         try:
             response = requests.get(url, params=params, auth=auth, timeout=15)
