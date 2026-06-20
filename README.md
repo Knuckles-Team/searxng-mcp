@@ -57,6 +57,17 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 
 ### Available MCP Tools
 
+The table below is auto-generated from the MCP server — do not edit by hand.
+
+<!-- MCP-TOOLS-TABLE:START -->
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `web_search` | — | Perform a web search using a privacy-respecting SearXNG metasearch instance. |
+
+_1 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+<!-- MCP-TOOLS-TABLE:END -->
+
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
 
 ### Dynamic Tool Selection & Visibility
