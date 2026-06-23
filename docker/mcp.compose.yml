@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   searxng-mcp-mcp:
-    image: knucklessg1/searxng-mcp:latest
+    image: knucklessg1/searxng-mcp:mcp
     container_name: searxng-mcp-mcp
     hostname: searxng-mcp-mcp
     restart: always
