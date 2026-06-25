@@ -93,6 +93,14 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
+> **Install the slim `[mcp]` extra.** All examples below install
+> `searxng-mcp[mcp]` — the MCP-server extra that pulls only the FastMCP /
+> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
+> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
+> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
+> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
+> (see [Installation](#installation)).
+
 #### stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
 Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
 
@@ -103,7 +111,7 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
       "command": "uvx",
       "args": [
         "--from",
-        "searxng-mcp",
+        "searxng-mcp[mcp]",
         "searxng-mcp"
       ],
       "env": {
@@ -124,7 +132,7 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
       "command": "uvx",
       "args": [
         "--from",
-        "searxng-mcp",
+        "searxng-mcp[mcp]",
         "searxng-mcp"
       ],
       "env": {
@@ -159,8 +167,15 @@ docker run -d \
   -e TRANSPORT=streamable-http \
   -e PORT=8000 \
   -e SEARXNG_URL="your_value" \
-  knucklessg1/searxng-mcp:latest
+  knucklessg1/searxng-mcp:mcp
 ```
+
+> The `:mcp` tag is the **slim MCP-server image** (built from
+> `docker/Dockerfile --target mcp`, installing `searxng-mcp[mcp]`). The default
+> `:latest` tag is the **full agent image** (`--target agent`, `searxng-mcp[agent]`)
+> which also bundles the Pydantic AI agent and the epistemic-graph engine — use it
+> when you run `searxng-agent` (the agent), not just the MCP server. See
+> [Container images](#container-images-mcp-vs-agent).
 
 ---
 
@@ -284,17 +299,90 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 
 ---
 
+## Environment Variables
+
+Every variable the server reads. See [`.env.example`](.env.example) for a copy-paste
+starting point.
+
+### SearXNG connection
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SEARXNG_URL` | Base URL of the SearXNG instance to query | `http://localhost:8080` |
+| `SEARXNG_INSTANCE_URL` | Explicit instance URL override | — |
+| `SEARXNG_USERNAME` | Basic-auth username for the SearXNG instance (if protected) | — |
+| `SEARXNG_PASSWORD` | Basic-auth password for the SearXNG instance (if protected) | — |
+| `USE_RANDOM_INSTANCE` | Pick a random public SearXNG instance instead of `SEARXNG_URL` | `false` |
+
+### MCP server / transport
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TRANSPORT` | `stdio`, `streamable-http`, or `sse` | `stdio` |
+| `HOST` | Bind host (HTTP transports) | `0.0.0.0` |
+| `PORT` | Bind port (HTTP transports) | `8000` |
+| `MCP_TOOL_MODE` | Tool surface: `condensed`, `verbose`, or `both` | `condensed` |
+| `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TOOLS` | Comma-separated tool allow/deny list | — |
+| `MCP_ENABLED_TAGS` / `MCP_DISABLED_TAGS` | Comma-separated tag allow/deny list | — |
+
+### Telemetry & governance
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_OTEL` | Enable OpenTelemetry export | `True` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint | — |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` / `OTEL_EXPORTER_OTLP_SECRET_KEY` | OTLP auth keys | — |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP protocol (e.g. `http/protobuf`) | — |
+| `EUNOMIA_TYPE` | Authorization mode: `none`, `embedded`, `remote` | `none` |
+| `EUNOMIA_POLICY_FILE` | Embedded policy file | `mcp_policies.json` |
+| `EUNOMIA_REMOTE_URL` | Remote Eunomia server URL | — |
+
+---
+
 ## Installation
 
-Install the Python package locally:
+Pick the extra that matches what you want to run:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `searxng-mcp[mcp]` | Slim MCP server only (`agent-utilities[mcp]` — FastMCP/FastAPI) | You only run the **MCP server** (smallest install / image) |
+| `searxng-mcp[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `searxng-mcp[all]` | Everything (`mcp` + `agent` + `logfire`) | Development / both surfaces |
 
 ```bash
-# Using uv (highly recommended)
-uv pip install searxng-mcp[all]
+# MCP server only (recommended for tool hosting — slim deps)
+uv pip install "searxng-mcp[mcp]"
 
-# Using standard pip
-python -m pip install searxng-mcp[all]
+# Full agent runtime (Pydantic AI + epistemic-graph engine)
+uv pip install "searxng-mcp[agent]"
+
+# Everything (development)
+uv pip install "searxng-mcp[all]"      # or: python -m pip install "searxng-mcp[all]"
 ```
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/searxng-mcp:mcp` | `--target mcp` | `searxng-mcp[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `searxng-mcp` |
+| `knucklessg1/searxng-mcp:latest` | `--target agent` (default) | `searxng-mcp[agent]` — **full** agent runtime + epistemic-graph engine | `searxng-agent` |
+
+```bash
+docker build --target mcp   -t knucklessg1/searxng-mcp:mcp    docker/   # slim MCP server
+docker build --target agent -t knucklessg1/searxng-mcp:latest docker/   # full agent
+```
+
+`docker/mcp.compose.yml` runs the slim `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`:latest`) with a co-located `:mcp` sidecar.
+
+### Knowledge-graph database (`epistemic-graph`)
+
+The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
+transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
+across multiple agents — run **epistemic-graph as its own database container** and point the
+agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
+config, and the full database architecture (with diagrams) are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+The slim `[mcp]` server does **not** require the database.
 
 ---
 
