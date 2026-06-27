@@ -7,12 +7,11 @@
         "searxng-mcp"
       ],
       "env": {
+        "MCP_TOOL_MODE": "condensed",
         "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
         "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
         "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "MCP_URL": "<YOUR_MCP_URL>",
-        "MISCTOOL": "True",
-        "SEARCHTOOL": "True",
         "SEARXNG_INSTANCE_URL": "<YOUR_SEARXNG_INSTANCE_URL>",
         "SEARXNG_PASSWORD": "<YOUR_SEARXNG_PASSWORD>",
         "SEARXNG_USERNAME": "<YOUR_SEARXNG_USERNAME>",
