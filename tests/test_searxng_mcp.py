@@ -16,6 +16,21 @@ from searxng_mcp.mcp_server import (
 from searxng_mcp.agent_server import agent_server
 
 
+def _setting_stub(overrides):
+    """Build a stand-in for ``setting(key, default)`` driven by ``overrides``.
+
+    The server reads its config exclusively through
+    ``agent_utilities.core.config.setting`` (not module-level constants), so
+    tests patch that callable to control instance URL / auth / random-instance
+    behaviour. Unspecified keys fall back to the caller-supplied default.
+    """
+
+    def _stub(key, default=None):
+        return overrides.get(key, default)
+
+    return _stub
+
+
 # ==========================================
 # 1. Tests for searxng_mcp/__init__.py
 # ==========================================
@@ -193,7 +208,7 @@ async def test_web_search_default(mock_get):
     mock_get.return_value = mock_response
 
     # Explicitly pass all parameters to prevent Pydantic Field default descriptors (FieldInfo objects)
-    with patch("searxng_mcp.mcp_server.SEARXNG_INSTANCE_URL", None):
+    with patch("searxng_mcp.mcp_server.setting", _setting_stub({})):
         res = await web_search_tool.fn(
             query="test query",
             categories=None,
@@ -227,7 +242,8 @@ async def test_web_search_custom(mock_get):
     mock_ctx.info = AsyncMock()
 
     with patch(
-        "searxng_mcp.mcp_server.SEARXNG_INSTANCE_URL", "https://custom.searxng.org/"
+        "searxng_mcp.mcp_server.setting",
+        _setting_stub({"SEARXNG_INSTANCE_URL": "https://custom.searxng.org/"}),
     ):
         res = await web_search_tool.fn(
             query="test",
@@ -261,8 +277,10 @@ async def test_web_search_random_instance(mock_get):
     mock_get.return_value = mock_response
 
     with (
-        patch("searxng_mcp.mcp_server.SEARXNG_INSTANCE_URL", None),
-        patch("searxng_mcp.mcp_server.USE_RANDOM_INSTANCE", True),
+        patch(
+            "searxng_mcp.mcp_server.setting",
+            _setting_stub({"USE_RANDOM_INSTANCE": True}),
+        ),
         patch(
             "searxng_mcp.mcp_server.get_random_searxng_instance",
             return_value="https://random.searx.be",
@@ -297,8 +315,10 @@ async def test_web_search_random_instance_failure(mock_get):
     mock_get.return_value = mock_response
 
     with (
-        patch("searxng_mcp.mcp_server.SEARXNG_INSTANCE_URL", None),
-        patch("searxng_mcp.mcp_server.USE_RANDOM_INSTANCE", True),
+        patch(
+            "searxng_mcp.mcp_server.setting",
+            _setting_stub({"USE_RANDOM_INSTANCE": True}),
+        ),
         patch(
             "searxng_mcp.mcp_server.get_random_searxng_instance",
             side_effect=ValueError("Test Failure"),
@@ -332,9 +352,9 @@ async def test_web_search_basic_auth(mock_get):
     mock_response.raise_for_status = MagicMock()
     mock_get.return_value = mock_response
 
-    with (
-        patch("searxng_mcp.mcp_server.SEARXNG_USERNAME", "admin"),
-        patch("searxng_mcp.mcp_server.SEARXNG_PASSWORD", "secret"),
+    with patch(
+        "searxng_mcp.mcp_server.setting",
+        _setting_stub({"SEARXNG_USERNAME": "admin", "SEARXNG_PASSWORD": "secret"}),
     ):
         res = await web_search_tool.fn(
             query="test",
