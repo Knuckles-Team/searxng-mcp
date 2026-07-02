@@ -95,16 +95,15 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
-> **Install the slim `[mcp]` extra.** All examples below install
-> `searxng-mcp[mcp]` — the MCP-server extra that pulls only the FastMCP /
-> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
-> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
-> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
-> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
-> (see [Installation](#installation)).
+<!-- MCP-CONFIG-EXAMPLES:START -->
 
-#### stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
-Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
+> **Install the slim `[mcp]` extra.** All examples install `searxng-mcp[mcp]` — the
+> MCP-server extra that pulls only the FastMCP / FastAPI tooling (`agent-utilities[mcp]`).
+> It deliberately **excludes** the heavy agent runtime (`pydantic-ai`, the epistemic-graph
+> engine, `dspy`, `llama-index`), so `uvx` / container installs are far smaller. Use the
+> full `[agent]` extra only when you need the integrated Pydantic AI agent.
+
+#### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
 
 ```json
 {
@@ -117,15 +116,19 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
         "searxng-mcp"
       ],
       "env": {
-        "SEARXNG_URL": "your_searxng_url_here"
+        "MCP_TOOL_MODE": "condensed",
+        "SEARXNG_INSTANCE_URL": "",
+        "SEARXNG_PASSWORD": "",
+        "SEARXNG_URL": "http://localhost:8080",
+        "SEARXNG_USERNAME": "",
+        "USE_RANDOM_INSTANCE": "false"
       }
     }
   }
 }
 ```
 
-#### Streamable-HTTP Transport (Recommended for production deployments)
-Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx` with explicit host and port definition:
+#### Streamable-HTTP Transport (networked / production)
 
 ```json
 {
@@ -135,20 +138,29 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
       "args": [
         "--from",
         "searxng-mcp[mcp]",
-        "searxng-mcp"
+        "searxng-mcp",
+        "--transport",
+        "streamable-http",
+        "--port",
+        "8000"
       ],
       "env": {
         "TRANSPORT": "streamable-http",
         "HOST": "0.0.0.0",
         "PORT": "8000",
-        "SEARXNG_URL": "your_searxng_url_here"
+        "MCP_TOOL_MODE": "condensed",
+        "SEARXNG_INSTANCE_URL": "",
+        "SEARXNG_PASSWORD": "",
+        "SEARXNG_URL": "http://localhost:8080",
+        "SEARXNG_USERNAME": "",
+        "USE_RANDOM_INSTANCE": "false"
       }
     }
   }
 }
 ```
 
-Alternatively, connect to a pre-deployed remote or local Streamable-HTTP instance:
+Alternatively, connect to a pre-deployed Streamable-HTTP instance by `url`:
 
 ```json
 {
@@ -167,19 +179,19 @@ docker run -d \
   --name searxng-mcp-mcp \
   -p 8000:8000 \
   -e TRANSPORT=streamable-http \
+  -e HOST=0.0.0.0 \
   -e PORT=8000 \
-  -e SEARXNG_URL="your_value" \
+  -e MCP_TOOL_MODE=condensed \
+  -e SEARXNG_INSTANCE_URL="" \
+  -e SEARXNG_PASSWORD="" \
+  -e SEARXNG_URL=http://localhost:8080 \
+  -e SEARXNG_USERNAME="" \
+  -e USE_RANDOM_INSTANCE=false \
   knucklessg1/searxng-mcp:mcp
 ```
 
-> The `:mcp` tag is the **slim MCP-server image** (built from
-> `docker/Dockerfile --target mcp`, installing `searxng-mcp[mcp]`). The default
-> `:latest` tag is the **full agent image** (`--target agent`, `searxng-mcp[agent]`)
-> which also bundles the Pydantic AI agent and the epistemic-graph engine — use it
-> when you run `searxng-agent` (the agent), not just the MCP server. See
-> [Container images](#container-images-mcp-vs-agent).
-
----
+_Auto-generated from the code-read env surface (`MCP_TOOL_MODE` + package vars) — do not edit._
+<!-- MCP-CONFIG-EXAMPLES:END -->
 
 <!-- BEGIN GENERATED: additional-deployment-options -->
 ### Additional Deployment Options
