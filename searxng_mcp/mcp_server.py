@@ -91,29 +91,16 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         instructions="SearXNG MCP Server — Privacy-respecting metasearch engine to find information across multiple search engines.",
     )
 
-    @mcp.tool(name="web_search")
-    async def web_search(
-        query: str = Field(description="Search query to submit to SearXNG"),
-        categories: list[str] | None = Field(
-            default=None,
-            description="Optional list of categories to search in (e.g. general, news, science, files, images, videos, music, it, social_media)",
-        ),
-        engines: list[str] | None = Field(
-            default=None, description="Optional list of specific search engines to use"
-        ),
-        language: str = Field(
-            default="en-US",
-            description="Language code for search results (e.g. en-US)",
-        ),
-        pageno: int = Field(default=1, description="Page number of results to fetch"),
-        ctx: Context | None = Field(
-            default=None, description="MCP context for progress reporting"
-        ),
+    def _perform_search(
+        query: str,
+        categories: list[str] | None,
+        engines: list[str] | None,
+        language: str,
+        pageno: int,
+        *,
+        ingest: bool,
     ) -> dict:
-        """Perform a web search using a privacy-respecting SearXNG metasearch instance."""
-        if ctx:
-            await ctx.info(f"Performing SearXNG search for '{query}'...")
-
+        """Run one SearXNG query (plain helper shared by the tools). Best-effort KG ingest."""
         instance_url = setting("SEARXNG_INSTANCE_URL", "") or setting("SEARXNG_URL", "")
         if not instance_url:
             if bool(setting("USE_RANDOM_INSTANCE", False)):
@@ -148,10 +135,88 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         try:
             response = requests.get(url, params=params, auth=auth, timeout=15)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
         except Exception as e:
             logger.error(f"Search failed: {e}")
             return {"error": f"Failed to perform search: {str(e)}"}
+
+        # Native KG ingestion (default-on, best-effort). Push each result into the
+        # epistemic-graph as a search :Document (+ :SearchQuery / :SearchEngine typed
+        # nodes). No-ops when no engine is reachable. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        if ingest and bool(setting("SEARXNG_KG_INGEST", True)):
+            try:
+                from searxng_mcp.kg_ingest import ingest_search_results
+
+                ingest_search_results(query, data, language=language)
+            except Exception as e:  # noqa: BLE001 - ingestion never breaks search
+                logger.debug(f"KG ingest skipped: {e}")
+
+        return data
+
+    @mcp.tool(name="web_search")
+    async def web_search(
+        query: str = Field(description="Search query to submit to SearXNG"),
+        categories: list[str] | None = Field(
+            default=None,
+            description="Optional list of categories to search in (e.g. general, news, science, files, images, videos, music, it, social_media)",
+        ),
+        engines: list[str] | None = Field(
+            default=None, description="Optional list of specific search engines to use"
+        ),
+        language: str = Field(
+            default="en-US",
+            description="Language code for search results (e.g. en-US)",
+        ),
+        pageno: int = Field(default=1, description="Page number of results to fetch"),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Perform a web search using a privacy-respecting SearXNG metasearch instance."""
+        if ctx:
+            await ctx.info(f"Performing SearXNG search for '{query}'...")
+        return _perform_search(
+            query, categories, engines, language, pageno, ingest=True
+        )
+
+    @mcp.tool(name="searxng_ingest_search", tags={"misc", "kg"})
+    async def searxng_ingest_search(
+        query: str = Field(description="Search query to submit to SearXNG"),
+        categories: list[str] | None = Field(
+            default=None,
+            description="Optional list of categories to search in (e.g. general, news, science)",
+        ),
+        engines: list[str] | None = Field(
+            default=None, description="Optional list of specific search engines to use"
+        ),
+        language: str = Field(
+            default="en-US",
+            description="Language code for search results (e.g. en-US)",
+        ),
+        pageno: int = Field(default=1, description="Page number of results to fetch"),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting"
+        ),
+    ) -> dict:
+        """Run a SearXNG search and natively ingest its results into epistemic-graph.
+
+        Wire-First: performs the search, then pushes each result into the knowledge graph
+        as a search :Document (+ :SearchQuery / :SearchEngine typed nodes and their
+        :resultOf / :fromEngine links). Best-effort: ``ingested`` is ``None`` when no engine
+        is reachable. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        from searxng_mcp.kg_ingest import ingest_search_results
+
+        if ctx:
+            await ctx.info(f"Searching + ingesting SearXNG results for '{query}'...")
+        data = _perform_search(
+            query, categories, engines, language, pageno, ingest=False
+        )
+        if isinstance(data, dict) and data.get("error"):
+            return {"listed": 0, "ingested": None, "error": data["error"]}
+        results = data.get("results") or [] if isinstance(data, dict) else []
+        ingested = ingest_search_results(query, data, language=language)
+        return {"listed": len(results), "ingested": ingested}
 
     register_prompts(mcp)
 

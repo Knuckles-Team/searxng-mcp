@@ -1,0 +1,99 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix : <http://knuckles.team/kg#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SearXNG metasearch ontology — queries, the web results they return, the underlying
+# search engines, and the instance that served them. All classes and properties live in
+# the shared `:` (kg#) namespace; only the owl:Ontology node gets the per-package IRI.
+# Backs the searxng-mcp `web_search` tool surface. Individual search results are text
+# worth semantic search, so they are also ingested as the shared `:Document` class
+# (never redefined here) carrying the result text + source_uri.
+
+:SearchQuery a owl:Class ;
+    rdfs:label "Search Query" ;
+    rdfs:comment "A query submitted to a SearXNG metasearch instance (web_search)." .
+
+:SearchResult a owl:Class ;
+    rdfs:label "Search Result" ;
+    rdfs:comment "A single ranked web result returned for a SearchQuery (url + title + snippet). Also mirrored as a :Document for semantic search." .
+
+:SearchEngine a owl:Class ;
+    rdfs:label "Search Engine" ;
+    rdfs:comment "An underlying engine SearXNG aggregates (e.g. google, bing, duckduckgo, wikipedia)." .
+
+:SearxngInstance a owl:Class ;
+    rdfs:label "SearXNG Instance" ;
+    rdfs:comment "A SearXNG deployment that serves queries (a configured or randomly-chosen instance URL)." .
+
+# --- links (owl:ObjectProperty) ---
+
+:resultOf a owl:ObjectProperty ;
+    rdfs:label "result of" ;
+    rdfs:comment "Links a SearchResult (or its :Document) to the SearchQuery that produced it." ;
+    rdfs:domain :SearchResult ;
+    rdfs:range :SearchQuery .
+
+:fromEngine a owl:ObjectProperty ;
+    rdfs:label "from engine" ;
+    rdfs:comment "Links a SearchResult to the SearchEngine that surfaced it." ;
+    rdfs:domain :SearchResult ;
+    rdfs:range :SearchEngine .
+
+:servedByInstance a owl:ObjectProperty ;
+    rdfs:label "served by instance" ;
+    rdfs:comment "Links a SearchQuery to the SearxngInstance that answered it." ;
+    rdfs:domain :SearchQuery ;
+    rdfs:range :SearxngInstance .
+
+# --- fields (owl:DatatypeProperty) ---
+
+:searxngId a owl:DatatypeProperty ;
+    rdfs:label "searxng id" ;
+    rdfs:comment "Stable external identifier of a SearXNG object (query hash or result url)." ;
+    rdfs:range xsd:string .
+
+:queryText a owl:DatatypeProperty ;
+    rdfs:label "query text" ;
+    rdfs:comment "The raw query string submitted to SearXNG." ;
+    rdfs:domain :SearchQuery ;
+    rdfs:range xsd:string .
+
+:resultUrl a owl:DatatypeProperty ;
+    rdfs:label "result url" ;
+    rdfs:comment "The URL of a SearchResult." ;
+    rdfs:domain :SearchResult ;
+    rdfs:range xsd:anyURI .
+
+:score a owl:DatatypeProperty ;
+    rdfs:label "score" ;
+    rdfs:comment "The relevance score SearXNG assigned to a SearchResult." ;
+    rdfs:domain :SearchResult ;
+    rdfs:range xsd:double .
+
+:category a owl:DatatypeProperty ;
+    rdfs:label "category" ;
+    rdfs:comment "The SearXNG category a query/result belongs to (general, news, science, images, …)." ;
+    rdfs:range xsd:string .
+
+:language a owl:DatatypeProperty ;
+    rdfs:label "language" ;
+    rdfs:comment "The language code used for the query (e.g. en-US)." ;
+    rdfs:domain :SearchQuery ;
+    rdfs:range xsd:string .
+
+:publishedDate a owl:DatatypeProperty ;
+    rdfs:label "published date" ;
+    rdfs:comment "The publication date a result reports, when available." ;
+    rdfs:domain :SearchResult ;
+    rdfs:range xsd:string .
+
+<http://knuckles.team/kg/searxng> a owl:Ontology ;
+    rdfs:label "SearXNG Ontology" ;
+    rdfs:comment """SearXNG metasearch domain extensions federated into the agent-utilities
+    knowledge-graph hub: search queries, the ranked web results they return (also mirrored
+    as shared :Document nodes), the aggregated search engines, and the serving instance.""" ;
+    owl:imports <http://knuckles.team/kg> .

@@ -118,6 +118,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
       "env": {
         "MCP_TOOL_MODE": "condensed",
         "SEARXNG_INSTANCE_URL": "",
+        "SEARXNG_KG_INGEST": "true",
         "SEARXNG_PASSWORD": "",
         "SEARXNG_URL": "http://localhost:8080",
         "SEARXNG_USERNAME": "",
@@ -150,6 +151,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "PORT": "8000",
         "MCP_TOOL_MODE": "condensed",
         "SEARXNG_INSTANCE_URL": "",
+        "SEARXNG_KG_INGEST": "true",
         "SEARXNG_PASSWORD": "",
         "SEARXNG_URL": "http://localhost:8080",
         "SEARXNG_USERNAME": "",
@@ -183,6 +185,7 @@ docker run -d \
   -e PORT=8000 \
   -e MCP_TOOL_MODE=condensed \
   -e SEARXNG_INSTANCE_URL="" \
+  -e SEARXNG_KG_INGEST=true \
   -e SEARXNG_PASSWORD="" \
   -e SEARXNG_URL=http://localhost:8080 \
   -e SEARXNG_USERNAME="" \
@@ -333,6 +336,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
 | `SEARXNG_INSTANCE_URL` | — |  |
+| `SEARXNG_KG_INGEST` | `true` | Ingest search results into the epistemic-graph KG (best-effort) |
 | `SEARXNG_URL` | `http://localhost:8080` |  |
 | `SEARXNG_USERNAME` | — |  |
 | `SEARXNG_PASSWORD` | — |  |
@@ -372,6 +376,7 @@ starting point.
 | `SEARXNG_USERNAME` | Basic-auth username for the SearXNG instance (if protected) | — |
 | `SEARXNG_PASSWORD` | Basic-auth password for the SearXNG instance (if protected) | — |
 | `USE_RANDOM_INSTANCE` | Pick a random public SearXNG instance instead of `SEARXNG_URL` | `false` |
+| `SEARXNG_KG_INGEST` | Natively ingest each search result into the knowledge graph (best-effort no-op if no engine) | `true` |
 
 ### MCP server / transport
 | Variable | Description | Default |

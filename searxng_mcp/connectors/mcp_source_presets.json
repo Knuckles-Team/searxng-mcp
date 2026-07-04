@@ -1,0 +1,14 @@
+{
+  "_comment": "Tier-1 mcp_tool source preset for searxng-mcp (AU-KG.ingest.mcp-tool-connector). Runs the `web_search` tool and ingests each returned result (from the `results` list) into the KG as a search Document. Contributed presets win over the central MCP_TOOL_PRESETS.",
+  "searxng-web-search": {
+    "server": "searxng-mcp",
+    "tool": "web_search",
+    "action": "web_search",
+    "records_path": "results",
+    "id_field": "url",
+    "title_field": "title",
+    "text_field": "content",
+    "updated_field": "publishedDate",
+    "doc_type": "search_result"
+  }
+}
