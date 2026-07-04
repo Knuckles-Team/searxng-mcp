@@ -36,14 +36,14 @@ def _setting_stub(overrides):
 # ==========================================
 
 
-@pytest.mark.concept("CONCEPT:CE-016")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
 def test_init_getattr_available():
     """Test dynamic attributes _MCP_AVAILABLE and _AGENT_AVAILABLE."""
     assert searxng_mcp._MCP_AVAILABLE is True
     assert searxng_mcp._AGENT_AVAILABLE is True
 
 
-@pytest.mark.concept("CONCEPT:CE-016")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
 def test_init_getattr_unavailable_keys():
     """Test getattr when OPTIONAL_MODULES are missing."""
     with patch.dict(searxng_mcp.OPTIONAL_MODULES, {}, clear=True):
@@ -51,7 +51,7 @@ def test_init_getattr_unavailable_keys():
         assert searxng_mcp._AGENT_AVAILABLE is False
 
 
-@pytest.mark.concept("CONCEPT:CE-016")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
 def test_init_getattr_nonexistent():
     """Test attribute lookup failure raises AttributeError."""
     with pytest.raises(
@@ -60,7 +60,7 @@ def test_init_getattr_nonexistent():
         _ = searxng_mcp.nonexistent
 
 
-@pytest.mark.concept("CONCEPT:CE-016")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
 def test_init_dir():
     """Test __dir__ includes expected members."""
     directory = dir(searxng_mcp)
@@ -68,7 +68,7 @@ def test_init_dir():
     assert "agent_server" in directory
 
 
-@pytest.mark.concept("CONCEPT:CE-016")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
 def test_init_import_error_handling():
     """Test import error handling in _import_module_safely."""
     with patch(
@@ -84,7 +84,7 @@ def test_init_import_error_handling():
 # ==========================================
 
 
-@pytest.mark.concept("CONCEPT:CE-021")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-3")
 @patch("searxng_mcp.agent_server.agent_server")
 def test_main_execution(mock_agent_server):
     """Test running searxng_mcp module executes the agent server."""
@@ -98,7 +98,7 @@ def test_main_execution(mock_agent_server):
 # ==========================================
 
 
-@pytest.mark.concept("CONCEPT:CE-018")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-2")
 @patch("agent_utilities.create_agent_server")
 @patch("agent_utilities.initialize_workspace")
 @patch("agent_utilities.load_identity")
@@ -116,7 +116,7 @@ def test_agent_server(mock_load_identity, mock_initialize, mock_create_server):
         mock_create_server.assert_called_once()
 
 
-@pytest.mark.concept("CONCEPT:CE-018")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-2")
 @patch("agent_utilities.create_agent_server")
 @patch("agent_utilities.initialize_workspace")
 @patch("agent_utilities.load_identity")
@@ -141,7 +141,7 @@ def test_agent_server_main_execution(
 # ==========================================
 
 
-@pytest.mark.concept("CONCEPT:CE-023")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-5")
 @patch("searxng_mcp.mcp_server.requests.get")
 def test_get_random_searxng_instance_success(mock_get):
     """Test fetching random SearXNG instance with valid response."""
@@ -160,7 +160,7 @@ def test_get_random_searxng_instance_success(mock_get):
     assert instance == "https://searx.be"
 
 
-@pytest.mark.concept("CONCEPT:CE-023")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-5")
 @patch("searxng_mcp.mcp_server.requests.get")
 def test_get_random_searxng_instance_empty(mock_get):
     """Test fetching random SearXNG instance when standard instances list is empty."""
@@ -173,7 +173,7 @@ def test_get_random_searxng_instance_empty(mock_get):
         get_random_searxng_instance()
 
 
-@pytest.mark.concept("CONCEPT:CE-023")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-5")
 @patch("searxng_mcp.mcp_server.requests.get")
 def test_get_random_searxng_instance_failure(mock_get):
     """Test fetching random SearXNG instance raises failure on request exception."""
@@ -182,7 +182,7 @@ def test_get_random_searxng_instance_failure(mock_get):
         get_random_searxng_instance()
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 def test_search_prompt():
     """Test registering search prompt."""
     mcp, _, _, _ = get_mcp_instance()
@@ -193,7 +193,7 @@ def test_search_prompt():
     assert res == "Searching the web for: hello."
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 @pytest.mark.asyncio
 @patch("searxng_mcp.mcp_server.requests.get")
 async def test_web_search_default(mock_get):
@@ -224,7 +224,7 @@ async def test_web_search_default(mock_get):
     assert kwargs["params"]["q"] == "test query"
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 @pytest.mark.asyncio
 @patch("searxng_mcp.mcp_server.requests.get")
 async def test_web_search_custom(mock_get):
@@ -262,7 +262,7 @@ async def test_web_search_custom(mock_get):
     mock_ctx.info.assert_called_once_with("Performing SearXNG search for 'test'...")
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 @pytest.mark.asyncio
 @patch("searxng_mcp.mcp_server.requests.get")
 async def test_web_search_random_instance(mock_get):
@@ -300,7 +300,7 @@ async def test_web_search_random_instance(mock_get):
     assert "https://random.searx.be/search" in args[0]
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 @pytest.mark.asyncio
 @patch("searxng_mcp.mcp_server.requests.get")
 async def test_web_search_random_instance_failure(mock_get):
@@ -338,7 +338,7 @@ async def test_web_search_random_instance_failure(mock_get):
     assert "https://searx.be/search" in args[0]
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 @pytest.mark.asyncio
 @patch("searxng_mcp.mcp_server.requests.get")
 async def test_web_search_basic_auth(mock_get):
@@ -370,7 +370,7 @@ async def test_web_search_basic_auth(mock_get):
     assert kwargs["auth"] == ("admin", "secret")
 
 
-@pytest.mark.concept("CONCEPT:CE-022")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 @pytest.mark.asyncio
 @patch("searxng_mcp.mcp_server.requests.get")
 async def test_web_search_failure(mock_get):
@@ -392,7 +392,7 @@ async def test_web_search_failure(mock_get):
     assert "Failed to perform search: Request timeout" in res["error"]
 
 
-@pytest.mark.concept("CONCEPT:CE-024")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-6")
 @pytest.mark.parametrize(
     "transport,expected_kwargs",
     [
@@ -420,7 +420,7 @@ def test_mcp_server_run_transports(mock_get_instance, transport, expected_kwargs
     mock_mcp.run.assert_called_once_with(**expected_kwargs)
 
 
-@pytest.mark.concept("CONCEPT:CE-024")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-6")
 @patch("searxng_mcp.mcp_server.get_mcp_instance")
 def test_mcp_server_run_invalid_transport(mock_get_instance):
     """Test mcp_server startup fails with invalid transport."""
@@ -434,7 +434,7 @@ def test_mcp_server_run_invalid_transport(mock_get_instance):
         mcp_server()
 
 
-@pytest.mark.concept("CONCEPT:CE-021")
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-3")
 @patch("fastmcp.FastMCP.run")
 def test_mcp_server_main_execution(mock_run):
     """Test running searxng_mcp.mcp_server module as main."""
