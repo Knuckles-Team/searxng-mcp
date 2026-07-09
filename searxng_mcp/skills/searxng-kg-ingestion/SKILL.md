@@ -1,5 +1,6 @@
 ---
 name: searxng-kg-ingestion
+skill_type: skill
 description: >-
   Persist SearXNG search results into the epistemic-graph knowledge graph via the
   searxng-mcp MCP server. Use when the agent must turn a web search into durable,

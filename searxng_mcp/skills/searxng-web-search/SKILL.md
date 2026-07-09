@@ -1,5 +1,6 @@
 ---
 name: searxng-web-search
+skill_type: skill
 description: >-
   Privacy-respecting web metasearch via the searxng-mcp MCP server. Use when the
   agent needs current, open-web results for a query and must NOT leak the query to a

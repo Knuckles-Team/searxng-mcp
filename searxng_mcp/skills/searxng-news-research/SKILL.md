@@ -1,5 +1,6 @@
 ---
 name: searxng-news-research
+skill_type: skill
 description: >-
   Time-sensitive news and topic monitoring via the searxng-mcp MCP server. Use when
   the agent must gather what multiple news/social engines are currently reporting on a
