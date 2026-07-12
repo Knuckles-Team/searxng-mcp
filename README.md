@@ -61,13 +61,15 @@ The table below is auto-generated from the MCP server — do not edit by hand.
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
+| `searxng_ingest_search` | `KGTOOL` | Run a SearXNG search and natively ingest its results into epistemic-graph. |
+| `searxng_settings` | `CONFIGTOOL` | Read/edit the EMBEDDED SearXNG instance's settings.yml |
 | `web_search` | — | Perform a web search using a privacy-respecting SearXNG metasearch instance. |
 
-_1 action-routed tool(s) (default) · 0 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_3 action-routed tool(s) · 0 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
@@ -116,13 +118,15 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "searxng-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
+        "SEARXNG_EMBEDDED": "true",
         "SEARXNG_INSTANCE_URL": "",
         "SEARXNG_KG_INGEST": "true",
         "SEARXNG_PASSWORD": "",
         "SEARXNG_URL": "http://localhost:8080",
         "SEARXNG_USERNAME": "",
-        "USE_RANDOM_INSTANCE": "false"
+        "USE_RANDOM_INSTANCE": "false",
+        "XDG_CONFIG_HOME": ""
       }
     }
   }
@@ -149,13 +153,15 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "TRANSPORT": "streamable-http",
         "HOST": "0.0.0.0",
         "PORT": "8000",
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
+        "SEARXNG_EMBEDDED": "true",
         "SEARXNG_INSTANCE_URL": "",
         "SEARXNG_KG_INGEST": "true",
         "SEARXNG_PASSWORD": "",
         "SEARXNG_URL": "http://localhost:8080",
         "SEARXNG_USERNAME": "",
-        "USE_RANDOM_INSTANCE": "false"
+        "USE_RANDOM_INSTANCE": "false",
+        "XDG_CONFIG_HOME": ""
       }
     }
   }
@@ -183,13 +189,15 @@ docker run -d \
   -e TRANSPORT=streamable-http \
   -e HOST=0.0.0.0 \
   -e PORT=8000 \
-  -e MCP_TOOL_MODE=condensed \
+  -e MCP_TOOL_MODE=intent \
+  -e SEARXNG_EMBEDDED=true \
   -e SEARXNG_INSTANCE_URL="" \
   -e SEARXNG_KG_INGEST=true \
   -e SEARXNG_PASSWORD="" \
   -e SEARXNG_URL=http://localhost:8080 \
   -e SEARXNG_USERNAME="" \
   -e USE_RANDOM_INSTANCE=false \
+  -e XDG_CONFIG_HOME="" \
   knucklessg1/searxng-mcp:mcp
 ```
 
@@ -336,11 +344,13 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
 | `SEARXNG_INSTANCE_URL` | — |  |
-| `SEARXNG_KG_INGEST` | `true` | Ingest search results into the epistemic-graph KG (best-effort) |
 | `SEARXNG_URL` | `http://localhost:8080` |  |
 | `SEARXNG_USERNAME` | — |  |
 | `SEARXNG_PASSWORD` | — |  |
 | `USE_RANDOM_INSTANCE` | `false` |  |
+| `SEARXNG_KG_INGEST` | `true` |  |
+| `SEARXNG_EMBEDDED` | `true` | owns (requires the `searxng-mcp[embedded]` extra; a silent no-op without it). |
+| `XDG_CONFIG_HOME` | — | $XDG_CONFIG_HOME/searxng-mcp/settings.yml. Defaults to ~/.config. |
 
 #### Inherited agent-utilities variables (apply to every connector)
 
@@ -351,9 +361,11 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `MCP_DISABLED_TOOLS` | — | Comma-separated tool deny-list |
 | `MCP_ENABLED_TAGS` | — | Comma-separated tag allow-list |
 | `MCP_DISABLED_TAGS` | — | Comma-separated tag deny-list |
-| `MCP_CLIENT_AUTH` | — | Outbound MCP auth (`oidc-client-credentials` for fleet calls) |
+| `MCP_CLIENT_AUTH` | — | Outbound MCP child auth: `oidc-client-credentials` | `basic` | `none` |
 | `OIDC_CLIENT_ID` | — | OIDC client id (service-account auth) |
 | `OIDC_CLIENT_SECRET` | — | OIDC client secret (service-account auth) |
+| `MCP_BASIC_AUTH_USERNAME` | — | HTTP Basic username (`MCP_CLIENT_AUTH=basic`) |
+| `MCP_BASIC_AUTH_PASSWORD` | — | HTTP Basic password (`MCP_CLIENT_AUTH=basic`) |
 | `DEBUG` | `False` | Verbose logging |
 | `PYTHONUNBUFFERED` | `1` | Unbuffered stdout (recommended in containers) |
 | `MCP_URL` | `http://localhost:8000/mcp` | URL of the MCP server the agent connects to |
@@ -361,7 +373,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_16 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_19 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 

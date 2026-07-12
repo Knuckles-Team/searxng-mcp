@@ -30,6 +30,19 @@ def _setting_stub(overrides):
     return _stub
 
 
+@pytest.fixture(autouse=True)
+def _no_embedded_by_default():
+    """Every pre-existing test in this file predates embedded-instance
+    support (CONCEPT:SR-KG.compute.embedded-instance) and asserts the legacy
+    public-fallback behavior — pin ``embedded_available()`` False so running
+    under ``--all-extras`` (which DOES install the ``[embedded]`` extra)
+    doesn't change their outcome. The tests that specifically exercise the
+    embedded path patch ``embedded_enabled``/``get_embedded_instance``
+    directly, bypassing this."""
+    with patch("searxng_mcp.embedded.embedded_available", return_value=False):
+        yield
+
+
 # ==========================================
 # 1. Tests for searxng_mcp/__init__.py
 # ==========================================

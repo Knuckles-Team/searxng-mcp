@@ -74,3 +74,19 @@ where = [ ".",]
 
 [tool.vulture]
 ignore_names = ["request", "config"]
+
+[tool.uv.extra-build-dependencies]
+# The `searxng` git dependency (the [embedded] extra) uses a legacy setup.py
+# that executes `searx/__init__.py` at build-metadata time — which calls
+# init_settings() at MODULE level, pulling in most of searx's own runtime
+# requirements.txt just to compute the package version/metadata, none of
+# which it declares as a build dependency. Without this, `uv`'s isolated
+# build environment can't even resolve the package (fails before its own
+# requirements.txt is ever consulted). Upstream packaging quirk, not ours to
+# fix; this is uv's own documented workaround — mirrors searx/requirements.txt.
+searxng = [
+    "certifi", "babel", "flask-babel", "flask", "jinja2", "lxml", "pygments",
+    "python-dateutil", "pyyaml", "httpx", "httpx-socks", "sniffio", "valkey",
+    "markdown-it-py", "msgspec", "typer", "isodate", "whitenoise",
+    "typing-extensions",
+]
