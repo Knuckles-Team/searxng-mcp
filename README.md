@@ -377,6 +377,7 @@ starting point.
 | `SEARXNG_PASSWORD` | Basic-auth password for the SearXNG instance (if protected) | — |
 | `USE_RANDOM_INSTANCE` | Pick a random public SearXNG instance instead of `SEARXNG_URL` | `false` |
 | `SEARXNG_KG_INGEST` | Natively ingest each search result into the knowledge graph (best-effort no-op if no engine) | `true` |
+| `SEARXNG_EMBEDDED` | Zero-config self-contained search: when `SEARXNG_URL`/`SEARXNG_INSTANCE_URL` are unset, spawn+use a private, loopback-only SearXNG instance this server owns (requires `pip install searxng-mcp[embedded]`; a silent no-op without that extra installed) | `true` |
 
 ### MCP server / transport
 | Variable | Description | Default |

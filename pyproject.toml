@@ -20,6 +20,10 @@ text = "MIT"
 [project.optional-dependencies]
 mcp = [ "agent-utilities[mcp]>=1.0.0",]
 agent = [ "agent-utilities[agent,logfire]>=1.0.0",]
+# Zero-config self-contained search (searxng_mcp/embedded/): SearXNG ships no
+# PyPI release, only a pip-installable git source (setup.py name="searxng",
+# package "searx", console_script searxng-run = searx.webapp:run).
+embedded = [ "searxng @ git+https://github.com/searxng/searxng.git",]
 all = [ "agent-utilities[mcp,agent,logfire]>=1.0.0",]
 test = [
     "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
@@ -27,6 +31,7 @@ test = [
 [project.scripts]
 searxng-mcp = "searxng_mcp.mcp_server:mcp_server"
 searxng-agent = "searxng_mcp.agent_server:agent_server"
+searxng-doctor = "searxng_mcp.doctor:main"
 
 [project.entry-points."agent_utilities.skill_providers"]
 searxng-mcp = "searxng_mcp.skills"
@@ -58,7 +63,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-searxng_mcp = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**", "ontology/**", "connectors/**",]
+searxng_mcp = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**", "ontology/**", "connectors/**", "embedded/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]

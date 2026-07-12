@@ -1,0 +1,52 @@
+# Overrides for the embedded/in-process SearXNG instance
+# (searxng_mcp/embedded/__init__.py, CONCEPT:SR-KG.compute.embedded-instance).
+#
+# SearXNG merges a user settings.yml OVER its own bundled defaults
+# (searx/settings_loader.py:update_settings) — everything not listed here
+# (engines, categories, UI, favicons, ...) inherits the upstream default.
+# bind_address / port / secret_key / limiter / public_instance / debug are
+# NOT set here: they are pushed as env vars at spawn time
+# (SEARXNG_BIND_ADDRESS / SEARXNG_PORT / SEARXNG_SECRET / SEARXNG_LIMITER /
+# SEARXNG_PUBLIC_INSTANCE / SEARXNG_DEBUG — searx/settings_defaults.py reads
+# these directly, no YAML templating involved), because that keeps this one
+# file identical across every embedded run.
+#
+# PRIVACY POSTURE — as private as a metasearch engine can be, by construction:
+#   * bind_address=127.0.0.1 (env, see above): the instance is NEVER reachable
+#     off this machine — no LAN/network exposure, nothing to "share".
+#   * public_instance=false / limiter=false (env): it never registers or
+#     behaves as a public relay — no other user's traffic ever touches it.
+#   * enable_metrics: false below — no local /metrics endpoint at all (belt
+#     and suspenders; loopback binding already makes it unreachable anyway).
+#   * autocomplete / favicon_resolver are left UNSET (inherits the upstream
+#     default of "", i.e. off) — enabling either sends every keystroke /
+#     every result's favicon lookup to a third-party API (Google/DuckDuckGo/
+#     Yandex/...); we deliberately do not turn these on.
+#   * image_proxy: true below — image results are proxied THROUGH this
+#     instance instead of your browser hitting the image host directly.
+#   * SearXNG has no instance-to-instance federation/mesh feature at all —
+#     there is nothing here to disable; a SearXNG instance never talks to
+#     another SearXNG instance.
+#   * What this does NOT do: hide you from the upstream search engines
+#     (Google/Bing/DuckDuckGo/...) themselves. A big public SearXNG relay
+#     gives herd anonymity (thousands of users share one exit IP); YOUR OWN
+#     embedded instance queries those engines straight from this machine's
+#     IP, same as your regular browser would. If that matters, route
+#     `outgoing.proxies` (below, commented out) through Tor/a VPN/SOCKS.
+search:
+  formats:
+    - html
+    - json
+
+general:
+  enable_metrics: false
+
+server:
+  image_proxy: true
+
+# outgoing:
+#   # Route every upstream engine request through Tor/a VPN/SOCKS proxy for
+#   # engine-level anonymity too (not just "nothing shared between instances").
+#   proxies:
+#     all://:
+#       - socks5h://127.0.0.1:9050

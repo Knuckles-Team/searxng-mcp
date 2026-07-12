@@ -19,6 +19,7 @@ SearXNG MCP Server.
 Privacy-respecting metasearch engine to query search results across various platforms.
 """
 
+import json
 import logging
 import random
 import sys
@@ -75,6 +76,27 @@ def get_random_searxng_instance() -> str:
         raise ValueError("Failed to fetch SearXNG instances list") from e
 
 
+def _resolve_embedded_instance() -> str:
+    """Zero-config self-contained search (CONCEPT:SR-KG.compute.embedded-instance):
+    when no ``SEARXNG_URL``/``SEARXNG_INSTANCE_URL`` is configured, prefer a
+    PRIVATE embedded SearXNG instance this server owns over the public
+    ``searx.be``/random-instance fallback below. No-op (returns ``""``)
+    unless the ``searxng-mcp[embedded]`` extra is installed AND
+    ``SEARXNG_EMBEDDED`` isn't explicitly disabled — see
+    ``searxng_mcp.embedded.embedded_enabled``. Best-effort: a startup failure
+    degrades to the existing public fallback rather than breaking search.
+    """
+    try:
+        from searxng_mcp.embedded import embedded_enabled, get_embedded_instance
+
+        if not embedded_enabled():
+            return ""
+        return get_embedded_instance().ensure_running()
+    except Exception as e:  # noqa: BLE001 - degrade to the public fallback
+        logger.warning(f"[SearXNG] embedded instance unavailable: {e}")
+        return ""
+
+
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
     def search(topic: str) -> str:
@@ -102,6 +124,8 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     ) -> dict:
         """Run one SearXNG query (plain helper shared by the tools). Best-effort KG ingest."""
         instance_url = setting("SEARXNG_INSTANCE_URL", "") or setting("SEARXNG_URL", "")
+        if not instance_url:
+            instance_url = _resolve_embedded_instance()
         if not instance_url:
             if bool(setting("USE_RANDOM_INSTANCE", False)):
                 try:
@@ -217,6 +241,96 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         results = data.get("results") or [] if isinstance(data, dict) else []
         ingested = ingest_search_results(query, data, language=language)
         return {"listed": len(results), "ingested": ingested}
+
+    @mcp.tool(name="searxng_settings", tags={"misc", "config"})
+    async def searxng_settings(
+        action: str = Field(
+            default="get", description="get | set | reset — see tool description"
+        ),
+        overrides_json: str = Field(
+            default="",
+            description='JSON object of settings.yml overrides for "set" '
+            '(e.g. \'{"search": {"formats": ["html", "json", "csv"]}}\'). '
+            "Deep-merged onto the currently-active settings unless merge=false.",
+        ),
+        merge: bool = Field(
+            default=True,
+            description='"set" only: deep-merge onto current settings (default) '
+            "or replace the override file wholesale.",
+        ),
+        apply_now: bool = Field(
+            default=True,
+            description='"set"/"reset" only: stop the running embedded instance '
+            "(if any) so the NEXT search respawns it with the new settings.",
+        ),
+    ) -> dict:
+        """Read/edit the EMBEDDED SearXNG instance's settings.yml
+        (CONCEPT:SR-KG.compute.embedded-instance) — a no-op informational read
+        when an external ``SEARXNG_URL`` is configured, since that instance's
+        settings.yml lives elsewhere and isn't managed by this server.
+
+        Actions:
+          - ``get``: return the currently-active settings (the user override
+            at ``$XDG_CONFIG_HOME/searxng-mcp/settings.yml`` if one exists,
+            else the packaged default) plus its path.
+          - ``set``: deep-merge ``overrides_json`` into the user override
+            (creating it on first use — the packaged default is never
+            modified), then stop the running embedded instance so the next
+            search respawns with the new settings (unless ``apply_now=false``).
+          - ``reset``: delete the user override, reverting to the packaged
+            default on the next spawn.
+        """
+        from searxng_mcp.embedded import (
+            embedded_available,
+            get_embedded_instance,
+            read_settings,
+            reset_user_settings,
+            user_settings_path,
+            write_user_settings,
+        )
+
+        if not embedded_available():
+            return {
+                "action": action,
+                "error": "searx package not installed (pip install searxng-mcp[embedded])",
+            }
+
+        action = (action or "get").strip().lower()
+        if action == "get":
+            return {
+                "action": action,
+                "settings_path": str(
+                    user_settings_path()
+                    if user_settings_path().is_file()
+                    else "packaged default"
+                ),
+                "settings": read_settings(),
+            }
+        if action == "set":
+            try:
+                overrides = json.loads(overrides_json) if overrides_json else {}
+            except (TypeError, ValueError) as e:
+                return {"action": action, "error": f"invalid overrides_json: {e}"}
+            if not isinstance(overrides, dict):
+                return {
+                    "action": action,
+                    "error": "overrides_json must decode to an object",
+                }
+            path = write_user_settings(overrides, merge=merge)
+            if apply_now:
+                get_embedded_instance().stop()
+            return {
+                "action": action,
+                "settings_path": str(path),
+                "settings": read_settings(),
+                "restart_pending": not apply_now,
+            }
+        if action == "reset":
+            removed = reset_user_settings()
+            if apply_now:
+                get_embedded_instance().stop()
+            return {"action": action, "removed": removed, "settings": read_settings()}
+        return {"action": action, "error": f"unknown action {action!r}"}
 
     register_prompts(mcp)
 

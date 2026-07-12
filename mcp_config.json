@@ -8,6 +8,7 @@
       ],
       "env": {
         "MCP_TOOL_MODE": "condensed",
+        "SEARXNG_EMBEDDED": "true",
         "SEARXNG_INSTANCE_URL": "",
         "SEARXNG_KG_INGEST": "true",
         "SEARXNG_PASSWORD": "",

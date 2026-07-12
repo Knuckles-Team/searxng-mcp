@@ -40,7 +40,8 @@ Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server.
 | Variable | Required | Notes |
 |----------|----------|-------|
 | `SEARXNG_INSTANCE_URL` | optional | Instance base URL (alias `SEARXNG_URL`). Falls back to `https://searx.be`. |
-| `USE_RANDOM_INSTANCE` | optional | If truthy and no URL set, pick a random public instance from the SearXNG instances list. |
+| `SEARXNG_EMBEDDED` | optional | Default `true`. With no URL configured + the `searxng-mcp[embedded]` extra installed, spawns+uses a private loopback-only instance BEFORE falling to a random/public one — see `searxng-settings-editor`. |
+| `USE_RANDOM_INSTANCE` | optional | If truthy and no URL/embedded instance available, pick a random public instance from the SearXNG instances list. |
 | `SEARXNG_USERNAME` / `SEARXNG_PASSWORD` | optional | HTTP basic auth for a protected instance. |
 | `SEARXNG_KG_INGEST` | optional | Default-on; set falsy to disable the background KG ingest on `web_search`. |
 | `MCP_TOOL_MODE` | optional | `condensed` \| `verbose` \| `both`. |
@@ -84,4 +85,6 @@ Page 2 of an IT-category search:
 ## Related
 - `searxng-news-research` — the same tool tuned for time-sensitive news monitoring.
 - `searxng-kg-ingestion` — persist results into the epistemic-graph knowledge graph.
+- `searxng-settings-editor` — inspect/edit the embedded instance's settings.yml, or
+  diagnose which instance (embedded / external / random / `searx.be`) is effective.
 - `web-fetch` / `web-crawler` — read the full content behind a result URL.
