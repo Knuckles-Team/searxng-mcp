@@ -1,19 +1,18 @@
-import os
-import sys
-import runpy
 import asyncio
+import runpy
+import sys
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 import requests
-from unittest.mock import patch, MagicMock, AsyncMock
-from fastmcp import FastMCP
 
 import searxng_mcp
+from searxng_mcp.agent_server import agent_server
 from searxng_mcp.mcp_server import (
     get_mcp_instance,
     get_random_searxng_instance,
     mcp_server,
 )
-from searxng_mcp.agent_server import agent_server
 
 
 def _setting_stub(overrides):
@@ -29,6 +28,19 @@ def _setting_stub(overrides):
         return overrides.get(key, default)
 
     return _stub
+
+
+@pytest.fixture(autouse=True)
+def _no_embedded_by_default():
+    """Every pre-existing test in this file predates embedded-instance
+    support (CONCEPT:SR-KG.compute.embedded-instance) and asserts the legacy
+    public-fallback behavior — pin ``embedded_available()`` False so running
+    under ``--all-extras`` (which DOES install the ``[embedded]`` extra)
+    doesn't change their outcome. The tests that specifically exercise the
+    embedded path patch ``embedded_enabled``/``get_embedded_instance``
+    directly, bypassing this."""
+    with patch("searxng_mcp.embedded.embedded_available", return_value=False):
+        yield
 
 
 # ==========================================
@@ -259,7 +271,7 @@ async def test_web_search_custom(mock_get):
     assert "https://custom.searxng.org/search" in args[0]
     assert kwargs["params"]["categories"] == "general,news"
     assert kwargs["params"]["engines"] == "google,bing"
-    mock_ctx.info.assert_called_once_with("Performing SearXNG search for 'test'...")
+    mock_ctx.info.assert_called_once_with("Performing configured SearXNG search...")
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
@@ -390,6 +402,246 @@ async def test_web_search_failure(mock_get):
     )
     assert "error" in res
     assert "Failed to perform search: Request timeout" in res["error"]
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
+@pytest.mark.asyncio
+@patch("searxng_mcp.mcp_server.requests.get")
+async def test_web_search_prefers_embedded_over_public_fallback(mock_get):
+    """No explicit config, embedded available+enabled -> use the embedded URL
+    instead of the public searx.be fallback (CONCEPT:SR-KG.compute.embedded-instance)."""
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    web_search_tool = next(t for t in tools if t.name == "web_search")
+
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"results": []}
+    mock_response.raise_for_status = MagicMock()
+    mock_get.return_value = mock_response
+
+    with (
+        patch("searxng_mcp.mcp_server.setting", _setting_stub({})),
+        patch("searxng_mcp.embedded.embedded_enabled", return_value=True),
+        patch(
+            "searxng_mcp.embedded.get_embedded_instance",
+            return_value=MagicMock(
+                ensure_running=MagicMock(return_value="http://127.0.0.1:18888")
+            ),
+        ),
+    ):
+        res = await web_search_tool.fn(
+            query="test",
+            categories=None,
+            engines=None,
+            language="en-US",
+            pageno=1,
+            ctx=None,
+        )
+    assert res == {"results": []}
+    args, _kwargs = mock_get.call_args
+    assert "http://127.0.0.1:18888/search" in args[0]
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
+@pytest.mark.asyncio
+@patch("searxng_mcp.mcp_server.requests.get")
+async def test_web_search_falls_back_to_searx_be_when_embedded_disabled(mock_get):
+    """embedded_enabled()=False (extra not installed, or SEARXNG_EMBEDDED=false)
+    -> unchanged behavior, falls straight through to the public fallback."""
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    web_search_tool = next(t for t in tools if t.name == "web_search")
+
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"results": []}
+    mock_response.raise_for_status = MagicMock()
+    mock_get.return_value = mock_response
+
+    with (
+        patch("searxng_mcp.mcp_server.setting", _setting_stub({})),
+        patch("searxng_mcp.embedded.embedded_enabled", return_value=False),
+    ):
+        res = await web_search_tool.fn(
+            query="test",
+            categories=None,
+            engines=None,
+            language="en-US",
+            pageno=1,
+            ctx=None,
+        )
+    assert res == {"results": []}
+    args, _kwargs = mock_get.call_args
+    assert "https://searx.be/search" in args[0]
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
+@pytest.mark.asyncio
+@patch("searxng_mcp.mcp_server.requests.get")
+async def test_web_search_degrades_when_embedded_start_fails(mock_get):
+    """A best-effort startup failure degrades to the public fallback rather
+    than breaking search."""
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    web_search_tool = next(t for t in tools if t.name == "web_search")
+
+    mock_response = MagicMock()
+    mock_response.json.return_value = {"results": []}
+    mock_response.raise_for_status = MagicMock()
+    mock_get.return_value = mock_response
+
+    with (
+        patch("searxng_mcp.mcp_server.setting", _setting_stub({})),
+        patch("searxng_mcp.embedded.embedded_enabled", return_value=True),
+        patch(
+            "searxng_mcp.embedded.get_embedded_instance",
+            return_value=MagicMock(
+                ensure_running=MagicMock(side_effect=RuntimeError("boom"))
+            ),
+        ),
+    ):
+        res = await web_search_tool.fn(
+            query="test",
+            categories=None,
+            engines=None,
+            language="en-US",
+            pageno=1,
+            ctx=None,
+        )
+    assert res == {"results": []}
+    args, _kwargs = mock_get.call_args
+    assert "https://searx.be/search" in args[0]
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.embedded-instance")
+@pytest.mark.asyncio
+async def test_searxng_settings_get_returns_active_settings():
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+
+    with (
+        patch("searxng_mcp.embedded.embedded_available", return_value=True),
+        patch(
+            "searxng_mcp.embedded.read_settings",
+            return_value={"search": {"formats": ["html", "json"]}},
+        ),
+        patch(
+            "searxng_mcp.embedded.user_settings_path",
+            return_value=MagicMock(is_file=MagicMock(return_value=False)),
+        ),
+    ):
+        res = await settings_tool.fn(
+            action="get", overrides_json="", merge=True, apply_now=True
+        )
+    assert res["action"] == "get"
+    assert res["settings"]["search"]["formats"] == ["html", "json"]
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.embedded-instance")
+@pytest.mark.asyncio
+async def test_searxng_settings_set_merges_and_restarts_the_instance():
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+
+    fake_instance = MagicMock()
+    with (
+        patch("searxng_mcp.embedded.embedded_available", return_value=True),
+        patch(
+            "searxng_mcp.embedded.write_user_settings",
+            return_value="/fake/settings.yml",
+        ) as mock_write,
+        patch(
+            "searxng_mcp.embedded.read_settings",
+            return_value={"general": {"enable_metrics": True}},
+        ),
+        patch("searxng_mcp.embedded.get_embedded_instance", return_value=fake_instance),
+    ):
+        res = await settings_tool.fn(
+            action="set",
+            overrides_json='{"general": {"enable_metrics": true}}',
+            merge=True,
+            apply_now=True,
+        )
+    mock_write.assert_called_once_with(
+        {"general": {"enable_metrics": True}}, merge=True
+    )
+    fake_instance.stop.assert_called_once()
+    assert res["action"] == "set"
+    assert res["restart_pending"] is False
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.embedded-instance")
+@pytest.mark.asyncio
+async def test_searxng_settings_set_apply_now_false_skips_restart():
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+
+    fake_instance = MagicMock()
+    with (
+        patch("searxng_mcp.embedded.embedded_available", return_value=True),
+        patch(
+            "searxng_mcp.embedded.write_user_settings",
+            return_value="/fake/settings.yml",
+        ),
+        patch("searxng_mcp.embedded.read_settings", return_value={}),
+        patch("searxng_mcp.embedded.get_embedded_instance", return_value=fake_instance),
+    ):
+        res = await settings_tool.fn(
+            action="set", overrides_json="{}", merge=True, apply_now=False
+        )
+    fake_instance.stop.assert_not_called()
+    assert res["restart_pending"] is True
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.embedded-instance")
+@pytest.mark.asyncio
+async def test_searxng_settings_set_rejects_invalid_json():
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+
+    with patch("searxng_mcp.embedded.embedded_available", return_value=True):
+        res = await settings_tool.fn(
+            action="set", overrides_json="not json", merge=True, apply_now=True
+        )
+    assert "error" in res
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.embedded-instance")
+@pytest.mark.asyncio
+async def test_searxng_settings_reset_reverts_and_restarts():
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+
+    fake_instance = MagicMock()
+    with (
+        patch("searxng_mcp.embedded.embedded_available", return_value=True),
+        patch("searxng_mcp.embedded.reset_user_settings", return_value=True),
+        patch("searxng_mcp.embedded.read_settings", return_value={}),
+        patch("searxng_mcp.embedded.get_embedded_instance", return_value=fake_instance),
+    ):
+        res = await settings_tool.fn(
+            action="reset", overrides_json="", merge=True, apply_now=True
+        )
+    assert res == {"action": "reset", "removed": True, "settings": {}}
+    fake_instance.stop.assert_called_once()
+
+
+@pytest.mark.concept("CONCEPT:SR-KG.compute.embedded-instance")
+@pytest.mark.asyncio
+async def test_searxng_settings_without_the_embedded_extra_is_informational():
+    mcp, _, _, _ = get_mcp_instance()
+    tools = await mcp.list_tools()
+    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+
+    with patch("searxng_mcp.embedded.embedded_available", return_value=False):
+        res = await settings_tool.fn(
+            action="get", overrides_json="", merge=True, apply_now=True
+        )
+    assert "error" in res
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-6")

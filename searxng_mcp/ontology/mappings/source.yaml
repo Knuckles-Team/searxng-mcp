@@ -1,0 +1,20 @@
+schema_version: '1'
+connector: searxng-mcp
+ontology_source: searxng
+sync:
+- preset: searxng-web-search
+  server: searxng-mcp
+  tool: web_search
+  action: web_search
+  records_path: results
+  id_field: url
+  title_field: title
+  text_field: content
+  updated_field: publishedDate
+  doc_type: search_result
+  tool_schema_sha256: fbaeeeb62503a65feeaf040827756ef7ce22b2048d057b75a9da09619e8a63bc
+governance:
+  default_acl: quarantine
+  identity: opaque-reference
+  tenant: required-at-materialization
+  provenance: required-at-materialization

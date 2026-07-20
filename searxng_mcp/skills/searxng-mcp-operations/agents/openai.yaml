@@ -1,0 +1,4 @@
+interface:
+  display_name: "Searxng MCP Operations"
+  short_description: "Help with Searxng MCP Operations tasks"
+  default_prompt: "Use $searxng-mcp-operations to complete a governed provider workflow."

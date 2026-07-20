@@ -104,6 +104,7 @@ sync:
   updated_field: publishedDate
   pagination: null
   doc_type: search_result
+  tool_schema_sha256: fbaeeeb62503a65feeaf040827756ef7ce22b2048d057b75a9da09619e8a63bc
   raw:
     server: searxng-mcp
     tool: web_search
@@ -116,17 +117,20 @@ sync:
     doc_type: search_result
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-07-09T00:00:00Z'
+  generated_at: '2026-07-18T00:00:00Z'
   source_artifacts:
   - a2a.json
   - searxng_mcp/connectors/mcp_source_presets.json
+  - searxng_mcp/connectors/tool_schema_fingerprints.json
   - searxng_mcp/ontology/searxng.ttl
   integrity:
     algorithm: urdna2015-sha256
     hash: d63d239f764120d792b8219c831075e8b85f99f874a01fe46e8a7494d27cf01e
     triple_count: 49
   signer: ontology-manifest-generator
-  signature: bf61dd595eb2b86a26fb32746c421318a5c740428f8a7c9ef46e61076adc5b64
+  signature_algorithm: ed25519
+  signing_public_key: q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4
+  signature: t2IokJM1wBrXR1RFIb5e6ozQhANJidaU3OLw0_WpW3OThJIw4fEY5pYMEgazYUgUq9eiFZ2u0pmYUHKH-cZzCQ
 policy:
   pii_fields: {}
   tenant_boundary: null

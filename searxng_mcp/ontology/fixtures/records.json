@@ -1,0 +1,21 @@
+{
+  "connector": "searxng-mcp",
+  "fixtures": [
+    {
+      "expected": {
+        "acl_state": "quarantine",
+        "id": "fixture-record",
+        "title": "Synthetic certification record"
+      },
+      "preset": "searxng-web-search",
+      "record": {
+        "acl_public": false,
+        "content": "Synthetic content used only for contract validation.",
+        "publishedDate": "2000-01-01T00:00:00Z",
+        "title": "Synthetic certification record",
+        "url": "fixture-record"
+      }
+    }
+  ],
+  "schema_version": "1"
+}
