@@ -1,0 +1,37 @@
+{
+  "api_version": "graphos.io/v1",
+  "artifacts": {
+    "a2a.json": "7cf6b2bf9e8c0dff1d10370142690582107e9160e8bf21af42c599f3fe6809fe",
+    "connector_manifest.yml": "26b417f198d504f0aaa99e61c4f798d1dd2329bb4553da2cf298c9488d4fd13e",
+    "searxng_mcp/connectors/mcp_source_presets.json": "2420ccf6ebfba7417f6abb7ff63dbd44db6f8779d2ee392d21928974b2c11e67",
+    "searxng_mcp/connectors/tool_schema_fingerprints.json": "b3202e9c8f2b7e42a199c2096c5bc581a9ea5026703635a9cba36372f0ee593b",
+    "searxng_mcp/ontology/fixtures/records.json": "3349ecaac768db308e3bf2156015d2a8c36e586973c4453e41289742975e2783",
+    "searxng_mcp/ontology/mappings/source.yaml": "19b0ef49657bb2570fc2b7d274cfd00a54ebe955fefd969035cca536c4a6f1c5",
+    "searxng_mcp/ontology/migrations/manifest.json": "ce65fc7898ec057042d14073d9eb47764474cd676185ed1f9f614bde42e758ab",
+    "searxng_mcp/ontology/searxng.ttl": "ece6f7f80830fafab68e3ace9b0c962ccedbb32159c1cdcf8be9b725a339c94f",
+    "searxng_mcp/ontology/shapes/connector.shacl.ttl": "d90a349b521820bd4918772b9bcbcb43a7625ee5bef172672677d9a85d3110ef"
+  },
+  "checks": {
+    "declared_tool_schema": "passed",
+    "manifest_integrity": "passed",
+    "privacy_contract": "passed",
+    "shacl_parse": "passed",
+    "synthetic_fixture_contract": "passed"
+  },
+  "compatibility": {
+    "agent_utilities": ">=1.27.1,<2",
+    "bundle_schema": "2",
+    "epistemic_graph": ">=2.23.1,<3"
+  },
+  "connector": "searxng-mcp",
+  "kind": "ConnectorSourceAttestation",
+  "live_certified": false,
+  "mode": "offline-source",
+  "schema_version": "2",
+  "signature": "CADv69m0i8eoZ5Tg_sqONZPz25mSmuaamuHww9r5a0BOVGZWhGZkQPYZW-e1PJIqYWsxqtRDM3MaWKerfchrBQ",
+  "signature_algorithm": "ed25519",
+  "signer": "ontology-manifest-generator",
+  "signing_public_key": "q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4",
+  "status": "source-validated",
+  "validated_at": "2026-07-18T00:00:00Z"
+}

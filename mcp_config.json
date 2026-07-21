@@ -9,13 +9,9 @@
       "env": {
         "MCP_TOOL_MODE": "intent",
         "SEARXNG_EMBEDDED": "true",
-        "SEARXNG_INSTANCE_URL": "",
         "SEARXNG_KG_INGEST": "true",
-        "SEARXNG_PASSWORD": "",
         "SEARXNG_URL": "http://localhost:8080",
-        "SEARXNG_USERNAME": "",
-        "USE_RANDOM_INSTANCE": "false",
-        "XDG_CONFIG_HOME": ""
+        "USE_RANDOM_INSTANCE": "false"
       }
     }
   }

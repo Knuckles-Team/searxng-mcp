@@ -1,0 +1,6 @@
+{
+  "connector": "searxng-mcp",
+  "current_ontology_source": "searxng",
+  "migrations": [],
+  "schema_version": "1"
+}

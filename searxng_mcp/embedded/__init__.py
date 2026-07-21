@@ -209,7 +209,10 @@ class EmbeddedSearXNG:
             try:
                 resp = requests.get(f"{self._url}{path}", timeout=_HEALTH_TIMEOUT_S)
             except Exception as e:  # noqa: BLE001 — not up yet; try the next probe
-                logger.debug("[SearXNG] health probe %s failed: %s", path or "/", e)
+                logger.debug(
+                    "[SearXNG] health probe failed: error_type=%s",
+                    type(e).__name__,
+                )
                 continue
             if resp.status_code == 200 or (path == "" and resp.status_code < 500):
                 return True
@@ -239,7 +242,7 @@ class EmbeddedSearXNG:
             "SEARXNG_PUBLIC_INSTANCE": "false",
             "SEARXNG_DEBUG": "false",
         }
-        logger.info(f"[SearXNG] spawning embedded instance on 127.0.0.1:{port}")
+        logger.info("[SearXNG] spawning embedded local instance")
         self._proc = subprocess.Popen(  # noqa: S603
             [sys.executable, "-m", "searx.webapp"],
             env=env,

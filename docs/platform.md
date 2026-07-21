@@ -20,7 +20,7 @@ SearXNG publishes the `searxng/searxng` image. The following stack runs one inst
 # docker/searxng.compose.yml
 services:
   searxng:
-    image: docker.io/searxng/searxng:latest
+    image: docker.io/searxng/searxng@sha256:<digest>
     container_name: searxng
     hostname: searxng
     restart: unless-stopped
@@ -79,7 +79,7 @@ reaches SearXNG by container name:
 # docker/stack.compose.yml
 services:
   searxng:
-    image: docker.io/searxng/searxng:latest
+    image: docker.io/searxng/searxng@sha256:<digest>
     hostname: searxng
     ports: ["8080:8080"]
     environment:
@@ -89,7 +89,7 @@ services:
       - searxng_data:/var/cache/searxng:rw
 
   searxng-mcp:
-    image: knucklessg1/searxng-mcp:latest
+    image: example/searxng-mcp@sha256:<digest>
     depends_on: [searxng]
     environment:
       - SEARXNG_URL=http://searxng:8080

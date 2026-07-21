@@ -22,7 +22,7 @@ The base install is intentionally minimal. Install the extra for what you need:
 | Extra | Install | Pulls in |
 |---|---|---|
 | `mcp` | `pip install "searxng-mcp[mcp]"` | FastMCP MCP-server runtime (`agent-utilities[mcp]`) |
-| `agent` | `pip install "searxng-mcp[agent]"` | Pydantic-AI agent + Logfire tracing (`agent-utilities[agent,logfire]`) |
+| `agent` | `pip install "searxng-mcp[agent]"` | Pydantic-AI agent + Logfire tracing (`agent-utilities[agent-runtime,logfire]`) |
 | `all` | `pip install "searxng-mcp[all]"` | The MCP server and the agent together |
 | `test` | `pip install "searxng-mcp[test]"` | `pytest`, `pytest-asyncio`, `pytest-cov`, `pytest-xdist` |
 
@@ -48,14 +48,14 @@ uv run searxng-mcp
 
 ## Prebuilt Docker image
 
-A multi-stage, slim image is published on every release (entrypoint `searxng-mcp`):
+A multi-stage runtime image is published on every release (entrypoint `searxng-mcp`):
 
 ```bash
-docker pull knucklessg1/searxng-mcp:latest
+docker pull example/searxng-mcp@sha256:<digest>
 
 docker run --rm -i \
   -e SEARXNG_URL=http://your-searxng:8080 \
-  knucklessg1/searxng-mcp:latest        # stdio transport (default)
+  example/searxng-mcp@sha256:<digest>        # stdio transport (default)
 ```
 
 For an HTTP server with a published port and the agent server, see

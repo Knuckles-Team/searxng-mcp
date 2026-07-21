@@ -27,11 +27,8 @@ from typing import Any
 
 import requests
 import yaml
-from agent_utilities.core.config import setting
-from agent_utilities.mcp_utilities import (
-    create_mcp_server,
-    load_config,
-)
+from agent_utilities.core.config import load_config, setting
+from agent_utilities.mcp.server_factory import create_mcp_server
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
@@ -69,10 +66,10 @@ def get_random_searxng_instance() -> str:
             raise ValueError("No standard SearXNG instances found")
 
         random_instance = random.SystemRandom().choice(standard_instances)  # noqa: S311
-        logger.info(f"[SearXNG] Selected random instance: {random_instance}")
+        logger.info("[SearXNG] Selected a configured search instance")
         return random_instance
     except Exception as e:
-        logger.error(f"[SearXNG] Error fetching instances: {str(e)}")
+        logger.error("Operation failed: error_type=%s", type(e).__name__)
         raise ValueError("Failed to fetch SearXNG instances list") from e
 
 
@@ -93,7 +90,7 @@ def _resolve_embedded_instance() -> str:
             return ""
         return get_embedded_instance().ensure_running()
     except Exception as e:  # noqa: BLE001 - degrade to the public fallback
-        logger.warning(f"[SearXNG] embedded instance unavailable: {e}")
+        logger.warning("Operation failed: error_type=%s", type(e).__name__)
         return ""
 
 
@@ -131,7 +128,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
                 try:
                     instance_url = get_random_searxng_instance()
                 except Exception as e:
-                    logger.error(f"Failed to choose random instance: {e}")
+                    logger.error("Operation failed: error_type=%s", type(e).__name__)
                     instance_url = "https://searx.be"
             else:
                 instance_url = "https://searx.be"
@@ -161,8 +158,8 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
             response.raise_for_status()
             data = response.json()
         except Exception as e:
-            logger.error(f"Search failed: {e}")
-            return {"error": f"Failed to perform search: {str(e)}"}
+            logger.error("Search failed: error_type=%s", type(e).__name__)
+            return {"error": "Failed to perform search"}
 
         # Native KG ingestion (default-on, best-effort). Push each result into the
         # epistemic-graph as a search :Document (+ :SearchQuery / :SearchEngine typed
@@ -173,7 +170,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
                 ingest_search_results(query, data, language=language)
             except Exception as e:  # noqa: BLE001 - ingestion never breaks search
-                logger.debug(f"KG ingest skipped: {e}")
+                logger.debug("Operation failed: error_type=%s", type(e).__name__)
 
         return data
 
@@ -198,7 +195,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     ) -> dict:
         """Perform a web search using a privacy-respecting SearXNG metasearch instance."""
         if ctx:
-            await ctx.info(f"Performing SearXNG search for '{query}'...")
+            await ctx.info("Performing configured SearXNG search...")
         return _perform_search(
             query, categories, engines, language, pageno, ingest=True
         )
@@ -232,7 +229,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         from searxng_mcp.kg_ingest import ingest_search_results
 
         if ctx:
-            await ctx.info(f"Searching + ingesting SearXNG results for '{query}'...")
+            await ctx.info("Searching and ingesting configured SearXNG results...")
         data = _perform_search(
             query, categories, engines, language, pageno, ingest=False
         )
@@ -310,7 +307,10 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
             try:
                 overrides = json.loads(overrides_json) if overrides_json else {}
             except (TypeError, ValueError) as e:
-                return {"action": action, "error": f"invalid overrides_json: {e}"}
+                return {
+                    "action": action,
+                    "error": f"invalid overrides_json: {type(e).__name__}",
+                }
             if not isinstance(overrides, dict):
                 return {
                     "action": action,

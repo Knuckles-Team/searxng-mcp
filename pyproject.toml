@@ -9,22 +9,22 @@ description = "SearXNG Search Engine MCP Server for Agentic AI!"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.11, <3.15"
-dependencies = [ "agent-utilities>=1.0.0",]
+dependencies = [ "agent-utilities>=1.27.1,<2.0.0",]
 [[project.authors]]
-name = "Audel Rouhi"
-email = "knucklessg1@gmail.com"
+name = "Project Maintainers"
+email = "maintainers@users.noreply.github.com"
 
 [project.license]
 text = "MIT"
 
 [project.optional-dependencies]
-mcp = [ "agent-utilities[mcp]>=1.0.0",]
-agent = [ "agent-utilities[agent,logfire]>=1.0.0",]
+mcp = [ "agent-utilities[mcp]>=1.27.1,<2.0.0",]
+agent = [ "agent-utilities[agent-runtime,logfire]>=1.27.1,<2.0.0",]
 # Zero-config self-contained search (searxng_mcp/embedded/): SearXNG ships no
 # PyPI release, only a pip-installable git source (setup.py name="searxng",
 # package "searx", console_script searxng-run = searx.webapp:run).
-embedded = [ "searxng @ git+https://github.com/searxng/searxng.git",]
-all = [ "agent-utilities[mcp,agent,logfire]>=1.0.0",]
+embedded = [ "searxng @ git+https://github.com/searxng/searxng.git@9e25585aecd9f6ab1fdf30922da64fd91eb25425",]
+all = [ "agent-utilities[mcp,agent-runtime,logfire]>=1.27.1,<2.0.0",]
 test = [
     "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
 
@@ -85,7 +85,7 @@ ignore_names = ["request", "config"]
 # requirements.txt is ever consulted). Upstream packaging quirk, not ours to
 # fix; this is uv's own documented workaround — mirrors searx/requirements.txt.
 searxng = [
-    "certifi", "babel", "flask-babel", "flask", "jinja2", "lxml", "pygments",
+    "certifi", "babel", "flask-babel", "flask", "jinja2", "lxml>=6.1.0", "pygments",
     "python-dateutil", "pyyaml", "httpx", "httpx-socks", "sniffio", "valkey",
     "markdown-it-py", "msgspec", "typer", "isodate", "whitenoise",
     "typing-extensions",

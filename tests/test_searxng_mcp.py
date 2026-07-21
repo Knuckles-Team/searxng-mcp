@@ -271,7 +271,7 @@ async def test_web_search_custom(mock_get):
     assert "https://custom.searxng.org/search" in args[0]
     assert kwargs["params"]["categories"] == "general,news"
     assert kwargs["params"]["engines"] == "google,bing"
-    mock_ctx.info.assert_called_once_with("Performing SearXNG search for 'test'...")
+    mock_ctx.info.assert_called_once_with("Performing configured SearXNG search...")
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
@@ -401,7 +401,7 @@ async def test_web_search_failure(mock_get):
         ctx=None,
     )
     assert "error" in res
-    assert "Failed to perform search: Request timeout" in res["error"]
+    assert res["error"] == "Failed to perform search"
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
