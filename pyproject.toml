@@ -26,7 +26,7 @@ agent = [ "agent-utilities[agent-runtime,logfire]>=1.27.1,<2.0.0",]
 embedded = [ "searxng @ git+https://github.com/searxng/searxng.git@9e25585aecd9f6ab1fdf30922da64fd91eb25425",]
 all = [ "agent-utilities[mcp,agent-runtime,logfire]>=1.27.1,<2.0.0",]
 test = [
-    "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
+    "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
 
 [project.scripts]
 searxng-mcp = "searxng_mcp.mcp_server:mcp_server"
