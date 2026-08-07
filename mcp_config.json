@@ -8,9 +8,9 @@
       ],
       "env": {
         "MCP_TOOL_MODE": "intent",
+        "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
         "SEARXNG_KG_INGEST": "true",
-        "SEARXNG_URL": "http://localhost:8080",
         "USE_RANDOM_INSTANCE": "false"
       }
     }

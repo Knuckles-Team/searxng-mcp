@@ -18,15 +18,15 @@ ENV HOST=${HOST} \
 
 # Install bounded development dependencies and the distro Rust toolchain
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends default-jre ripgrep tree fd-find curl nano build-essential cmake libssl-dev libcurl4-openssl-dev pkg-config cargo rustc \
+    && apt-get install -y --no-install-recommends default-jre ripgrep tree fd-find curl nano build-essential cmake libssl-dev libcurl4-openssl-dev pkg-config cargo rustc libxml2-dev libxslt1-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . /app
 
-# Compile and install package in-place
-RUN uv pip install --system --no-cache --break-system-packages .[agent]
+# Compile and install package in-place, including the bundled SearXNG instance.
+RUN uv pip install --system --no-cache --break-system-packages .[agent,embedded]
 
 
 # Debug tooling is installed at build time; the running service stays unprivileged.
