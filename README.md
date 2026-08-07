@@ -66,10 +66,11 @@ The table below is auto-generated from the MCP server — do not edit by hand.
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `searxng_ingest_search` | `KGTOOL` | Run a SearXNG search and natively ingest its results into epistemic-graph. |
+| `searxng_search_app` | `SEARCH_APPTOOL` | Launch an interactive SearXNG search-UI app: a query box, category filters, and a clickable results list, backed by the existing web_search tool through the host-mediated MCP Apps bridge. Use this when a human should see and interact with search results visually rather than read raw JSON. Does NOT drive a browser or render arbitrary web pages -- only this search workflow. |
 | `searxng_settings` | `CONFIGTOOL` | Read/edit the EMBEDDED SearXNG instance's settings.yml |
 | `web_search` | — | Perform a web search using a privacy-respecting SearXNG metasearch instance. |
 
-_3 action-routed tool(s) · 0 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_4 action-routed tool(s) · 0 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).
@@ -118,9 +119,9 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
       ],
       "env": {
         "MCP_TOOL_MODE": "intent",
+        "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
         "SEARXNG_KG_INGEST": "true",
-        "SEARXNG_URL": "http://localhost:8080",
         "USE_RANDOM_INSTANCE": "false"
       }
     }
@@ -153,9 +154,9 @@ own runtime secret boundary.
         "HOST": "127.0.0.1",
         "PORT": "8000",
         "MCP_TOOL_MODE": "intent",
+        "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
         "SEARXNG_KG_INGEST": "true",
-        "SEARXNG_URL": "http://localhost:8080",
         "USE_RANDOM_INSTANCE": "false"
       }
     }
@@ -187,9 +188,9 @@ docker run -i --rm \
   --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
   -e TRANSPORT=stdio \
   -e MCP_TOOL_MODE=intent \
+  -e SEARCH_APPTOOL=true \
   -e SEARXNG_EMBEDDED=true \
   -e SEARXNG_KG_INGEST=true \
-  -e SEARXNG_URL=http://localhost:8080 \
   -e USE_RANDOM_INSTANCE=false \
   registry.example.invalid/searxng-mcp@sha256:<digest> searxng-mcp
 ```
@@ -333,6 +334,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `HOST` | `0.0.0.0` |  |
 | `PORT` | `8000` |  |
 | `TRANSPORT` | `stdio` | options: stdio, streamable-http, sse |
+| `SEARCH_APPTOOL` | `true` | disable the searxng_search_app MCP App (ui:// search UI) |
 | `ENABLE_OTEL` | `True` |  |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:8080/api/public/otel` |  |
 | `OTEL_EXPORTER_OTLP_PUBLIC_KEY_REF` | `secret://telemetry/otlp-public-key` |  |
@@ -341,8 +343,8 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
-| `SEARXNG_INSTANCE_URL` | — |  |
-| `SEARXNG_URL` | `http://localhost:8080` |  |
+| `SEARXNG_INSTANCE_URL` | — | Leave both empty to use the bundled/embedded SearXNG instance (default — see SEARXNG_EMBEDDED below). Set one to point at an external instance instead (e.g. the fleet's own http://searxng.arpa) — an explicit URL always wins over the embedded instance. |
+| `SEARXNG_URL` | — |  |
 | `SEARXNG_USERNAME` | — |  |
 | `SEARXNG_PASSWORD` | secret-injected |  |
 | `USE_RANDOM_INSTANCE` | `false` |  |
@@ -371,7 +373,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_19 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_20 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 

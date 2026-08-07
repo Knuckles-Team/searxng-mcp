@@ -1,18 +1,25 @@
 # syntax=docker/dockerfile:1
 # Two right-sized images from ONE Dockerfile, selected by build --target. Both are
-# slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source):
+# slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source),
+# and BOTH bundle the embedded SearXNG instance (the `embedded` extra) so either
+# image is a single, self-contained container: no second searxng container needed.
+# `SEARXNG_EMBEDDED` defaults to true, so with no `SEARXNG_URL`/`SEARXNG_INSTANCE_URL`
+# configured the bundled instance spawns automatically on first search; setting either
+# (e.g. to the fleet's own http://searxng.arpa) always wins and skips it entirely.
 #
-#   --target agent  (DEFAULT)  installs searxng-mcp[agent] = the FULL runtime
+#   --target agent  (DEFAULT)  installs searxng-mcp[agent,embedded] = the FULL runtime
 #                              (agent-utilities[agent-runtime]: pydantic-ai + skills;
-#                              the full epistemic-graph engine is a base dependency).
-#                              The provider's [agent] also includes [mcp], so this image
-#                              can run EITHER the agent OR the mcp server. Push as the
-#                              default tags: latest / main / <version>.
+#                              the full epistemic-graph engine is a base dependency)
+#                              PLUS the bundled SearXNG instance. The provider's [agent]
+#                              also includes [mcp], so this image can run EITHER the
+#                              agent OR the mcp server. Push as the default tags:
+#                              latest / main / <version>.
 #
-#   --target mcp               installs searxng-mcp[mcp]   = MCP-server tooling ONLY
+#   --target mcp               installs searxng-mcp[mcp,embedded] = MCP-server tooling
 #                              (agent-utilities[mcp]: FastMCP/FastAPI plus the mandatory
-#                              full epistemic-graph base runtime). It omits the optional
-#                              provider agent/frontends. Push as the :mcp / :mcp-<version> tag.
+#                              full epistemic-graph base runtime) PLUS the bundled
+#                              SearXNG instance. It omits the optional provider
+#                              agent/frontends. Push as the :mcp / :mcp-<version> tag.
 #
 #   docker build --target agent -t searxng-mcp:local .
 #   docker build --target mcp   -t searxng-mcp:mcp    .
@@ -22,19 +29,22 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_SYSTEM_PYTHON=1 \
     UV_HTTP_TIMEOUT=3600
+# build-essential + libxml2/libxslt headers: the `embedded` extra's lxml
+# dependency falls back to a source build when no prebuilt wheel matches this
+# base image's Python/arch.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential \
+    && apt-get install -y --no-install-recommends build-essential libxml2-dev libxslt1-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Slim MCP-only dependency closure.
+# Slim MCP-only dependency closure, bundled SearXNG included.
 FROM builder-base AS builder-mcp
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --break-system-packages searxng-mcp[mcp]==2.0.0
+    uv pip install --system --break-system-packages searxng-mcp[mcp,embedded]==2.0.0
 
-# Full agent runtime dependency closure.
+# Full agent runtime dependency closure, bundled SearXNG included.
 FROM builder-base AS builder-agent
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --break-system-packages searxng-mcp[agent]==2.0.0
+    uv pip install --system --break-system-packages searxng-mcp[agent,embedded]==2.0.0
 
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS runtime-base
 ARG HOST=127.0.0.1

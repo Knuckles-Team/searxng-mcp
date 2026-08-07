@@ -334,6 +334,10 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
     register_prompts(mcp)
 
+    from searxng_mcp.apps import register_search_app_tools
+
+    register_search_app_tools(mcp)
+
     for mw in middlewares:
         mcp.add_middleware(mw)
     registered_tags: list[str] = []
