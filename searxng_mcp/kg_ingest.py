@@ -27,6 +27,7 @@ logger = logging.getLogger("searxng_mcp.kg")
 _SOURCE = "searxng-mcp"
 _DOMAIN = "searxng"
 
+
 def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
@@ -38,7 +39,12 @@ def ingest_entities(
 ) -> dict[str, int]:
     """Write canonical typed nodes and relationships in one native transaction."""
     return _native_ingest_entities(
-        entities, relationships, source=source, domain=domain, client=client, graph=graph
+        entities,
+        relationships,
+        source=source,
+        domain=domain,
+        client=client,
+        graph=graph,
     )
 
 
@@ -78,7 +84,9 @@ def ingest_search_results(
     Returns the combined ``{"nodes":n, "edges":m}``.
     """
     if not query or not isinstance(response, dict):
-        raise NativeIngestError("SearXNG ingestion requires a query and response mapping")
+        raise NativeIngestError(
+            "SearXNG ingestion requires a query and response mapping"
+        )
     results = response.get("results") or []
     if not isinstance(results, list):
         raise NativeIngestError("SearXNG response results must be a list")
@@ -131,8 +139,12 @@ def ingest_search_results(
             eid = f"searxng:engine:{engine}"
             if engine not in seen_engines:
                 seen_engines.add(engine)
-                entities.append({"id": eid, "node_type": "SearchEngine", "name": engine})
-            relationships.append({"source": did, "target": eid, "relationship": "fromEngine"})
+                entities.append(
+                    {"id": eid, "node_type": "SearchEngine", "name": engine}
+                )
+            relationships.append(
+                {"source": did, "target": eid, "relationship": "fromEngine"}
+            )
 
     ent_res = ingest_entities(entities, client=client, graph=graph)
     doc_res = (
