@@ -1,7 +1,7 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "connector_manifest.yml": "346a952aac2cc49bc6c992ef78081af22e2e5b448a4dcb2d812e8c8f7b88a9b2",
+    "connector_manifest.yml": "06294d9fba253e707b1921598020673e5c9fdd00ce25782ff7096462d0eea019",
     "searxng_mcp/connectors/mcp_source_presets.json": "2420ccf6ebfba7417f6abb7ff63dbd44db6f8779d2ee392d21928974b2c11e67",
     "searxng_mcp/connectors/tool_schema_fingerprints.json": "b3202e9c8f2b7e42a199c2096c5bc581a9ea5026703635a9cba36372f0ee593b",
     "searxng_mcp/ontology/fixtures/records.json": "3349ecaac768db308e3bf2156015d2a8c36e586973c4453e41289742975e2783",
@@ -18,9 +18,9 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.4.0,<3",
+    "agent_utilities": ">=2.5.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.26.0,<3"
+    "epistemic_graph": ">=2.27.0,<3"
   },
   "connector": "searxng-mcp",
   "kind": "ConnectorSourceAttestation",
@@ -32,5 +32,5 @@
   "signer": "UNSIGNED-PREVIEW",
   "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-08-21T04:30:39Z"
+  "validated_at": "2026-08-26T13:42:55Z"
 }
