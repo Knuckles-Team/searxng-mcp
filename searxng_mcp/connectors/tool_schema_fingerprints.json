@@ -1,8 +1,8 @@
 {
-  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
   "connector": "searxng-mcp",
   "schema_version": "1",
   "tools": {
-    "web_search": "fbaeeeb62503a65feeaf040827756ef7ce22b2048d057b75a9da09619e8a63bc"
+    "web_search": "fe6abc36426771396acac9837a5be0d2a6ea3c1de3eeb318a472bcadb69d4f5a"
   }
 }
