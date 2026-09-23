@@ -174,7 +174,22 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
         return data
 
-    @mcp.tool(name="web_search")
+    @mcp.tool(
+        name="web_search",
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        },
+        meta={
+            "eg.annotations": {
+                "modalities_in": ["text"],
+                "modalities_out": ["text"],
+                "provides": ["eg:capability/retrieval/web-search"],
+            }
+        },
+    )
     async def web_search(
         query: str = Field(description="Search query to submit to SearXNG"),
         categories: list[str] | None = Field(
