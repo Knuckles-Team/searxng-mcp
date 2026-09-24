@@ -155,62 +155,6 @@ docker compose -f docker/mcp.compose.yml up -d
 docker compose -f docker/mcp.compose.yml logs -f
 ```
 
-## Agent server
-
-`searxng-mcp` also ships a Pydantic-AI **A2A agent server** (console script
-`searxng-agent`) that connects to the MCP server and exposes the search capability over
-the Agent Control Protocol and an Agent Web UI. The repo ships
-[`docker/agent.compose.yml`](https://github.com/Knuckles-Team/searxng-mcp/blob/main/docker/agent.compose.yml),
-which runs the MCP server and the agent together — the agent reaches the MCP server by
-container name via `MCP_URL` and publishes its Web UI on `:9001`:
-
-```bash
-searxng-agent --provider openai --model-id gpt-4o
-```
-
-```yaml
-services:
-  searxng-mcp-mcp:
-    image: example/searxng-mcp@sha256:<digest>
-    container_name: searxng-mcp-mcp
-    hostname: searxng-mcp-mcp
-    restart: always
-    env_file:
-      - ../.env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=8000
-      - TRANSPORT=streamable-http
-    ports:
-      - "8000:8000"
-
-  searxng-mcp-agent:
-    image: example/searxng-mcp@sha256:<digest>
-    container_name: searxng-mcp-agent
-    hostname: searxng-mcp-agent
-    restart: always
-    depends_on:
-      - searxng-mcp-mcp
-    env_file:
-      - ../.env
-    command: ["searxng-agent"]
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=9001
-      - MCP_URL=http://searxng-mcp-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-    ports:
-      - "9001:9001"
-```
-
-```bash
-docker compose -f docker/agent.compose.yml up -d
-```
-
 ## Behind a Caddy reverse proxy
 
 Expose the HTTP server on a hostname with automatic TLS. Add to your `Caddyfile`:

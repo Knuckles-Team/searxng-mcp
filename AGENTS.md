@@ -50,7 +50,7 @@ pip install .[all]
 pre-commit run --all-files
 
 # Execution Commands
-# searxng-mcp\nsearxng_mcp.mcp:mcp_server\n# searxng-agent\nsearxng_mcp.agent:agent_server
+# searxng-mcp\nsearxng_mcp.mcp:mcp_server
 
 ## Project Structure Quick Reference
 - MCP Entry Point → `mcp_server.py`
@@ -60,7 +60,7 @@ pre-commit run --all-files
 
 ### File Tree
 ```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── mcp\n│   ├── searxng_config\n│   │   └── settings.yml\n│   └── searxng_data\n├── mcp.compose.yml\n├── pyproject.toml\n├── pytest.ini\n├── requirements.txt\n├── scripts\n│   ├── validate_a2a_agent.py\n│   └── validate_agent.py\n├── searxng_mcp\n│   ├── __init__.py\n│   ├── __main__.py\n│   ├── agent_server.py\n│   └── mcp_server.py\n├── settings.yml\n└── workspace
+├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── compose.yml\n├── debug.Dockerfile\n├── mcp\n│   ├── searxng_config\n│   │   └── settings.yml\n│   └── searxng_data\n├── mcp.compose.yml\n├── pyproject.toml\n├── pytest.ini\n├── requirements.txt\n├── scripts\n│   └── run_agent_utilities_gate.py\n├── searxng_mcp\n│   ├── __init__.py\n│   ├── __main__.py\n│   └── mcp_server.py\n├── settings.yml\n└── workspace
 ```
 
 ## Code Style & Conventions

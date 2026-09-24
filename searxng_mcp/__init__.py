@@ -9,7 +9,6 @@ __all__: list[str] = []
 CORE_MODULES: list[str] = ["searxng_mcp.mcp_server"]
 
 OPTIONAL_MODULES = {
-    "searxng_mcp.agent_server": "agent_server",
     "searxng_mcp.mcp_server": "mcp",
 }
 
@@ -31,7 +30,7 @@ for module_name in CORE_MODULES:
         module = importlib.import_module(module_name)
         _expose_members(module)
 
-# Dynamic/lazy loading of optional modules (agent_server, mcp_server)
+# Dynamic/lazy loading of optional modules (mcp_server)
 _loaded_optional_modules: dict[str, Any] = {}
 
 

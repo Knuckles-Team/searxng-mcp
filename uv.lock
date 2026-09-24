@@ -2998,9 +2998,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-agent = [
-    { name = "agent-utilities", extra = ["agent-runtime", "logfire"] },
-]
 all = [
     { name = "agent-utilities", extra = ["agent-runtime", "logfire", "mcp"] },
 ]
@@ -3026,7 +3023,6 @@ dev = [
 requires-dist = [
     { name = "agent-connector-sdk", editable = ".uv-workspace-siblings/agent-connector-sdk" },
     { name = "agent-utilities", editable = ".uv-workspace-siblings/agent-utilities" },
-    { name = "agent-utilities", extras = ["agent-runtime", "logfire"], marker = "extra == 'agent'", editable = ".uv-workspace-siblings/agent-utilities" },
     { name = "agent-utilities", extras = ["mcp"], marker = "extra == 'mcp'", editable = ".uv-workspace-siblings/agent-utilities" },
     { name = "agent-utilities", extras = ["mcp", "agent-runtime", "logfire"], marker = "extra == 'all'", editable = ".uv-workspace-siblings/agent-utilities" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
@@ -3035,7 +3031,7 @@ requires-dist = [
     { name = "pytest-xdist", marker = "extra == 'test'", specifier = ">=3.8.0" },
     { name = "searxng", marker = "extra == 'embedded'", git = "https://github.com/searxng/searxng.git?rev=9e25585aecd9f6ab1fdf30922da64fd91eb25425" },
 ]
-provides-extras = ["mcp", "agent", "embedded", "all", "test"]
+provides-extras = ["mcp", "embedded", "all", "test"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest-timeout", specifier = ">=2.4.0" }]
