@@ -27,8 +27,8 @@ from typing import Any
 
 import requests
 import yaml
-from agent_utilities.core.config import load_config, setting
-from agent_utilities.mcp.server_factory import create_mcp_server
+from agent_connector_sdk.config import load_config, setting
+from agent_connector_sdk.mcp.server import create_mcp_server
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field

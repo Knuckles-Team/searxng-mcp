@@ -19,7 +19,7 @@ def _setting_stub(overrides):
     """Build a stand-in for ``setting(key, default)`` driven by ``overrides``.
 
     The server reads its config exclusively through
-    ``agent_utilities.core.config.setting`` (not module-level constants), so
+    ``agent_connector_sdk.config.setting`` (not module-level constants), so
     tests patch that callable to control instance URL / auth / random-instance
     behaviour. Unspecified keys fall back to the caller-supplied default.
     """
