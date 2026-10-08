@@ -101,3 +101,6 @@ searxng = [
     "markdown-it-py", "msgspec", "typer", "isodate", "whitenoise",
     "typing-extensions",
 ]
+
+[tool.pipelines_hooks.ste]
+exempt = ["specs/*", "specs/**/*"]
