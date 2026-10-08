@@ -868,7 +868,7 @@
 
 <h1 id="usage-mcp-api-cli">Usage — MCP / API / CLI<a class="headerlink" href="#usage-mcp-api-cli" title="Permanent link">&para;</a></h1>
 <p><code>searxng-mcp</code> exposes the same capability three ways: as an <strong>MCP tool</strong> an agent
-calls, as a <strong>Python API</strong> you import, and as <strong>console scripts</strong> you run. The
+calls, as a <strong>Python API</strong> the operator import, and as <strong>console scripts</strong> the operator run. The
 ecosystem role and the standardized package pattern are in <a href="../overview/">Overview</a>.</p>
 <h2 id="as-an-mcp-server">As an MCP server<a class="headerlink" href="#as-an-mcp-server" title="Permanent link">&para;</a></h2>
 <p>Once <a href="../deployment/">deployed</a>, the server registers the <code>web_search</code> tool. It needs no
@@ -905,7 +905,7 @@ configuration beyond a reachable SearXNG instance (or <code>USE_RANDOM_INSTANCE=
 <li><em>"Look up images of the Material for MkDocs theme"</em> → <code>web_search</code> with <code>categories=["images"]</code></li>
 </ul>
 <h2 id="as-a-python-api">As a Python API<a class="headerlink" href="#as-a-python-api" title="Permanent link">&para;</a></h2>
-<p>The search capability is implemented in <code>searxng_mcp.mcp_server</code>. You can perform a
+<p>The search capability is implemented in <code>searxng_mcp.mcp_server</code>. The operator can perform a
 search directly against any SearXNG instance with <code>requests</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -926,7 +926,7 @@ search directly against any SearXNG instance with <code>requests</code>:</p>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">for</span> <span class="n">hit</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"results"</span><span class="p">,</span> <span class="p">[]):</span>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">hit</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span> <span class="n">hit</span><span class="p">[</span><span class="s2">"url"</span><span class="p">])</span>
 </span></code></pre></div>
-<p>To let the package pick a public SearXNG instance for you (the behaviour behind
+<p>To let the package pick a public SearXNG instance for the operator (the behaviour behind
 <code>USE_RANDOM_INSTANCE=true</code>):</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">searxng_mcp.mcp_server</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_random_searxng_instance</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
