@@ -245,7 +245,8 @@ def register_search_app_tools(mcp: Any) -> None:
 
         @resource(
             uri=SEARCH_APP_RESOURCE_URI,
-            name="SearXNG Search",
+            name="searxng-search",
+            title="SearXNG Search",
             description="Interactive search UI backed by the web_search tool.",
             mime_type="text/html",
         )
