@@ -1,7 +1,7 @@
 # searxng-mcp
 
 A privacy-respecting **metasearch API + MCP Server** (with an optional A2A agent) for
-the agent-utilities ecosystem — query the web across many search engines through one
+the agent-utilities ecosystem — query the web across multiple search engines through one
 deterministic tool surface.
 
 !!! info "Official documentation"
@@ -32,7 +32,7 @@ for autonomous and conversational use. It provides:
 
 <div class="grid cards" markdown>
 
-- :material-rocket-launch: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
+- :material-rocket-start: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
 - :material-server-network: **[Deployment](deployment.md)** — run the MCP and agent servers, Docker Compose, Caddy + Technitium.
 - :material-console: **[Usage](usage.md)** — the `web_search` tool, the Python API, and the console scripts.
 - :material-magnify: **[Backing Platform](platform.md)** — deploy SearXNG with Docker.

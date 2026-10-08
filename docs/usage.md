@@ -1,7 +1,7 @@
 # Usage — MCP / API / CLI
 
 `searxng-mcp` exposes the same capability three ways: as an **MCP tool** an agent
-calls, as a **Python API** you import, and as **console scripts** you run. The
+calls, as a **Python API** the operator import, and as **console scripts** the operator run. The
 ecosystem role and the standardized package pattern are in [Overview](overview.md).
 
 ## As an MCP server
@@ -30,7 +30,7 @@ Example agent prompts that map onto the tool:
 
 ## As a Python API
 
-The search capability is implemented in `searxng_mcp.mcp_server`. You can perform a
+The search capability is implemented in `searxng_mcp.mcp_server`. The operator can perform a
 search directly against any SearXNG instance with `requests`:
 
 ```python
@@ -54,7 +54,7 @@ for hit in results.get("results", []):
     print(hit["title"], hit["url"])
 ```
 
-To let the package pick a public SearXNG instance for you (the behaviour behind
+To let the package pick a public SearXNG instance for the operator (the behaviour behind
 `USE_RANDOM_INSTANCE=true`):
 
 ```python
