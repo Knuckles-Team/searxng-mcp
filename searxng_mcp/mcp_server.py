@@ -27,8 +27,8 @@ from typing import Any
 
 import requests
 import yaml
-from agent_utilities.core.config import load_config, setting
-from agent_utilities.mcp.server_factory import create_mcp_server
+from agent_connector_sdk.config import load_config, setting
+from agent_connector_sdk.mcp.server import create_mcp_server
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
@@ -110,7 +110,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         instructions="SearXNG MCP Server — Privacy-respecting metasearch engine to find information across multiple search engines.",
     )
 
-    def _perform_search(
+    async def _perform_search(
         query: str,
         categories: list[str] | None,
         engines: list[str] | None,
@@ -168,7 +168,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
             try:
                 from searxng_mcp.kg_ingest import ingest_search_results
 
-                ingest_search_results(query, data, language=language)
+                await ingest_search_results(query, data, language=language)
             except Exception as e:  # noqa: BLE001 - ingestion never breaks search
                 logger.debug("Operation failed: error_type=%s", type(e).__name__)
 
@@ -196,7 +196,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         """Perform a web search using a privacy-respecting SearXNG metasearch instance."""
         if ctx:
             await ctx.info("Performing configured SearXNG search...")
-        return _perform_search(
+        return await _perform_search(
             query, categories, engines, language, pageno, ingest=True
         )
 
@@ -230,13 +230,13 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
         if ctx:
             await ctx.info("Searching and ingesting configured SearXNG results...")
-        data = _perform_search(
+        data = await _perform_search(
             query, categories, engines, language, pageno, ingest=False
         )
         if isinstance(data, dict) and data.get("error"):
             return {"listed": 0, "ingested": None, "error": data["error"]}
         results = data.get("results") or [] if isinstance(data, dict) else []
-        ingested = ingest_search_results(query, data, language=language)
+        ingested = await ingest_search_results(query, data, language=language)
         return {"listed": len(results), "ingested": ingested}
 
     @mcp.tool(name="searxng_settings", tags={"misc", "config"})

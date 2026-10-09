@@ -1,23 +1,18 @@
 """Native epistemic-graph ingestion — Wire-First coverage for searxng-mcp.
 
 Exercises the real ``ingest_entities`` / ``ingest_documents`` / ``ingest_search_results``
-seam with a fake ChangeEnvelope-capable engine client (no engine required), asserting the
-apply()'d add_node/add_edge operations + the SearXNG response -> :Document / :SearchQuery /
-:SearchEngine mapping. Mirrors agent-utilities' own canonical
-``tests/knowledge_graph/test_native_ingest.py`` fakes — the retired raw ``txn``-only fake is
-deliberately rejected by ``native_ingest`` now. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+seam with a fake SDK ingest **transport** (one level below the facade, per
+FLEET-SDK-MIGRATION-RECIPE.md §2b) — no engine required — asserting the records/
+relationships the SDK's own request builder produces + the SearXNG response ->
+:Document / :SearchQuery / :SearchEngine mapping. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from types import SimpleNamespace
 
-import msgpack
 import pytest
-from agent_utilities.knowledge_graph.core.session import GraphSession, use_session
-from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
-from agent_utilities.security.actor_identity import ActorType
-from agent_utilities.security.brain_context import ActorContext, use_actor
+from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
 
 from searxng_mcp.kg_ingest import (
     ingest_documents,
@@ -26,101 +21,34 @@ from searxng_mcp.kg_ingest import (
 )
 
 
-@pytest.fixture(autouse=True)
-def _governed_session():
-    """Every native_ingest write requires a verified ambient GraphSession
-    (CONCEPT:AU-P0-1) — no development bypass exists by design. Mint a
-    synthetic, scoped session the same way agent-utilities' own
-    ``tests/knowledge_graph/test_native_ingest.py`` does."""
-    actor = ActorContext(
-        actor_id="subject:opaque:synthetic",
-        actor_type=ActorType.AUTOMATED_SERVICE,
-        roles=(),
-        tenant_id="tenant:opaque:synthetic",
-        authenticated=True,
-    )
-    session = GraphSession(
-        actor=actor,
-        tenant=actor.tenant_id,
-        scopes=frozenset({"kg:write"}),
-        graph="graph:opaque:synthetic",
-        policy_version="policy:opaque:synthetic",
-        audience="epistemic-graph",
-    )
-    with use_actor(actor), use_session(session):
-        yield
-
-
-class _FakeNodes:
+class _FakeTransport:
     def __init__(self) -> None:
-        self.values: dict[str, dict[str, Any]] = {}
+        self.requests = []
 
-    def properties(self, node_id: str) -> dict[str, Any] | None:
-        return self.values.get(node_id)
+    async def source_status(self, connector, stream):
+        return SimpleNamespace(accepted_checkpoint=None)
 
-    def list(self) -> list[tuple[str, dict[str, Any]]]:
-        return list(self.values.items())
+    async def submit(self, request):
+        self.requests.append(request)
+        return SimpleNamespace(
+            affected_count=len(request.records),
+            relationship_count=len(request.relationships),
+        )
 
-
-class _FakeChanges:
-    def __init__(self, nodes: _FakeNodes) -> None:
-        self.nodes = nodes
-        self.edges: list[tuple[str, str, dict[str, Any]]] = []
-        self.applied: list[dict[str, Any]] = []
-        self.records: dict[str, dict[str, Any]] = {}
-        self.versions: dict[str, dict[str, Any]] = {}
-
-    def get(self, envelope_id: str) -> dict[str, Any] | None:
-        return self.records.get(envelope_id)
-
-    def content_version(self, object_id: str) -> dict[str, Any] | None:
-        return self.versions.get(object_id)
-
-    def cursor(self, _source: str, _partition: str = "") -> None:
-        return None
-
-    def apply(self, envelope: dict[str, Any]) -> dict[str, Any]:
-        self.applied.append(envelope)
-        mutation = envelope["mutation"]
-        for operation in mutation["operations"]:
-            method = operation["method"]
-            params = method["params"]
-            properties = msgpack.unpackb(params["properties_msgpack"], raw=False)
-            if method["method"] == "AddNode":
-                self.nodes.values[params["node_id"]] = properties
-            elif method["method"] == "AddEdge":
-                self.edges.append(
-                    (params["source_id"], params["target_id"], properties)
-                )
-        version = envelope["content_version"]
-        self.versions[version["object_id"]] = version
-        self.records[envelope["envelope_id"]] = envelope
-        return {
-            "batch_id": mutation["batch_id"],
-            "replayed": False,
-            "projection_pending": False,
-        }
+    async def store_blob(self, data):
+        raise AssertionError("this test's ingestion carries no media")
 
 
-class _FakeRdf:
-    def validate_shacl(self, _shapes: str, _data_graph: str) -> dict[str, Any]:
-        return {"conforms": True, "results": []}
+@pytest.fixture
+def ingest():
+    transport = _FakeTransport()
+    return KnowledgeIngest(transport, loop=None), transport
 
 
-class _FakeClient:
-    def __init__(self) -> None:
-        self.nodes = _FakeNodes()
-        self.changes = _FakeChanges(self.nodes)
-        self.rdf = _FakeRdf()
-
-    @staticmethod
-    def supports(operation: str) -> bool:
-        return operation == "ApplyChangeEnvelope"
-
-
-def test_ingest_entities_writes_nodes_and_edges():
-    c = _FakeClient()
-    res = ingest_entities(
+@pytest.mark.asyncio
+async def test_ingest_entities_writes_nodes_and_edges(ingest):
+    service, transport = ingest
+    res = await ingest_entities(
         [
             {"id": "searxng:query:x", "node_type": "SearchQuery", "queryText": "q"},
             {
@@ -136,34 +64,36 @@ def test_ingest_entities_writes_nodes_and_edges():
                 "relationship": "fromEngine",
             }
         ],
-        client=c,
+        ingest=service,
     )
     assert res == {"nodes": 2, "edges": 1}
-    assert c.changes.applied
-    assert set(c.nodes.values) == {"searxng:query:x", "searxng:engine:google"}
-    # provenance is stamped
-    assert c.nodes.values["searxng:query:x"]["source"] == "searxng-mcp"
-    assert c.nodes.values["searxng:query:x"]["domain"] == "searxng"
-    assert c.changes.edges == [
-        ("searxng:query:x", "searxng:engine:google", {"relationship": "fromEngine"})
-    ]
+    assert len(transport.requests) == 1
+    request = transport.requests[0]
+    by_id = {r.record_id: r for r in request.records}
+    assert set(by_id) == {"searxng:query:x", "searxng:engine:google"}
+    assert by_id["searxng:query:x"].mapping_reference.endswith("schema_mappings/SearchQuery")
+    assert request.relationships[0].source.record_id == "searxng:query:x"
+    assert request.relationships[0].target.record_id == "searxng:engine:google"
+    assert request.relationships[0].relation_reference.endswith("/relations/fromEngine")
 
 
-def test_ingest_documents_writes_document_nodes():
-    c = _FakeClient()
-    res = ingest_documents(
+@pytest.mark.asyncio
+async def test_ingest_documents_writes_document_nodes(ingest):
+    service, transport = ingest
+    res = await ingest_documents(
         [{"id": "searxng:result:http://a", "text": "hello", "source_uri": "http://a"}],
-        client=c,
+        ingest=service,
     )
     assert res == {"nodes": 1, "edges": 0}
-    node = c.nodes.values["searxng:result:http://a"]
-    assert node["node_type"] == "Document"
-    assert node["text"] == "hello"
-    assert node["source"] == "searxng-mcp"
+    record = transport.requests[0].records[0]
+    assert record.record_id == "searxng:result:http://a"
+    assert record.mapping_reference.endswith("schema_mappings/Document")
+    assert record.payload["text"] == "hello"
 
 
-def test_ingest_search_results_maps_query_engine_and_results():
-    c = _FakeClient()
+@pytest.mark.asyncio
+async def test_ingest_search_results_maps_query_engine_and_results(ingest):
+    service, transport = ingest
     response = {
         "number_of_results": 2,
         "results": [
@@ -185,62 +115,67 @@ def test_ingest_search_results_maps_query_engine_and_results():
             {"url": "", "title": "skip", "content": "no url"},
         ],
     }
-    res = ingest_search_results("open source", response, language="en-US", client=c)
+    res = await ingest_search_results("open source", response, language="en-US", ingest=service)
     # 1 query + 2 engines (entities) + 2 documents = 5 nodes
     assert res["nodes"] == 5
     # each result: resultOf + fromEngine = 4 edges
     assert res["edges"] == 4
 
+    request = transport.requests[0]
+    by_id = {r.record_id: r for r in request.records}
+
     # query node present with typed shape
-    qids = [k for k in c.nodes.values if k.startswith("searxng:query:")]
+    qids = [k for k in by_id if k.startswith("searxng:query:")]
     assert len(qids) == 1
-    assert c.nodes.values[qids[0]]["node_type"] == "SearchQuery"
-    assert c.nodes.values[qids[0]]["queryText"] == "open source"
+    assert by_id[qids[0]].mapping_reference.endswith("schema_mappings/SearchQuery")
+    assert by_id[qids[0]].payload["queryText"] == "open source"
 
     # engine nodes typed
-    assert c.nodes.values["searxng:engine:duckduckgo"]["node_type"] == "SearchEngine"
-    assert c.nodes.values["searxng:engine:wikipedia"]["node_type"] == "SearchEngine"
+    assert by_id["searxng:engine:duckduckgo"].mapping_reference.endswith("schema_mappings/SearchEngine")
+    assert by_id["searxng:engine:wikipedia"].mapping_reference.endswith("schema_mappings/SearchEngine")
 
     # result documents typed + resultUrl set, empty-url result skipped.
-    # `source_uri` is one of agent-utilities' PersistencePrivacyGuard
-    # `_LOCATION_FIELDS` (persistence_privacy.py) and is blanket-redacted at
-    # persistence time regardless of content — the real URL survives on the
-    # non-reserved `resultUrl` field the mapper also stamps.
-    doc = c.nodes.values["searxng:result:https://ex.com/a"]
-    assert doc["node_type"] == "Document"
-    assert doc["source_uri"] == "[REDACTED_LOCATION]"
-    assert doc["resultUrl"] == "https://ex.com/a"
-    assert "A" in doc["text"] and "snippet a" in doc["text"]
-    assert not any("skip" in str(v) for v in c.nodes.values.values())
+    # `source_uri` is one of agent-connector-sdk's PersistencePrivacyGuard location
+    # fields (privacy_rules.py) and is blanket-redacted at persistence time regardless
+    # of content — the real URL survives on the non-reserved `resultUrl` field the
+    # mapper also stamps. Same behavior as the retired agent-utilities guard it replaces.
+    doc = by_id["searxng:result:https://ex.com/a"]
+    assert doc.mapping_reference.endswith("schema_mappings/Document")
+    assert doc.payload["source_uri"] == "[REDACTED_LOCATION]"
+    assert doc.payload["resultUrl"] == "https://ex.com/a"
+    assert "A" in doc.payload["text"] and "snippet a" in doc.payload["text"]
+    assert not any("skip" in str(v) for v in by_id.values())
 
     # links: resultOf query + fromEngine
-    assert (
-        "searxng:result:https://ex.com/a",
-        qids[0],
-        {"relationship": "resultOf"},
-    ) in c.changes.edges
-    assert (
-        "searxng:result:https://ex.com/a",
-        "searxng:engine:duckduckgo",
-        {"relationship": "fromEngine"},
-    ) in c.changes.edges
+    rel_tuples = {
+        (r.source.record_id, r.target.record_id, r.relation_reference.rsplit("/relations/", 1)[-1])
+        for r in request.relationships
+    }
+    assert ("searxng:result:https://ex.com/a", qids[0], "resultOf") in rel_tuples
+    assert ("searxng:result:https://ex.com/a", "searxng:engine:duckduckgo", "fromEngine") in rel_tuples
 
 
-def test_retired_structural_alias_is_rejected():
-    with pytest.raises(NativeIngestError, match="canonical node_type"):
-        ingest_entities([{"id": "a", "type": "SearchQuery"}], client=_FakeClient())
+@pytest.mark.asyncio
+async def test_missing_node_type_is_rejected(ingest):
+    service, _ = ingest
+    with pytest.raises(IngestError, match="needs an id and a node_type"):
+        await ingest_entities([{"id": "a"}], ingest=service)
 
 
-def test_empty_native_ingest_is_rejected():
-    with pytest.raises(NativeIngestError, match="at least one entity"):
-        ingest_entities([], client=_FakeClient())
+@pytest.mark.asyncio
+async def test_empty_ingest_entities_is_rejected(ingest):
+    service, _ = ingest
+    with pytest.raises(IngestError, match="at least one entity"):
+        await ingest_entities([], ingest=service)
 
 
-def test_ingest_search_results_records_query_even_with_no_results():
+@pytest.mark.asyncio
+async def test_ingest_search_results_records_query_even_with_no_results(ingest):
+    service, transport = ingest
     # A query that returned nothing still records the :SearchQuery node (provenance).
-    c = _FakeClient()
-    res = ingest_search_results("empty", {"results": []}, client=c)
+    res = await ingest_search_results("empty", {"results": []}, ingest=service)
     assert res == {"nodes": 1, "edges": 0}
-    qids = [k for k in c.nodes.values if k.startswith("searxng:query:")]
+    by_id = {r.record_id: r for r in transport.requests[0].records}
+    qids = [k for k in by_id if k.startswith("searxng:query:")]
     assert len(qids) == 1
-    assert c.nodes.values[qids[0]]["node_type"] == "SearchQuery"
+    assert by_id[qids[0]].mapping_reference.endswith("schema_mappings/SearchQuery")

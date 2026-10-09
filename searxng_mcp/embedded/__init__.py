@@ -60,7 +60,7 @@ from typing import Any
 
 import requests
 import yaml
-from agent_utilities.core.config import setting
+from agent_connector_sdk.config import setting
 
 logger = logging.getLogger("SearXNGMCPServer.embedded")
 
