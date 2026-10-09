@@ -37,7 +37,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from agent_utilities.core.config import setting
+from agent_connector_sdk.config import setting
 from pydantic import Field
 
 SEARCH_APP_RESOURCE_URI = "ui://searxng-mcp/search.html"
