@@ -2,12 +2,12 @@
 name: searxng-mcp-operations
 skill_type: skill
 description: >-
-  Operate searxng-mcp through its governed MCP and GraphOS capabilities, including searxng kg ingestion, searxng news research, searxng settings editor, searxng web search. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
+  Operate searxng-mcp through its governed MCP and Arbora capabilities, including searxng kg ingestion, searxng news research, searxng settings editor, searxng web search. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
 
 # Searxng Mcp Operations
 
-Use the provider's governed MCP tools through GraphOS delegation.
+Use the provider's governed MCP tools through Arbora delegation.
 
 ## Workflow
 
