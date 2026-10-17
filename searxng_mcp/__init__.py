@@ -9,7 +9,6 @@ __all__: list[str] = []
 CORE_MODULES: list[str] = ["searxng_mcp.mcp_server"]
 
 OPTIONAL_MODULES = {
-    "searxng_mcp.agent_server": "agent_server",
     "searxng_mcp.mcp_server": "mcp",
 }
 

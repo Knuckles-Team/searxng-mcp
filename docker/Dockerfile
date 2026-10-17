@@ -1,28 +1,6 @@
 # syntax=docker/dockerfile:1
-# Two right-sized images from ONE Dockerfile, selected by build --target. Both are
-# slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source),
-# and BOTH bundle the embedded SearXNG instance (the `embedded` extra) so either
-# image is a single, self-contained container: no second searxng container needed.
-# `SEARXNG_EMBEDDED` defaults to true, so with no `SEARXNG_URL`/`SEARXNG_INSTANCE_URL`
-# configured the bundled instance spawns automatically on first search; setting either
-# (e.g. to the fleet's own http://searxng.arpa) always wins and skips it entirely.
-#
-#   --target agent  (DEFAULT)  installs searxng-mcp[agent,embedded] = the FULL runtime
-#                              (agent-connector-sdk: pydantic-ai + skills;
-#                              the full epistemic-graph engine is a base dependency)
-#                              PLUS the bundled SearXNG instance. The provider's [agent]
-#                              also includes [mcp], so this image can run EITHER the
-#                              agent OR the mcp server. Push as the default tags:
-#                              latest / main / <version>.
-#
-#   --target mcp               installs searxng-mcp[mcp,embedded] = MCP-server tooling
-#                              (agent-connector-sdk: FastMCP/FastAPI plus the mandatory
-#                              full epistemic-graph base runtime) PLUS the bundled
-#                              SearXNG instance. It omits the optional provider
-#                              agent/frontends. Push as the :mcp / :mcp-<version> tag.
-#
-#   docker build --target agent -t searxng-mcp:local .
-#   docker build --target mcp   -t searxng-mcp:mcp    .
+# MCP-only image: ships the MCP server and nothing else (no agent mode).
+#   docker build --target mcp -t <name>:mcp .
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS builder-base
 COPY --from=ghcr.io/astral-sh/uv:0.11.7@sha256:240fb85ab0f263ef12f492d8476aa3a2e4e1e333f7d67fbdd923d00a506a516a /uv /uvx /bin/
 ENV UV_COMPILE_BYTECODE=1 \
@@ -40,11 +18,6 @@ RUN apt-get update \
 FROM builder-base AS builder-mcp
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system --break-system-packages searxng-mcp[mcp,embedded]==2.1.0
-
-# Full agent runtime dependency closure, bundled SearXNG included.
-FROM builder-base AS builder-agent
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --break-system-packages searxng-mcp[agent,embedded]==2.1.0
 
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS runtime-base
 ARG HOST=127.0.0.1
@@ -75,9 +48,3 @@ FROM runtime-base AS mcp
 USER 10001:10001
 COPY --from=builder-mcp /usr/local /usr/local
 CMD ["searxng-mcp"]
-
-# Full image (DEFAULT target): agent runtime; can also run the mcp server.
-FROM runtime-base AS agent
-USER 10001:10001
-COPY --from=builder-agent /usr/local /usr/local
-CMD ["searxng-agent"]

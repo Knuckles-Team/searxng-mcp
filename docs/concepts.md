@@ -12,7 +12,6 @@
 |------------|------|-------------|
 | `CONCEPT:SR-OS.governance.srx` | Core API Client | Primary API client for SearXNG Search Engine MCP Server for Agentic AI! |
 | `CONCEPT:SR-OS.governance.srx-2` | MCP Server | Model Context Protocol server entry point |
-| `CONCEPT:SR-OS.governance.srx-3` | A2A Agent | Agent-to-Agent protocol server |
 
 ## Cross-Project References (from agent-connector-sdk)
 
