@@ -1,7 +1,7 @@
 # searxng-mcp
 
 A privacy-respecting **metasearch API + MCP Server** (with an optional A2A agent) for
-the agent-utilities ecosystem — query the web across multiple search engines through one
+the agent-connector-sdk ecosystem — query the web across multiple search engines through one
 deterministic tool surface.
 
 !!! info "Official documentation"

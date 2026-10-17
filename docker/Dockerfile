@@ -8,7 +8,7 @@
 # (e.g. to the fleet's own http://searxng.arpa) always wins and skips it entirely.
 #
 #   --target agent  (DEFAULT)  installs searxng-mcp[agent,embedded] = the FULL runtime
-#                              (agent-utilities[agent-runtime]: pydantic-ai + skills;
+#                              (agent-connector-sdk: pydantic-ai + skills;
 #                              the full epistemic-graph engine is a base dependency)
 #                              PLUS the bundled SearXNG instance. The provider's [agent]
 #                              also includes [mcp], so this image can run EITHER the
@@ -16,7 +16,7 @@
 #                              latest / main / <version>.
 #
 #   --target mcp               installs searxng-mcp[mcp,embedded] = MCP-server tooling
-#                              (agent-utilities[mcp]: FastMCP/FastAPI plus the mandatory
+#                              (agent-connector-sdk: FastMCP/FastAPI plus the mandatory
 #                              full epistemic-graph base runtime) PLUS the bundled
 #                              SearXNG instance. It omits the optional provider
 #                              agent/frontends. Push as the :mcp / :mcp-<version> tag.

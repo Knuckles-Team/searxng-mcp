@@ -3,7 +3,7 @@
 Generated: 2026-05-22T21:09:03.761141+00:00
 Skipped informational: 5
 
-- [ ] [P] **T001** [Dependency Audit] Minor update: agent-utilities 0.2.42 (installed) -> 0.16.0
+- [ ] [P] **T001** [Dependency Audit] Minor update: agent-connector-sdk 0.2.42 (installed) -> 0.16.0
   - Priority: P3-Low | Effort: Small
 - [ ] [P] **T002** [Dependency Audit] Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
   - Priority: P3-Low | Effort: Small

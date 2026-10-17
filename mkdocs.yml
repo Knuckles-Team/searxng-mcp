@@ -1,5 +1,5 @@
 site_name: "searxng-mcp"
-site_description: "Privacy-respecting SearXNG metasearch API + MCP Server (with an optional A2A agent) for the agent-utilities ecosystem."
+site_description: "Privacy-respecting SearXNG metasearch API + MCP Server (with an optional A2A agent) for the agent-connector-sdk ecosystem."
 site_url: "https://knuckles-team.github.io/searxng-mcp/"
 repo_name: "Knuckles-Team/searxng-mcp"
 repo_url: "https://github.com/Knuckles-Team/searxng-mcp"

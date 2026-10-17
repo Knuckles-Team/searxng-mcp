@@ -9,7 +9,7 @@ description = "SearXNG Search Engine MCP Server for Agentic AI!"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12, <3.15"
-dependencies = [ "agent-connector-sdk>=0.1.0,<1.0.0", "agent-utilities>=2.0.0,<3.0.0",]
+dependencies = [ "agent-connector-sdk>=0.2.0,<1.0.0", "requests>=2.32.0",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
@@ -18,31 +18,29 @@ email = "maintainers@users.noreply.github.com"
 text = "MIT"
 
 [project.optional-dependencies]
-mcp = [ "agent-utilities[mcp]>=2.0.0,<3.0.0",]
-agent = [ "agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0",]
+mcp = [ "agent-connector-sdk>=0.2.0,<1.0.0",]
 # Zero-config self-contained search (searxng_mcp/embedded/): SearXNG ships no
 # PyPI release, only a pip-installable git source (setup.py name="searxng",
 # package "searx", console_script searxng-run = searx.webapp:run).
 embedded = [ "searxng @ git+https://github.com/searxng/searxng.git@9e25585aecd9f6ab1fdf30922da64fd91eb25425",]
-all = [ "agent-utilities[mcp,agent-runtime,logfire]>=2.0.0,<3.0.0",]
+all = [ "agent-connector-sdk>=0.2.0,<1.0.0",]
 test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
 
 [project.scripts]
 searxng-mcp = "searxng_mcp.mcp_server:mcp_server"
-searxng-agent = "searxng_mcp.agent_server:agent_server"
 searxng-doctor = "searxng_mcp.doctor:main"
 
-[project.entry-points."agent_utilities.skill_providers"]
+[project.entry-points."agent_connector_sdk.skill_providers"]
 searxng-mcp = "searxng_mcp.skills"
 
-[project.entry-points."agent_utilities.ontology_providers"]
+[project.entry-points."agent_connector_sdk.ontology_providers"]
 searxng-mcp = "searxng_mcp.ontology"
 
-[project.entry-points."agent_utilities.source_connector_providers"]
+[project.entry-points."agent_connector_sdk.source_connector_providers"]
 searxng-mcp = "searxng_mcp.connectors"
 
-[project.entry-points."agent_utilities.prompt_providers"]
+[project.entry-points."agent_connector_sdk.prompt_providers"]
 searxng-mcp = "searxng_mcp.prompts"
 
 [tool.uv.workspace]
@@ -56,9 +54,6 @@ override-dependencies = [
     "fastmcp-slim[client,server]>=4.0.0b1",
 ]
 
-[tool.uv.sources]
-agent-connector-sdk = { path = ".uv-workspace-siblings/agent-connector-sdk", editable = true }
-agent-utilities = { path = ".uv-workspace-siblings/agent-utilities", editable = true }
 
 [tool.ruff]
 line-length = 88
