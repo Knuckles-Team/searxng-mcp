@@ -14,7 +14,7 @@ import searxng_mcp.kg_ingest as kg_ingest
 server_module = importlib.import_module("searxng_mcp.mcp_server")
 
 
-@pytest.mark.concept("CONN-SEARXNG-MCP-SEARCH-R001.1")
+@pytest.mark.spec("CONN-SEARXNG-MCP-SEARCH-R001.1")
 async def test_web_search_writes_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
     results = {
         "results": [{"url": "https://a.example/pdb", "title": "A", "engine": "bing"}]
