@@ -15,7 +15,7 @@
 
 ## Functional Requirements
 
-- **FR-001**: Minor update: agent-utilities 0.2.42 (installed) -> 0.16.0
+- **FR-001**: Minor update: agent-connector-sdk 0.2.42 (installed) -> 0.16.0
 - **FR-002**: Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
 - **FR-003**: Test suite lacks intent diversity (only one type)
 - **FR-004**: 12 potential doc-test drift items

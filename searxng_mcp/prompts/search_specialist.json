@@ -4,7 +4,7 @@
   "schema_version": "1.0",
   "prompt_version": "0.1.0",
   "source": "searxng-mcp",
-  "extends": "agent-utilities:base",
+  "extends": "agent-connector-sdk:base",
   "compose": "append",
   "description": "SearXNG metasearch specialist: privacy-respecting open-web research and knowledge-graph capture over the searxng-mcp MCP server.",
   "metadata": {

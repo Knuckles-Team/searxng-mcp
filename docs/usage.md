@@ -74,14 +74,3 @@ searxng-mcp --help
 searxng-mcp                                          # stdio (default)
 searxng-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 ```
-
-### `searxng-agent` — the A2A agent server
-
-```bash
-export SEARXNG_URL=http://localhost:8080
-searxng-agent --provider openai --model-id gpt-4o   # ACP + Agent Web UI
-```
-
-The agent connects to the MCP server (via `MCP_URL` or `mcp_config.json`) and exposes
-the search capability conversationally. See [Deployment](deployment.md#agent-server)
-for the combined Compose stack.

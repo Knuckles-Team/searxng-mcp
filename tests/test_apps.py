@@ -1,7 +1,7 @@
 """Unit tests for ``searxng_mcp.apps`` (CONCEPT:SR-ECO.ui.mcp-app-frontend).
 
-Mirrors ``agent_utilities.mcp.tools.mcp_apps``'s own test shape
-(``tests/unit/mcp/test_mcp_apps.py`` in agent-utilities): the entry-point tool
+Mirrors ``agent_connector_sdk.mcp.tools.mcp_apps``'s own test shape
+(``tests/unit/mcp/test_mcp_apps.py`` in agent-connector-sdk): the entry-point tool
 registers with the correct ``AppConfig``/``resource_uri``, returns the exact
 prop shape its HTML expects on init, and the paired ``ui://`` resource returns
 self-contained HTML that calls back through ``web_search`` over the postMessage
@@ -41,12 +41,19 @@ class _CollectingMCP:
         return _deco
 
     def resource(
-        self, *, uri: str, name: str = "", description: str = "", mime_type: str = ""
+        self,
+        *,
+        uri: str,
+        name: str = "",
+        title: str = "",
+        description: str = "",
+        mime_type: str = "",
     ):
         def _deco(fn):
             self.resources[uri] = fn
             self.resource_configs[uri] = {
                 "name": name,
+                "title": title,
                 "description": description,
                 "mime_type": mime_type,
             }

@@ -7,7 +7,6 @@ import pytest
 import requests
 
 import searxng_mcp
-from searxng_mcp.agent_server import agent_server
 from searxng_mcp.mcp_server import (
     get_mcp_instance,
     get_random_searxng_instance,
@@ -19,7 +18,7 @@ def _setting_stub(overrides):
     """Build a stand-in for ``setting(key, default)`` driven by ``overrides``.
 
     The server reads its config exclusively through
-    ``agent_utilities.core.config.setting`` (not module-level constants), so
+    ``agent_connector_sdk.core.config.setting`` (not module-level constants), so
     tests patch that callable to control instance URL / auth / random-instance
     behaviour. Unspecified keys fall back to the caller-supplied default.
     """
@@ -52,7 +51,6 @@ def _no_embedded_by_default():
 def test_init_getattr_available():
     """Test dynamic attributes _MCP_AVAILABLE and _AGENT_AVAILABLE."""
     assert searxng_mcp._MCP_AVAILABLE is True
-    assert searxng_mcp._AGENT_AVAILABLE is True
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
@@ -60,7 +58,6 @@ def test_init_getattr_unavailable_keys():
     """Test getattr when OPTIONAL_MODULES are missing."""
     with patch.dict(searxng_mcp.OPTIONAL_MODULES, {}, clear=True):
         assert searxng_mcp._MCP_AVAILABLE is False
-        assert searxng_mcp._AGENT_AVAILABLE is False
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
@@ -72,12 +69,6 @@ def test_init_getattr_nonexistent():
         _ = searxng_mcp.nonexistent
 
 
-@pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
-def test_init_dir():
-    """Test __dir__ includes expected members."""
-    directory = dir(searxng_mcp)
-    assert "get_mcp_instance" in directory
-    assert "agent_server" in directory
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
@@ -96,13 +87,6 @@ def test_init_import_error_handling():
 # ==========================================
 
 
-@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-3")
-@patch("searxng_mcp.agent_server.agent_server")
-def test_main_execution(mock_agent_server):
-    """Test running searxng_mcp module executes the agent server."""
-    with patch.object(sys, "argv", ["searxng-mcp"]):
-        runpy.run_module("searxng_mcp", run_name="__main__")
-        mock_agent_server.assert_called_once()
 
 
 # ==========================================
@@ -110,42 +94,8 @@ def test_main_execution(mock_agent_server):
 # ==========================================
 
 
-@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-2")
-@patch("agent_utilities.create_agent_server")
-@patch("agent_utilities.initialize_workspace")
-@patch("agent_utilities.load_identity")
-def test_agent_server(mock_load_identity, mock_initialize, mock_create_server):
-    """Test starting the agent server with parsed CLI arguments."""
-    mock_load_identity.return_value = {
-        "name": "Test Searxng Mcp",
-        "description": "Test Description",
-        "content": "Test Prompt",
-    }
-    with patch.object(sys, "argv", ["agent_server", "--debug"]):
-        agent_server()
-        mock_initialize.assert_called_once()
-        mock_load_identity.assert_called_once()
-        mock_create_server.assert_called_once()
 
 
-@pytest.mark.concept("CONCEPT:SR-KG.compute.ce-2")
-@patch("agent_utilities.create_agent_server")
-@patch("agent_utilities.initialize_workspace")
-@patch("agent_utilities.load_identity")
-def test_agent_server_main_execution(
-    mock_load_identity, mock_initialize, mock_create_server
-):
-    """Test running searxng_mcp.agent_server module as main."""
-    mock_load_identity.return_value = {
-        "name": "Test Searxng Mcp",
-        "description": "Test Description",
-        "content": "Test Prompt",
-    }
-    with patch.object(sys, "argv", ["agent_server", "--debug"]):
-        runpy.run_module("searxng_mcp.agent_server", run_name="__main__")
-        mock_initialize.assert_called_once()
-        mock_load_identity.assert_called_once()
-        mock_create_server.assert_called_once()
 
 
 # ==========================================
