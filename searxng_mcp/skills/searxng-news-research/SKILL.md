@@ -34,7 +34,7 @@ categories and paged to collect broad, recent coverage from many outlets at once
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server. Same env
 matrix as `searxng-web-search` (`SEARXNG_INSTANCE_URL`, `USE_RANDOM_INSTANCE`,
-`SEARXNG_USERNAME`/`SEARXNG_PASSWORD`, `SEARXNG_KG_INGEST`, `MCP_TOOL_MODE`). For news
+`SEARXNG_USERNAME`/`SEARXNG_PASSWORD`, `MCP_TOOL_MODE`). For news
 freshness, prefer a self-hosted `SEARXNG_INSTANCE_URL` so JSON output is not rate-limited.
 
 ## Tools & actions

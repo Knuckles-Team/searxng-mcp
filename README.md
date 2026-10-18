@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 2.3.1*
+*Version: 2.3.2*
 
 > **Documentation** — Installation, deployment, usage across the MCP tool, Python API,
 > and console scripts, and guidance for provisioning the SearXNG instance are
@@ -120,7 +120,6 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
         "MCP_TOOL_MODE": "intent",
         "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
-        "SEARXNG_KG_INGEST": "true",
         "USE_RANDOM_INSTANCE": "false"
       }
     }
@@ -155,7 +154,6 @@ own runtime secret boundary.
         "MCP_TOOL_MODE": "intent",
         "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
-        "SEARXNG_KG_INGEST": "true",
         "USE_RANDOM_INSTANCE": "false"
       }
     }
@@ -189,7 +187,6 @@ docker run -i --rm \
   -e MCP_TOOL_MODE=intent \
   -e SEARCH_APPTOOL=true \
   -e SEARXNG_EMBEDDED=true \
-  -e SEARXNG_KG_INGEST=true \
   -e USE_RANDOM_INSTANCE=false \
   registry.example.invalid/searxng-mcp@sha256:<digest> searxng-mcp
 ```

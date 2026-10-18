@@ -33,7 +33,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-__version__ = "2.3.1"
+__version__ = "2.3.2"
 
 logger = get_logger("SearXNGMCPServer")
 logger.setLevel(logging.INFO)
@@ -116,10 +116,8 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         engines: list[str] | None,
         language: str,
         pageno: int,
-        *,
-        ingest: bool,
     ) -> dict:
-        """Run one SearXNG query (plain helper shared by the tools). Best-effort KG ingest."""
+        """Run one SearXNG query (plain helper shared by the tools); it writes nothing."""
         instance_url = setting("SEARXNG_INSTANCE_URL", "") or setting("SEARXNG_URL", "")
         if not instance_url:
             instance_url = _resolve_embedded_instance()
@@ -161,17 +159,9 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
             logger.error("Search failed: error_type=%s", type(e).__name__)
             return {"error": "Failed to perform search"}
 
-        # Native KG ingestion (default-on, best-effort). Push each result into the
-        # epistemic-graph as a search :Document (+ :SearchQuery / :SearchEngine typed
-        # nodes). No-ops when no engine is reachable. CONCEPT:AU-KG.ingest.enterprise-source-extractor.
-        if ingest and bool(setting("SEARXNG_KG_INGEST", True)):
-            try:
-                from searxng_mcp.kg_ingest import ingest_search_results
-
-                await ingest_search_results(query, data, language=language)
-            except Exception as e:  # noqa: BLE001 - ingestion never breaks search
-                logger.debug("Operation failed: error_type=%s", type(e).__name__)
-
+        # Search results are a short-lived virtual source: web_search never
+        # writes them to the graph. searxng_ingest_search is the explicit,
+        # opt-in ingest path.
         return data
 
     @mcp.tool(
@@ -200,9 +190,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         """Perform a web search using a privacy-respecting SearXNG metasearch instance."""
         if ctx:
             await ctx.info("Performing configured SearXNG search...")
-        return await _perform_search(
-            query, categories, engines, language, pageno, ingest=True
-        )
+        return await _perform_search(query, categories, engines, language, pageno)
 
     @mcp.tool(name="searxng_ingest_search", tags={"misc", "kg"})
     async def searxng_ingest_search(
@@ -234,9 +222,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
         if ctx:
             await ctx.info("Searching and ingesting configured SearXNG results...")
-        data = await _perform_search(
-            query, categories, engines, language, pageno, ingest=False
-        )
+        data = await _perform_search(query, categories, engines, language, pageno)
         if isinstance(data, dict) and data.get("error"):
             return {"listed": 0, "ingested": None, "error": data["error"]}
         results = data.get("results") or [] if isinstance(data, dict) else []
