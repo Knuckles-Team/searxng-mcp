@@ -1,8 +1,34 @@
 {
   "schema_version": 2,
-  "spec_id": "REPLACE_WITH_STABLE_ID",
+  "spec_id": "CONN-SEARXNG-MCP-SEARCH",
   "owner_repo": "searxng-mcp",
-  "delivery_state": "RETIRED",
-  "requirement_ids": [],
-  "requirements": []
+  "delivery_state": "VERIFIED",
+  "requirement_ids": [
+    "CONN-SEARXNG-MCP-SEARCH-R001",
+    "CONN-SEARXNG-MCP-SEARCH-R001.1"
+  ],
+  "requirements": [
+    {
+      "id": "CONN-SEARXNG-MCP-SEARCH-R001",
+      "title": "Search results stay virtual (rollup)",
+      "delivery_state": "VERIFIED",
+      "landed_in": [],
+      "verified_by": [],
+      "rollup_of": [
+        "CONN-SEARXNG-MCP-SEARCH-R001.1"
+      ]
+    },
+    {
+      "id": "CONN-SEARXNG-MCP-SEARCH-R001.1",
+      "title": "No ingest side effect",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "230f78d0f44b",
+        "c12e429a2062"
+      ],
+      "verified_by": [
+        "tests/test_search_virtual.py:17"
+      ]
+    }
+  ]
 }
