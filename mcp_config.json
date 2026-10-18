@@ -7,7 +7,6 @@
         "searxng-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "intent",
         "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
         "SEARXNG_KG_INGEST": "true",

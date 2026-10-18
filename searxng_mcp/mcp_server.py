@@ -33,7 +33,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-__version__ = "2.2.1"
+__version__ = "2.3.0"
 
 logger = get_logger("SearXNGMCPServer")
 logger.setLevel(logging.INFO)
@@ -174,7 +174,11 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
         return data
 
-    @mcp.tool(name="web_search")
+    @mcp.tool(
+        name="web_search",
+        tags={"operation"},
+        annotations={"readOnlyHint": True, "idempotentHint": True},
+    )
     async def web_search(
         query: str = Field(description="Search query to submit to SearXNG"),
         categories: list[str] | None = Field(
@@ -239,98 +243,130 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
         ingested = await ingest_search_results(query, data, language=language)
         return {"listed": len(results), "ingested": ingested}
 
-    @mcp.tool(name="searxng_settings", tags={"misc", "config"})
-    async def searxng_settings(
-        action: str = Field(
-            default="get", description="get | set | reset — see tool description"
-        ),
-        overrides_json: str = Field(
-            default="",
-            description='JSON object of settings.yml overrides for "set" '
-            '(e.g. \'{"search": {"formats": ["html", "json", "csv"]}}\'). '
-            "Deep-merged onto the currently-active settings unless merge=false.",
-        ),
-        merge: bool = Field(
-            default=True,
-            description='"set" only: deep-merge onto current settings (default) '
-            "or replace the override file wholesale.",
-        ),
-        apply_now: bool = Field(
-            default=True,
-            description='"set"/"reset" only: stop the running embedded instance '
-            "(if any) so the NEXT search respawns it with the new settings.",
-        ),
-    ) -> dict:
-        """Read/edit the EMBEDDED SearXNG instance's settings.yml
-        (CONCEPT:SR-KG.compute.embedded-instance) — a no-op informational read
-        when an external ``SEARXNG_URL`` is configured, since that instance's
-        settings.yml lives elsewhere and isn't managed by this server.
-
-        Actions:
-          - ``get``: return the currently-active settings (the user override
-            at ``$XDG_CONFIG_HOME/searxng-mcp/settings.yml`` if one exists,
-            else the packaged default) plus its path.
-          - ``set``: deep-merge ``overrides_json`` into the user override
-            (creating it on first use — the packaged default is never
-            modified), then stop the running embedded instance so the next
-            search respawns with the new settings (unless ``apply_now=false``).
-          - ``reset``: delete the user override, reverting to the packaged
-            default on the next spawn.
-        """
-        from searxng_mcp.embedded import (
-            embedded_available,
-            get_embedded_instance,
-            read_settings,
-            reset_user_settings,
-            user_settings_path,
-            write_user_settings,
-        )
+    def _embedded_unavailable(action: str) -> dict | None:
+        from searxng_mcp.embedded import embedded_available
 
         if not embedded_available():
             return {
                 "action": action,
                 "error": "searx package not installed (pip install searxng-mcp[embedded])",
             }
+        return None
 
-        action = (action or "get").strip().lower()
-        if action == "get":
+    @mcp.tool(
+        name="searxng_get_settings",
+        tags={"misc", "config", "operation"},
+        annotations={"readOnlyHint": True, "idempotentHint": True},
+    )
+    async def searxng_get_settings() -> dict:
+        """Read the EMBEDDED SearXNG instance's active settings.yml
+        (CONCEPT:SR-KG.compute.embedded-instance): the user override at
+        ``$XDG_CONFIG_HOME/searxng-mcp/settings.yml`` if one exists, else the
+        packaged default, plus its path. Informational only when an external
+        ``SEARXNG_URL`` is configured.
+        """
+        from searxng_mcp.embedded import read_settings, user_settings_path
+
+        if (unavailable := _embedded_unavailable("get")) is not None:
+            return unavailable
+        return {
+            "action": "get",
+            "settings_path": str(
+                user_settings_path()
+                if user_settings_path().is_file()
+                else "packaged default"
+            ),
+            "settings": read_settings(),
+        }
+
+    @mcp.tool(
+        name="searxng_set_settings",
+        tags={"misc", "config", "operation"},
+        annotations={"readOnlyHint": False, "destructiveHint": False},
+    )
+    async def searxng_set_settings(
+        overrides_json: str = Field(
+            default="",
+            description="JSON object of settings.yml overrides "
+            '(e.g. \'{"search": {"formats": ["html", "json", "csv"]}}\'). '
+            "Deep-merged onto the currently-active settings unless merge=false.",
+        ),
+        merge: bool = Field(
+            default=True,
+            description="Deep-merge onto current settings (default) or replace "
+            "the override file wholesale.",
+        ),
+        apply_now: bool = Field(
+            default=True,
+            description="Stop the running embedded instance (if any) so the NEXT "
+            "search respawns it with the new settings.",
+        ),
+    ) -> dict:
+        """Deep-merge ``overrides_json`` into the EMBEDDED SearXNG user override
+        settings.yml (created on first use; the packaged default is never
+        modified), then stop the running embedded instance so the next search
+        respawns with the new settings (unless ``apply_now=false``).
+        """
+        from searxng_mcp.embedded import (
+            get_embedded_instance,
+            read_settings,
+            write_user_settings,
+        )
+
+        if (unavailable := _embedded_unavailable("set")) is not None:
+            return unavailable
+        try:
+            overrides = json.loads(overrides_json) if overrides_json else {}
+        except (TypeError, ValueError) as e:
             return {
-                "action": action,
-                "settings_path": str(
-                    user_settings_path()
-                    if user_settings_path().is_file()
-                    else "packaged default"
-                ),
-                "settings": read_settings(),
+                "action": "set",
+                "error": f"invalid overrides_json: {type(e).__name__}",
             }
-        if action == "set":
-            try:
-                overrides = json.loads(overrides_json) if overrides_json else {}
-            except (TypeError, ValueError) as e:
-                return {
-                    "action": action,
-                    "error": f"invalid overrides_json: {type(e).__name__}",
-                }
-            if not isinstance(overrides, dict):
-                return {
-                    "action": action,
-                    "error": "overrides_json must decode to an object",
-                }
-            path = write_user_settings(overrides, merge=merge)
-            if apply_now:
-                get_embedded_instance().stop()
+        if not isinstance(overrides, dict):
             return {
-                "action": action,
-                "settings_path": str(path),
-                "settings": read_settings(),
-                "restart_pending": not apply_now,
+                "action": "set",
+                "error": "overrides_json must decode to an object",
             }
-        if action == "reset":
-            removed = reset_user_settings()
-            if apply_now:
-                get_embedded_instance().stop()
-            return {"action": action, "removed": removed, "settings": read_settings()}
-        return {"action": action, "error": f"unknown action {action!r}"}
+        path = write_user_settings(overrides, merge=merge)
+        if apply_now:
+            get_embedded_instance().stop()
+        return {
+            "action": "set",
+            "settings_path": str(path),
+            "settings": read_settings(),
+            "restart_pending": not apply_now,
+        }
+
+    @mcp.tool(
+        name="searxng_reset_settings",
+        tags={"misc", "config", "operation"},
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": True,
+            "idempotentHint": True,
+        },
+    )
+    async def searxng_reset_settings(
+        apply_now: bool = Field(
+            default=True,
+            description="Stop the running embedded instance (if any) so the NEXT "
+            "search respawns it with the packaged default settings.",
+        ),
+    ) -> dict:
+        """Delete the EMBEDDED SearXNG user override settings.yml, reverting to
+        the packaged default on the next spawn."""
+        from searxng_mcp.embedded import (
+            get_embedded_instance,
+            read_settings,
+            reset_user_settings,
+        )
+
+        if (unavailable := _embedded_unavailable("reset")) is not None:
+            return unavailable
+        removed = reset_user_settings()
+        if apply_now:
+            get_embedded_instance().stop()
+        return {"action": "reset", "removed": removed, "settings": read_settings()}
 
     register_prompts(mcp)
 

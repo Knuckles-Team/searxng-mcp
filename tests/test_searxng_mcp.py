@@ -69,8 +69,6 @@ def test_init_getattr_nonexistent():
         _ = searxng_mcp.nonexistent
 
 
-
-
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce")
 def test_init_import_error_handling():
     """Test import error handling in _import_module_safely."""
@@ -87,15 +85,9 @@ def test_init_import_error_handling():
 # ==========================================
 
 
-
-
 # ==========================================
 # 3. Tests for searxng_mcp/agent_server.py
 # ==========================================
-
-
-
-
 
 
 # ==========================================
@@ -467,7 +459,7 @@ async def test_web_search_degrades_when_embedded_start_fails(mock_get):
 async def test_searxng_settings_get_returns_active_settings():
     mcp, _, _, _ = get_mcp_instance()
     tools = await mcp.list_tools()
-    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+    settings_tool = next(t for t in tools if t.name == "searxng_get_settings")
 
     with (
         patch("searxng_mcp.embedded.embedded_available", return_value=True),
@@ -480,9 +472,7 @@ async def test_searxng_settings_get_returns_active_settings():
             return_value=MagicMock(is_file=MagicMock(return_value=False)),
         ),
     ):
-        res = await settings_tool.fn(
-            action="get", overrides_json="", merge=True, apply_now=True
-        )
+        res = await settings_tool.fn()
     assert res["action"] == "get"
     assert res["settings"]["search"]["formats"] == ["html", "json"]
 
@@ -492,7 +482,7 @@ async def test_searxng_settings_get_returns_active_settings():
 async def test_searxng_settings_set_merges_and_restarts_the_instance():
     mcp, _, _, _ = get_mcp_instance()
     tools = await mcp.list_tools()
-    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+    settings_tool = next(t for t in tools if t.name == "searxng_set_settings")
 
     fake_instance = MagicMock()
     with (
@@ -508,7 +498,6 @@ async def test_searxng_settings_set_merges_and_restarts_the_instance():
         patch("searxng_mcp.embedded.get_embedded_instance", return_value=fake_instance),
     ):
         res = await settings_tool.fn(
-            action="set",
             overrides_json='{"general": {"enable_metrics": true}}',
             merge=True,
             apply_now=True,
@@ -526,7 +515,7 @@ async def test_searxng_settings_set_merges_and_restarts_the_instance():
 async def test_searxng_settings_set_apply_now_false_skips_restart():
     mcp, _, _, _ = get_mcp_instance()
     tools = await mcp.list_tools()
-    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+    settings_tool = next(t for t in tools if t.name == "searxng_set_settings")
 
     fake_instance = MagicMock()
     with (
@@ -538,9 +527,7 @@ async def test_searxng_settings_set_apply_now_false_skips_restart():
         patch("searxng_mcp.embedded.read_settings", return_value={}),
         patch("searxng_mcp.embedded.get_embedded_instance", return_value=fake_instance),
     ):
-        res = await settings_tool.fn(
-            action="set", overrides_json="{}", merge=True, apply_now=False
-        )
+        res = await settings_tool.fn(overrides_json="{}", merge=True, apply_now=False)
     fake_instance.stop.assert_not_called()
     assert res["restart_pending"] is True
 
@@ -550,11 +537,11 @@ async def test_searxng_settings_set_apply_now_false_skips_restart():
 async def test_searxng_settings_set_rejects_invalid_json():
     mcp, _, _, _ = get_mcp_instance()
     tools = await mcp.list_tools()
-    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+    settings_tool = next(t for t in tools if t.name == "searxng_set_settings")
 
     with patch("searxng_mcp.embedded.embedded_available", return_value=True):
         res = await settings_tool.fn(
-            action="set", overrides_json="not json", merge=True, apply_now=True
+            overrides_json="not json", merge=True, apply_now=True
         )
     assert "error" in res
 
@@ -564,7 +551,7 @@ async def test_searxng_settings_set_rejects_invalid_json():
 async def test_searxng_settings_reset_reverts_and_restarts():
     mcp, _, _, _ = get_mcp_instance()
     tools = await mcp.list_tools()
-    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+    settings_tool = next(t for t in tools if t.name == "searxng_reset_settings")
 
     fake_instance = MagicMock()
     with (
@@ -573,9 +560,7 @@ async def test_searxng_settings_reset_reverts_and_restarts():
         patch("searxng_mcp.embedded.read_settings", return_value={}),
         patch("searxng_mcp.embedded.get_embedded_instance", return_value=fake_instance),
     ):
-        res = await settings_tool.fn(
-            action="reset", overrides_json="", merge=True, apply_now=True
-        )
+        res = await settings_tool.fn(apply_now=True)
     assert res == {"action": "reset", "removed": True, "settings": {}}
     fake_instance.stop.assert_called_once()
 
@@ -585,12 +570,10 @@ async def test_searxng_settings_reset_reverts_and_restarts():
 async def test_searxng_settings_without_the_embedded_extra_is_informational():
     mcp, _, _, _ = get_mcp_instance()
     tools = await mcp.list_tools()
-    settings_tool = next(t for t in tools if t.name == "searxng_settings")
+    settings_tool = next(t for t in tools if t.name == "searxng_get_settings")
 
     with patch("searxng_mcp.embedded.embedded_available", return_value=False):
-        res = await settings_tool.fn(
-            action="get", overrides_json="", merge=True, apply_now=True
-        )
+        res = await settings_tool.fn()
     assert "error" in res
 
 
