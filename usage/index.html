@@ -6,8 +6,6 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Privacy-respecting SearXNG metasearch API + MCP Server (with an optional A2A agent) for the agent-utilities ecosystem.">
-      
       
       
         <link rel="canonical" href="https://knuckles-team.github.io/searxng-mcp/usage/">
@@ -681,17 +679,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#searxng-agent-the-a2a-agent-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        searxng-agent — the A2A agent server
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -830,17 +817,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#searxng-agent-the-a2a-agent-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        searxng-agent — the A2A agent server
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -939,13 +915,6 @@ search directly against any SearXNG instance with <code>requests</code>:</p>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>searxng-mcp<span class="w">                                          </span><span class="c1"># stdio (default)</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>searxng-mcp<span class="w"> </span>--transport<span class="w"> </span>streamable-http<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
 </span></code></pre></div>
-<h3 id="searxng-agent-the-a2a-agent-server"><code>searxng-agent</code> — the A2A agent server<a class="headerlink" href="#searxng-agent-the-a2a-agent-server" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">SEARXNG_URL</span><span class="o">=</span>http://localhost:8080
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>searxng-agent<span class="w"> </span>--provider<span class="w"> </span>openai<span class="w"> </span>--model-id<span class="w"> </span>gpt-4o<span class="w">   </span><span class="c1"># ACP + Agent Web UI</span>
-</span></code></pre></div>
-<p>The agent connects to the MCP server (via <code>MCP_URL</code> or <code>mcp_config.json</code>) and exposes
-the search capability conversationally. See <a href="../deployment/#agent-server">Deployment</a>
-for the combined Compose stack.</p>
 
 
 
