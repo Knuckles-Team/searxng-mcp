@@ -36,14 +36,14 @@ recallable, citable corpus from the open web.
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server. A reachable
 epistemic-graph engine is required for anything to land; with no engine the tool is a
 clean no-op (`ingested: null`). Same env matrix as `searxng-web-search`. Note:
-`SEARXNG_KG_INGEST` (default-on) already ingests on every `web_search` — use the explicit
+`web_search` never ingests; its results stay a virtual source. Use the explicit
 tool below when you want the ingest confirmation payload or ingest without a prior read.
 
 ## Tools & actions
 | Tool | Purpose |
 |------|---------|
 | `searxng_ingest_search` | Run a search AND push results to the KG; returns `{listed, ingested}`. |
-| `web_search` | Plain search; also ingests by default unless `SEARXNG_KG_INGEST=false`. |
+| `web_search` | Plain search; writes nothing to the graph. |
 
 ### Key parameters (`searxng_ingest_search`)
 - `query` — the search string (required); also becomes the `:SearchQuery` node.

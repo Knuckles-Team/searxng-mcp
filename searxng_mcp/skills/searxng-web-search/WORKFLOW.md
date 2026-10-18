@@ -30,7 +30,6 @@ Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server.
 | `SEARXNG_EMBEDDED` | optional | Default `true`. With no URL configured + the `searxng-mcp[embedded]` extra installed, spawns+uses a private loopback-only instance BEFORE falling to a random/public one — see `searxng-settings-editor`. |
 | `USE_RANDOM_INSTANCE` | optional | If truthy and no URL/embedded instance available, pick a random public instance from the SearXNG instances list. |
 | `SEARXNG_USERNAME` / `SEARXNG_PASSWORD` | optional | HTTP basic auth for a protected instance. |
-| `SEARXNG_KG_INGEST` | optional | Default-on; set falsy to disable the background KG ingest on `web_search`. |
 | `MCP_TOOL_MODE` | optional | `condensed` \| `verbose` \| `both`. |
 
 ## Tools & actions
@@ -66,7 +65,6 @@ Page 2 of an IT-category search:
 - A public instance can rate-limit or block JSON `format`; set `SEARXNG_INSTANCE_URL`
   to a self-hosted instance for reliability, or enable `USE_RANDOM_INSTANCE`.
 - `web_search` ingests results into the KG by default (best-effort, non-blocking).
-  Disable with `SEARXNG_KG_INGEST=false` if you want a pure read.
 - Results are snippets, not full pages — follow up with `web-fetch` to read a URL.
 
 ## Related

@@ -9,7 +9,6 @@
       "env": {
         "SEARCH_APPTOOL": "true",
         "SEARXNG_EMBEDDED": "true",
-        "SEARXNG_KG_INGEST": "true",
         "USE_RANDOM_INSTANCE": "false"
       }
     }
