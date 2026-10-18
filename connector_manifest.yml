@@ -101,7 +101,7 @@ sync:
 - preset: searxng-web-search
   server: searxng-mcp
   tool: web_search
-  action: web_search
+  action: null
   records_path: results
   id_field: url
   title_field: title
@@ -113,7 +113,7 @@ sync:
   raw:
     server: searxng-mcp
     tool: web_search
-    action: web_search
+    params_style: args
     records_path: results
     id_field: url
     title_field: title

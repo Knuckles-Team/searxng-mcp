@@ -3,12 +3,12 @@
   "searxng-web-search": {
     "server": "searxng-mcp",
     "tool": "web_search",
-    "action": "web_search",
     "records_path": "results",
     "id_field": "url",
     "title_field": "title",
     "text_field": "content",
     "updated_field": "publishedDate",
-    "doc_type": "search_result"
+    "doc_type": "search_result",
+    "params_style": "args"
   }
 }
