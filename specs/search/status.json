@@ -12,8 +12,13 @@
       "id": "CONN-SEARXNG-MCP-SEARCH-R001",
       "title": "Search results stay virtual (rollup)",
       "delivery_state": "VERIFIED",
-      "landed_in": [],
-      "verified_by": [],
+      "landed_in": [
+        "41008ea6cb43",
+        "b9aa6224d9d8"
+      ],
+      "verified_by": [
+        "tests/test_search_virtual.py:17"
+      ],
       "rollup_of": [
         "CONN-SEARXNG-MCP-SEARCH-R001.1"
       ]
@@ -23,8 +28,8 @@
       "title": "No ingest side effect",
       "delivery_state": "VERIFIED",
       "landed_in": [
-        "230f78d0f44b",
-        "c12e429a2062"
+        "41008ea6cb43",
+        "b9aa6224d9d8"
       ],
       "verified_by": [
         "tests/test_search_virtual.py:17"
