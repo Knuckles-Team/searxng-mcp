@@ -33,7 +33,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-__version__ = "2.3.3"
+__version__ = "2.3.4"
 
 logger = get_logger("SearXNGMCPServer")
 logger.setLevel(logging.INFO)

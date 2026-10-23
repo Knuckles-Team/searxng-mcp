@@ -71,10 +71,10 @@ async def test_ingest_entities_writes_nodes_and_edges(ingest):
     request = transport.requests[0]
     by_id = {r.record_id: r for r in request.records}
     assert set(by_id) == {"searxng:query:x", "searxng:engine:google"}
-    assert by_id["searxng:query:x"].mapping_reference.endswith("schema_mappings/SearchQuery")
+    assert by_id["searxng:query:x"].mapping_reference.endswith("mappings/SearchQuery")
     assert request.relationships[0].source.record_id == "searxng:query:x"
     assert request.relationships[0].target.record_id == "searxng:engine:google"
-    assert request.relationships[0].relation_reference.endswith("/relations/fromEngine")
+    assert request.relationships[0].relation_reference.endswith("/fromEngine")
 
 
 @pytest.mark.asyncio
@@ -87,7 +87,7 @@ async def test_ingest_documents_writes_document_nodes(ingest):
     assert res == {"nodes": 1, "edges": 0}
     record = transport.requests[0].records[0]
     assert record.record_id == "searxng:result:http://a"
-    assert record.mapping_reference.endswith("schema_mappings/Document")
+    assert record.mapping_reference.endswith("mappings/Document")
     assert record.payload["text"] == "hello"
 
 
@@ -127,12 +127,12 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
     # query node present with typed shape
     qids = [k for k in by_id if k.startswith("searxng:query:")]
     assert len(qids) == 1
-    assert by_id[qids[0]].mapping_reference.endswith("schema_mappings/SearchQuery")
+    assert by_id[qids[0]].mapping_reference.endswith("mappings/SearchQuery")
     assert by_id[qids[0]].payload["queryText"] == "open source"
 
     # engine nodes typed
-    assert by_id["searxng:engine:duckduckgo"].mapping_reference.endswith("schema_mappings/SearchEngine")
-    assert by_id["searxng:engine:wikipedia"].mapping_reference.endswith("schema_mappings/SearchEngine")
+    assert by_id["searxng:engine:duckduckgo"].mapping_reference.endswith("mappings/SearchEngine")
+    assert by_id["searxng:engine:wikipedia"].mapping_reference.endswith("mappings/SearchEngine")
 
     # result documents typed + resultUrl set, empty-url result skipped.
     # `source_uri` is one of agent-connector-sdk's PersistencePrivacyGuard location
@@ -140,7 +140,7 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
     # of content — the real URL survives on the non-reserved `resultUrl` field the
     # mapper also stamps. Same behavior as the retired agent-connector-sdk guard it replaces.
     doc = by_id["searxng:result:https://ex.com/a"]
-    assert doc.mapping_reference.endswith("schema_mappings/Document")
+    assert doc.mapping_reference.endswith("mappings/Document")
     assert doc.payload["source_uri"] == "[REDACTED_LOCATION]"
     assert doc.payload["resultUrl"] == "https://ex.com/a"
     assert "A" in doc.payload["text"] and "snippet a" in doc.payload["text"]
@@ -148,7 +148,7 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
 
     # links: resultOf query + fromEngine
     rel_tuples = {
-        (r.source.record_id, r.target.record_id, r.relation_reference.rsplit("/relations/", 1)[-1])
+        (r.source.record_id, r.target.record_id, r.relation_reference.rsplit("/", 1)[-1])
         for r in request.relationships
     }
     assert ("searxng:result:https://ex.com/a", qids[0], "resultOf") in rel_tuples
@@ -178,4 +178,4 @@ async def test_ingest_search_results_records_query_even_with_no_results(ingest):
     by_id = {r.record_id: r for r in transport.requests[0].records}
     qids = [k for k in by_id if k.startswith("searxng:query:")]
     assert len(qids) == 1
-    assert by_id[qids[0]].mapping_reference.endswith("schema_mappings/SearchQuery")
+    assert by_id[qids[0]].mapping_reference.endswith("mappings/SearchQuery")
