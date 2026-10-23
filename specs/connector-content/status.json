@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "spec_id": "CONN-SEARXNG-MCP-CONNECTOR-CONTENT",
+  "owner_repo": "searxng-mcp",
+  "delivery_state": "VERIFIED",
+  "requirement_ids": [
+    "CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R001"
+  ],
+  "requirements": [
+    {
+      "id": "CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R001",
+      "title": "Default content",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "aeffdad40b48"
+      ],
+      "verified_by": [
+        "tests/test_default_content_surfaces.py:15"
+      ]
+    }
+  ]
+}
