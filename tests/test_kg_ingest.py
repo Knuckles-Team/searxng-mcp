@@ -115,7 +115,9 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
             {"url": "", "title": "skip", "content": "no url"},
         ],
     }
-    res = await ingest_search_results("open source", response, language="en-US", ingest=service)
+    res = await ingest_search_results(
+        "open source", response, language="en-US", ingest=service
+    )
     # 1 query + 2 engines (entities) + 2 documents = 5 nodes
     assert res["nodes"] == 5
     # each result: resultOf + fromEngine = 4 edges
@@ -131,8 +133,12 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
     assert by_id[qids[0]].payload["queryText"] == "open source"
 
     # engine nodes typed
-    assert by_id["searxng:engine:duckduckgo"].mapping_reference.endswith("mappings/SearchEngine")
-    assert by_id["searxng:engine:wikipedia"].mapping_reference.endswith("mappings/SearchEngine")
+    assert by_id["searxng:engine:duckduckgo"].mapping_reference.endswith(
+        "mappings/SearchEngine"
+    )
+    assert by_id["searxng:engine:wikipedia"].mapping_reference.endswith(
+        "mappings/SearchEngine"
+    )
 
     # result documents typed + resultUrl set, empty-url result skipped.
     # `source_uri` is one of agent-connector-sdk's PersistencePrivacyGuard location
@@ -148,11 +154,19 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
 
     # links: resultOf query + fromEngine
     rel_tuples = {
-        (r.source.record_id, r.target.record_id, r.relation_reference.rsplit("/", 1)[-1])
+        (
+            r.source.record_id,
+            r.target.record_id,
+            r.relation_reference.rsplit("/", 1)[-1],
+        )
         for r in request.relationships
     }
     assert ("searxng:result:https://ex.com/a", qids[0], "resultOf") in rel_tuples
-    assert ("searxng:result:https://ex.com/a", "searxng:engine:duckduckgo", "fromEngine") in rel_tuples
+    assert (
+        "searxng:result:https://ex.com/a",
+        "searxng:engine:duckduckgo",
+        "fromEngine",
+    ) in rel_tuples
 
 
 @pytest.mark.asyncio

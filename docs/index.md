@@ -53,3 +53,7 @@ searxng-mcp --transport streamable-http --host 0.0.0.0 --port 8000
 
 See **[Installation](installation.md)** and **[Deployment](deployment.md)** for the
 proxy, DNS).
+
+## Spec delivery
+
+[Spec delivery dashboard](spec-delivery/).

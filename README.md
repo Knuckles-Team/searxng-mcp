@@ -20,8 +20,6 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/searxng-mcp)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/searxng-mcp)
 
-*Version: 2.3.4*
-
 > **Documentation** — Installation, deployment, usage across the MCP tool, Python API,
 > and console scripts, and guidance for provisioning the SearXNG instance are
 > maintained in the [official documentation](https://knuckles-team.github.io/searxng-mcp/).

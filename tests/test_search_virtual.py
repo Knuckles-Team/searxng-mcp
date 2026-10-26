@@ -22,7 +22,9 @@ async def test_web_search_writes_nothing(monkeypatch: pytest.MonkeyPatch) -> Non
     response = MagicMock()
     response.json.return_value = results
     response.raise_for_status.return_value = None
-    monkeypatch.setattr(server_module.requests, "get", lambda *_args, **_kwargs: response)
+    monkeypatch.setattr(
+        server_module.requests, "get", lambda *_args, **_kwargs: response
+    )
     monkeypatch.setenv("SEARXNG_INSTANCE_URL", "https://searx.example")
     monkeypatch.setattr("sys.argv", ["searxng-mcp"])
     ingested: list[Any] = []
