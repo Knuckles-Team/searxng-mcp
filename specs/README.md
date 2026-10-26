@@ -12,4 +12,5 @@ Read the existing specs first. Extend the spec that owns the behavior. Create a 
 
 ## Local specifications
 
+- [`CONN-SEARXNG-MCP-CONNECTOR-CONTENT`](connector-content/spec.md) — The connector serves its packaged skills, prompts and ontology.
 - [`CONN-SEARXNG-MCP-SEARCH`](search/spec.md) — Web search results as a virtual source.

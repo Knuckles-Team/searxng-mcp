@@ -36,7 +36,7 @@ search directly against any SearXNG instance with `requests`:
 ```python
 import requests
 
-instance_url = "http://localhost:8080"      # your SEARXNG_URL
+instance_url = "http://localhost:8080"  # your SEARXNG_URL
 response = requests.get(
     f"{instance_url}/search",
     params={
@@ -49,7 +49,7 @@ response = requests.get(
     timeout=15,
 )
 response.raise_for_status()
-results = response.json()                    # SearXNG JSON result set
+results = response.json()  # SearXNG JSON result set
 for hit in results.get("results", []):
     print(hit["title"], hit["url"])
 ```
@@ -60,7 +60,7 @@ To let the package pick a public SearXNG instance for the operator (the behaviou
 ```python
 from searxng_mcp.mcp_server import get_random_searxng_instance
 
-instance_url = get_random_searxng_instance()   # a vetted public instance
+instance_url = get_random_searxng_instance()  # a vetted public instance
 ```
 
 ## As a CLI

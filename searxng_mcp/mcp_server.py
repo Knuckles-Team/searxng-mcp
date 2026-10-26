@@ -23,6 +23,7 @@ import json
 import logging
 import random
 import sys
+from importlib.metadata import version
 from typing import Any
 
 import requests
@@ -33,7 +34,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-__version__ = "2.3.4"
+__version__ = version("searxng-mcp")
 
 logger = get_logger("SearXNGMCPServer")
 logger.setLevel(logging.INFO)

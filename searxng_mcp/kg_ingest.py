@@ -39,7 +39,9 @@ def _to_entity(record: dict[str, Any]) -> Entity:
 
 
 def _to_relationship(record: dict[str, Any]) -> Relationship:
-    props = {k: v for k, v in record.items() if k not in ("source", "target", "relationship")}
+    props = {
+        k: v for k, v in record.items() if k not in ("source", "target", "relationship")
+    }
     return Relationship(
         source=record["source"],
         target=record["target"],
@@ -55,7 +57,9 @@ def _to_document(record: dict[str, Any]) -> Document:
         title=record.get("title"),
         source_uri=record.get("source_uri"),
         properties={
-            k: v for k, v in record.items() if k not in ("id", "text", "title", "source_uri", "updated_at")
+            k: v
+            for k, v in record.items()
+            if k not in ("id", "text", "title", "source_uri", "updated_at")
         },
         updated_at=record.get("updated_at"),
     )
@@ -167,13 +171,21 @@ async def ingest_search_results(
                 },
             )
         )
-        relationships.append(Relationship(source=did, target=qid, relationship="resultOf"))
+        relationships.append(
+            Relationship(source=did, target=qid, relationship="resultOf")
+        )
         if engine:
             eid = f"searxng:engine:{engine}"
             if engine not in seen_engines:
                 seen_engines.add(engine)
-                entities.append(Entity(id=eid, node_type="SearchEngine", properties={"name": engine}))
-            relationships.append(Relationship(source=did, target=eid, relationship="fromEngine"))
+                entities.append(
+                    Entity(
+                        id=eid, node_type="SearchEngine", properties={"name": engine}
+                    )
+                )
+            relationships.append(
+                Relationship(source=did, target=eid, relationship="fromEngine")
+            )
 
     change_set = ChangeSet(
         entities=tuple(entities),
