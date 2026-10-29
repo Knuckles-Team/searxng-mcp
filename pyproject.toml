@@ -27,12 +27,6 @@ test = [
 searxng-mcp = "searxng_mcp.mcp_server:mcp_server"
 searxng-doctor = "searxng_mcp.doctor:main"
 
-[project.entry-points."agent_connector_sdk.skill_providers"]
-searxng-mcp = "searxng_mcp.skills"
-
-[project.entry-points."agent_connector_sdk.ontology_providers"]
-searxng-mcp = "searxng_mcp.ontology"
-
 [project.entry-points."agent_connector_sdk.prompt_providers"]
 searxng-mcp = "searxng_mcp.prompts"
 
