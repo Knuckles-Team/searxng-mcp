@@ -72,3 +72,11 @@ def __getattr__(name: str) -> Any:
 
 def __dir__() -> list[str]:
     return sorted(list(globals().keys()) + __all__)
+
+
+from agent_connector_sdk.connector import Connector  # noqa: E402
+
+connector = Connector(
+    instructions="SearXNG MCP Server — Privacy-respecting metasearch engine to find information across multiple search engines.",
+    verbose_register=register_tools,  # noqa: F821 - exposed from mcp_server above
+)

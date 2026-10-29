@@ -1,6 +1,6 @@
 # CONN-SEARXNG-MCP-SEARCH — Web search results as a virtual source
 
-Owner: searxng-mcp. Cross-repo IDs: `EG-UNIFIED-DATA-PLANE-R038.7.7`, `ARBORA-OPS-R067`.
+Owner: searxng-mcp. Cross-repo IDs: `MEDULLA-UNIFIED-DATA-PLANE-R038.7.7`, `ARBORA-OPS-R067`.
 
 ## Purpose and user stories
 
@@ -13,7 +13,7 @@ A caller of `research.web` searches the web and selects pages to fetch. The sear
 
 ## Why a new spec
 
-The repository had no local spec. The engine row `EG-UNIFIED-DATA-PLANE-R038.7.7` owns the virtual-source rule; this spec holds the connector side of it.
+The repository had no local spec. The engine row `MEDULLA-UNIFIED-DATA-PLANE-R038.7.7` owns the virtual-source rule; this spec holds the connector side of it.
 
 ## Scope and interfaces
 
