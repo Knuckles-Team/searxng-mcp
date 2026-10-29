@@ -28,8 +28,7 @@ from typing import Any
 
 import requests
 import yaml
-from agent_connector_sdk.config import load_config, setting
-from agent_connector_sdk.mcp.server import create_mcp_server
+from agent_connector_sdk.config import setting
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
@@ -101,15 +100,8 @@ def register_prompts(mcp: FastMCP):
         return f"Searching the web for: {topic}."
 
 
-def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
-    """Initialize and return the MCP instance, args, and middlewares."""
-    load_config()
-
-    args, mcp, middlewares = create_mcp_server(
-        name="SearXNGMCP",
-        version=__version__,
-        instructions="SearXNG MCP Server — Privacy-respecting metasearch engine to find information across multiple search engines.",
-    )
+def register_tools(mcp: FastMCP) -> None:
+    """Register the SearXNG tools, prompts and app tools on ``mcp`` (the Connector's verbose_register)."""
 
     async def _perform_search(
         query: str,
@@ -361,10 +353,14 @@ def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
 
     register_search_app_tools(mcp)
 
-    for mw in middlewares:
-        mcp.add_middleware(mw)
-    registered_tags: list[str] = []
-    return mcp, args, middlewares, registered_tags
+
+
+def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
+    """Build the connector's server from its Connector declaration."""
+    from agent_connector_sdk.connector import build_server
+
+    args, mcp = build_server("searxng_mcp")
+    return mcp, args, [], []
 
 
 def mcp_server() -> None:
