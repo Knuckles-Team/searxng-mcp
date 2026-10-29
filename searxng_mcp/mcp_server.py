@@ -354,7 +354,6 @@ def register_tools(mcp: FastMCP) -> None:
     register_search_app_tools(mcp)
 
 
-
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Build the connector's server from its Connector declaration."""
     from agent_connector_sdk.connector import build_server
