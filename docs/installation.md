@@ -21,7 +21,7 @@ The base install is intentionally minimal. Install the extra for what the operat
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `mcp` | `pip install "searxng-mcp[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) |
+| `mcp` | `pip install "searxng-mcp[mcp]"` | FastMCP MCP-server runtime (`scion-sdk`) |
 | `all` | `pip install "searxng-mcp[all]"` | The MCP server and the agent together |
 | `test` | `pip install "searxng-mcp[test]"` | `pytest`, `pytest-asyncio`, `pytest-cov`, `pytest-xdist` |
 

@@ -15,7 +15,7 @@
 ## Functional Requirements
 
 - **FR-001**: Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
-- **FR-002**: Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
+- **FR-002**: Minor update: scion-sdk 0.2.40 (installed) -> 0.16.0
 - **FR-003**: Test suite lacks intent diversity (only one type)
 - **FR-004**: 12 potential doc-test drift items
 - **FR-005**: README.md missing sections: usage|quick start
@@ -43,7 +43,7 @@
 - **FR-027**: 1 tests have no assertions
 - **FR-028**: Partial env var documentation: 38% coverage
 - **FR-029**: Undocumented env vars: AUTH_TYPE, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE, OTEL_EXPORTER_OTLP_ENDPOINT, SEARXNG_INSTANCE_URL, SEARXNG_PASSWORD, SEARXNG_USERNAME, USE_RANDOM_INSTANCE
-- **FR-030**: Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
+- **FR-030**: Analysis error: No module named 'scion_sdk.knowledge_graph'
 
 ## Success Criteria
 

@@ -11,7 +11,7 @@ description: >-
 license: MIT
 tags: [searxng, ingestion, knowledge-graph, documents, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # SearXNG KG Ingestion

@@ -1,11 +1,11 @@
 """Native epistemic-graph ingestion for SearXNG results and documents.
 
-All writes go through the SDK's knowledge-ingest facade (:mod:`agent_connector_sdk.ingest`),
+All writes go through the SDK's knowledge-ingest facade (:mod:`scion_sdk.ingest`),
 which submits a typed ``ChangeSet`` through the generated epistemic-graph ``SourceIngest``
 request/receipt types. Nodes use canonical ``node_type`` and edges use canonical
 ``relationship``; nodes, documents and edges commit in one atomic transaction. Missing engine
 dependencies, rejected records, conflicts, and transaction failures propagate as
-:class:`~agent_connector_sdk.ingest.IngestError`.
+:class:`~scion_sdk.ingest.IngestError`.
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ import hashlib
 import logging
 from typing import Any
 
-from agent_connector_sdk.ingest import (
+from scion_sdk.ingest import (
     ChangeSet,
     Document,
     Entity,

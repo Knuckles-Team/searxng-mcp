@@ -8,7 +8,7 @@ the current env (explicit config -> embedded -> random public instance ->
 resolves + validates the embedded-mode ``settings.yml``, and (with
 ``--verify``) spawns a throwaway embedded instance end to end to confirm it
 comes up healthy, then stops it. Mirrors the fleet's ``*-doctor`` preflight
-convention (e.g. ``agent-connector-sdk-doctor``) — a diagnostic CLI, never a
+convention (e.g. ``scion-sdk-doctor``) — a diagnostic CLI, never a
 second config-resolution implementation (the resolution logic itself lives
 once in ``searxng_mcp.mcp_server``/``searxng_mcp.embedded``, this module only
 surfaces it).
@@ -22,7 +22,7 @@ import sys
 from typing import Any
 
 import yaml
-from agent_connector_sdk.config import setting
+from scion_sdk.config import setting
 
 from searxng_mcp.embedded import (
     EmbeddedSearXNG,
