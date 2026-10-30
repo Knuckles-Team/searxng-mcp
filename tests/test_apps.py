@@ -1,7 +1,7 @@
 """Unit tests for ``searxng_mcp.apps`` (CONCEPT:SR-ECO.ui.mcp-app-frontend).
 
-Mirrors ``agent_connector_sdk.mcp.tools.mcp_apps``'s own test shape
-(``tests/unit/mcp/test_mcp_apps.py`` in agent-connector-sdk): the entry-point tool
+Mirrors ``scion_sdk.mcp.tools.mcp_apps``'s own test shape
+(``tests/unit/mcp/test_mcp_apps.py`` in scion-sdk): the entry-point tool
 registers with the correct ``AppConfig``/``resource_uri``, returns the exact
 prop shape its HTML expects on init, and the paired ``ui://`` resource returns
 self-contained HTML that calls back through ``web_search`` over the postMessage

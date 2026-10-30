@@ -14,7 +14,7 @@ description: >-
 license: MIT
 tags: [searxng, settings, config, embedded, privacy, doctor, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # SearXNG Embedded Settings Editor
@@ -89,7 +89,7 @@ Prints the resolution order (explicit `SEARXNG_URL` -> embedded ->
 effective, the embedded settings.yml path + its parsed content, and (with
 `--verify`) whether a real spawn actually comes up healthy. Exits non-zero on
 a resolution/verification failure — use it in CI/preflight the same way as
-`agent-connector-sdk-doctor`.
+`scion-sdk-doctor`.
 
 ## Recipes
 Inspect the active config:

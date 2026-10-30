@@ -74,7 +74,7 @@ Prints the resolution order (explicit `SEARXNG_URL` -> embedded ->
 effective, the embedded settings.yml path + its parsed content, and (with
 `--verify`) whether a real spawn actually comes up healthy. Exits non-zero on
 a resolution/verification failure — use it in CI/preflight the same way as
-`agent-connector-sdk-doctor`.
+`scion-sdk-doctor`.
 
 ## Recipes
 Inspect the active config:

@@ -28,10 +28,10 @@ from typing import Any
 
 import requests
 import yaml
-from agent_connector_sdk.config import setting
 from fastmcp import Context, FastMCP
 from fastmcp.utilities.logging import get_logger
 from pydantic import Field
+from scion_sdk.config import setting
 
 __version__ = version("searxng-mcp")
 
@@ -356,7 +356,7 @@ def register_tools(mcp: FastMCP) -> None:
 
 def get_mcp_instance() -> tuple[Any, Any, Any, list[str]]:
     """Build the connector's server from its Connector declaration."""
-    from agent_connector_sdk.connector import build_server
+    from scion_sdk.connector import build_server
 
     args, mcp = build_server("searxng_mcp")
     return mcp, args, [], []
