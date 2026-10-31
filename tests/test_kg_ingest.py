@@ -12,7 +12,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
-from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
+from scion_sdk.ingest import IngestError, KnowledgeIngest
 
 from searxng_mcp.kg_ingest import (
     ingest_documents,
@@ -143,10 +143,10 @@ async def test_ingest_search_results_maps_query_engine_and_results(ingest):
     )
 
     # result documents typed + resultUrl set, empty-url result skipped.
-    # `source_uri` is one of agent-connector-sdk's PersistencePrivacyGuard location
+    # `source_uri` is one of scion-sdk's PersistencePrivacyGuard location
     # fields (privacy_rules.py) and is blanket-redacted at persistence time regardless
     # of content — the real URL survives on the non-reserved `resultUrl` field the
-    # mapper also stamps. Same behavior as the retired agent-connector-sdk guard it replaces.
+    # mapper also stamps. Same behavior as the retired scion-sdk guard it replaces.
     doc = by_id["searxng:result:https://ex.com/a"]
     assert doc.mapping_reference.endswith("mappings/Document")
     assert doc.payload["source_uri"] == "[REDACTED_LOCATION]"

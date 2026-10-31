@@ -7,7 +7,7 @@ filters, and a clickable results list — so a human (or an agent-facing host
 that renders MCP Apps, per the ``io.modelcontextprotocol/ui`` extension
 already advertised by fastmcp 4) gets an actual visual, interactive search
 experience instead of raw JSON. It follows the exact same shape as
-``agent_connector_sdk.mcp.tools.mcp_apps`` (``graph_task_progress_app`` /
+``scion_sdk.mcp.tools.mcp_apps`` (``graph_task_progress_app`` /
 ``graph_trace_waterfall_app``): an entry-point tool whose result carries
 ``_meta.ui.resourceUri``, plus the ``ui://`` HTML resource itself, wired
 through the SAME host-mediated postMessage bridge (``mcpapp/ready`` ->
@@ -37,8 +37,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from agent_connector_sdk.config import setting
 from pydantic import Field
+from scion_sdk.config import setting
 
 SEARCH_APP_RESOURCE_URI = "ui://searxng-mcp/search.html"
 

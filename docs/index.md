@@ -1,6 +1,6 @@
 # searxng-mcp
 
-the agent-connector-sdk ecosystem — query the web across multiple search engines through one
+the scion-sdk ecosystem — query the web across multiple search engines through one
 deterministic tool surface.
 
 !!! info "Official documentation"

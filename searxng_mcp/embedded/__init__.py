@@ -60,7 +60,7 @@ from typing import Any
 
 import requests
 import yaml
-from agent_connector_sdk.config import setting
+from scion_sdk.config import setting
 
 logger = logging.getLogger("SearXNGMCPServer.embedded")
 
@@ -108,8 +108,8 @@ def _packaged_settings_path() -> Path:
 
 def user_settings_path() -> Path:
     """The user-writable override (XDG-style, mirrors
-    ``agent_connector_sdk.core.workspace_config``'s
-    ``XDG_CONFIG_HOME/agent-connector-sdk`` convention). When present, this file
+    ``scion_sdk.core.workspace_config``'s
+    ``XDG_CONFIG_HOME/scion-sdk`` convention). When present, this file
     — not the packaged default — is what the embedded instance actually
     loads; :func:`write_user_settings`/:func:`reset_user_settings` are the
     edit surface the ``searxng_settings`` MCP tool and the
