@@ -14,18 +14,22 @@
 # (never redefined here) carrying the result text + source_uri.
 
 :SearchQuery a owl:Class ;
+    rdfs:subClassOf :Event ;
     rdfs:label "Search Query" ;
     rdfs:comment "A query submitted to a SearXNG metasearch instance (web_search)." .
 
 :SearchResult a owl:Class ;
+    rdfs:subClassOf :Document ;
     rdfs:label "Search Result" ;
     rdfs:comment "A single ranked web result returned for a SearchQuery (url + title + snippet). Also mirrored as a :Document for semantic search." .
 
 :SearchEngine a owl:Class ;
+    rdfs:subClassOf :System ;
     rdfs:label "Search Engine" ;
     rdfs:comment "An underlying engine SearXNG aggregates (e.g. google, bing, duckduckgo, wikipedia)." .
 
 :SearxngInstance a owl:Class ;
+    rdfs:subClassOf :Server ;
     rdfs:label "SearXNG Instance" ;
     rdfs:comment "A SearXNG deployment that serves queries (a configured or randomly-chosen instance URL)." .
 

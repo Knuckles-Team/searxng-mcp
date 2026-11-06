@@ -94,12 +94,6 @@ def _resolve_embedded_instance() -> str:
         return ""
 
 
-def register_prompts(mcp: FastMCP):
-    @mcp.prompt
-    def search(topic: str) -> str:
-        return f"Searching the web for: {topic}."
-
-
 def register_tools(mcp: FastMCP) -> None:
     """Register the SearXNG tools, prompts and app tools on ``mcp`` (the Connector's verbose_register)."""
 
@@ -346,8 +340,6 @@ def register_tools(mcp: FastMCP) -> None:
         if apply_now:
             get_embedded_instance().stop()
         return {"action": "reset", "removed": removed, "settings": read_settings()}
-
-    register_prompts(mcp)
 
     from searxng_mcp.apps import register_search_app_tools
 
