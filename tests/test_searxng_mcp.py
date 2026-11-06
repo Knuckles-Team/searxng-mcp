@@ -137,13 +137,14 @@ def test_get_random_searxng_instance_failure(mock_get):
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
 def test_search_prompt():
-    """Test registering search prompt."""
+    """The packaged agent prompts are served."""
     mcp, _, _, _ = get_mcp_instance()
-    prompts = asyncio.run(mcp.list_prompts())
-    assert len(prompts) > 0
-    search_prompt = next(p for p in prompts if p.name == "search")
-    res = search_prompt.fn("hello")
-    assert res == "Searching the web for: hello."
+    names = {p.name for p in asyncio.run(mcp.list_prompts())}
+    assert {
+        "searxng-mcp-operator",
+        "searxng-research-analyst",
+        "searxng-search-administrator",
+    } <= names
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")
