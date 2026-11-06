@@ -140,7 +140,11 @@ def test_search_prompt():
     """The packaged agent prompts are served."""
     mcp, _, _, _ = get_mcp_instance()
     names = {p.name for p in asyncio.run(mcp.list_prompts())}
-    assert {"searxng-mcp-operator", "searxng-research-analyst", "searxng-search-administrator"} <= names
+    assert {
+        "searxng-mcp-operator",
+        "searxng-research-analyst",
+        "searxng-search-administrator",
+    } <= names
 
 
 @pytest.mark.concept("CONCEPT:SR-KG.compute.ce-4")

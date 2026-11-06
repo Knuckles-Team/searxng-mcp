@@ -10,7 +10,9 @@ from scion_sdk.surface_contracts import (
 )
 
 _DENIED = Refusal("ACCESS_DENIED", "the instance rejects the request or is unreachable")
-_NO_EMBED = Refusal("EMBEDDED_UNAVAILABLE", "the embedded searx package is not installed")
+_NO_EMBED = Refusal(
+    "EMBEDDED_UNAVAILABLE", "the embedded searx package is not installed"
+)
 
 CONTRACTS = (
     ToolUseContract(
@@ -37,7 +39,12 @@ CONTRACTS = (
                 "searxng_ingest_search",
                 params=("query", "categories", "engines", "language", "pageno"),
                 result=("listed", "ingested"),
-                refusals=(Refusal("NO_ENGINE", "no knowledge-graph engine is reachable, ingested is null"),),
+                refusals=(
+                    Refusal(
+                        "NO_ENGINE",
+                        "no knowledge-graph engine is reachable, ingested is null",
+                    ),
+                ),
             ),
         ),
     ),
@@ -66,7 +73,10 @@ CONTRACTS = (
                 result=("settings_path", "applied"),
                 refusals=(
                     _NO_EMBED,
-                    Refusal("INVALID_ARGUMENT", "overrides_json is not valid settings YAML or JSON"),
+                    Refusal(
+                        "INVALID_ARGUMENT",
+                        "overrides_json is not valid settings YAML or JSON",
+                    ),
                 ),
             ),
             ToolStep(
@@ -91,7 +101,10 @@ CONTRACTS = (
                 result=("settings_path", "removed"),
                 refusals=(
                     _NO_EMBED,
-                    Refusal("CONFIRMATION_REQUIRED", "the operator has not approved discarding the override"),
+                    Refusal(
+                        "CONFIRMATION_REQUIRED",
+                        "the operator has not approved discarding the override",
+                    ),
                 ),
             ),
         ),
@@ -161,7 +174,11 @@ LOCATIONS = (
 ROLES = (
     BusinessRole(
         "research-analyst",
-        tasks=("research-a-question", "capture-search-to-graph", "browse-results-in-app"),
+        tasks=(
+            "research-a-question",
+            "capture-search-to-graph",
+            "browse-results-in-app",
+        ),
     ),
     BusinessRole(
         "search-administrator",
