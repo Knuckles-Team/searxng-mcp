@@ -2,7 +2,7 @@
 
 > **Prefix**: `CONCEPT:SRX-*`
 > **Version**: 0.14.0
-> **Bridge**: [`CONCEPT:AU-ECO.messaging.native-backend-abstraction`](https://knuckles-team.github.io/agent-connector-sdk/concepts/) (Unified Toolkit Ingestion)
+> **Bridge**: [`CONCEPT:AU-ECO.messaging.native-backend-abstraction`](https://knuckles-team.github.io/scion-sdk/concepts/) (Unified Toolkit Ingestion)
 
 ---
 

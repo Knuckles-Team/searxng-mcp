@@ -2,7 +2,7 @@
 name: searxng-kg-ingestion
 skill_type: skill
 description: >-
-  Persist SearXNG search results into the epistemic-graph knowledge graph via the
+  Persist SearXNG search results into the medulla knowledge graph via the
   searxng-mcp MCP server. Use when the agent must turn a web search into durable,
   semantically-searchable KG memory — each result becomes a :Document (plus :SearchQuery
   and :SearchEngine typed nodes with :resultOf / :fromEngine links) so later reasoning
@@ -16,7 +16,7 @@ metadata:
 ---
 # SearXNG KG Ingestion
 
-Native "maximum ingestion" of SearXNG results into the ONE epistemic-graph knowledge
+Native "maximum ingestion" of SearXNG results into the ONE medulla knowledge
 graph. Runs a metasearch and pushes each result as a shared **`:Document`** (carrying
 the result text + `source_uri`) alongside a **`:SearchQuery`** node and per-engine
 **`:SearchEngine`** nodes, wired with `:resultOf` / `:fromEngine`. This builds a
@@ -34,7 +34,7 @@ recallable, citable corpus from the open web.
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server. A reachable
-epistemic-graph engine is required for anything to land; with no engine the tool is a
+medulla engine is required for anything to land; with no engine the tool is a
 clean no-op (`ingested: null`). Same env matrix as `searxng-web-search`. Note:
 `web_search` never ingests; its results stay a virtual source. Use the explicit
 tool below when you want the ingest confirmation payload or ingest without a prior read.

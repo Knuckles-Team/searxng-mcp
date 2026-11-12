@@ -1,7 +1,7 @@
-"""Native epistemic-graph ingestion for SearXNG results and documents.
+"""Native medulla ingestion for SearXNG results and documents.
 
 All writes go through the SDK's knowledge-ingest facade (:mod:`scion_sdk.ingest`),
-which submits a typed ``ChangeSet`` through the generated epistemic-graph ``SourceIngest``
+which submits a typed ``ChangeSet`` through the generated medulla ``SourceIngest``
 request/receipt types. Nodes use canonical ``node_type`` and edges use canonical
 ``relationship``; nodes, documents and edges commit in one atomic transaction. Missing engine
 dependencies, rejected records, conflicts, and transaction failures propagate as

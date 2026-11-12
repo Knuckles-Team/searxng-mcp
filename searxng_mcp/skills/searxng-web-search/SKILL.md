@@ -82,7 +82,7 @@ Page 2 of an IT-category search:
 
 ## Related
 - `searxng-news-research` — the same tool tuned for time-sensitive news monitoring.
-- `searxng-kg-ingestion` — persist results into the epistemic-graph knowledge graph.
+- `searxng-kg-ingestion` — persist results into the medulla knowledge graph.
 - `searxng-settings-editor` — inspect/edit the embedded instance's settings.yml, or
   diagnose which instance (embedded / external / random / `searx.be`) is effective.
 - `web-fetch` / `web-crawler` — read the full content behind a result URL.

@@ -198,7 +198,7 @@ def register_tools(mcp: FastMCP) -> None:
             default=None, description="MCP context for progress reporting"
         ),
     ) -> dict:
-        """Run a SearXNG search and natively ingest its results into epistemic-graph.
+        """Run a SearXNG search and natively ingest its results into medulla.
 
         Wire-First: performs the search, then pushes each result into the knowledge graph
         as a search :Document (+ :SearchQuery / :SearchEngine typed nodes and their

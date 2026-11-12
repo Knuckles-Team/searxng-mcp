@@ -1,4 +1,4 @@
-"""Native epistemic-graph ingestion — Wire-First coverage for searxng-mcp.
+"""Native medulla ingestion — Wire-First coverage for searxng-mcp.
 
 Exercises the real ``ingest_entities`` / ``ingest_documents`` / ``ingest_search_results``
 seam with a fake SDK ingest **transport** (one level below the facade, per
