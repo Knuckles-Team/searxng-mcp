@@ -1,7 +1,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/searxng#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -14,22 +15,22 @@
 # (never redefined here) carrying the result text + source_uri.
 
 :SearchQuery a owl:Class ;
-    rdfs:subClassOf :Event ;
+    rdfs:subClassOf core:Event ;
     rdfs:label "Search Query" ;
     rdfs:comment "A query submitted to a SearXNG metasearch instance (web_search)." .
 
 :SearchResult a owl:Class ;
-    rdfs:subClassOf :Document ;
+    rdfs:subClassOf core:Document ;
     rdfs:label "Search Result" ;
     rdfs:comment "A single ranked web result returned for a SearchQuery (url + title + snippet). Also mirrored as a :Document for semantic search." .
 
 :SearchEngine a owl:Class ;
-    rdfs:subClassOf :System ;
+    rdfs:subClassOf core:System ;
     rdfs:label "Search Engine" ;
     rdfs:comment "An underlying engine SearXNG aggregates (e.g. google, bing, duckduckgo, wikipedia)." .
 
 :SearxngInstance a owl:Class ;
-    rdfs:subClassOf :Server ;
+    rdfs:subClassOf core:Server ;
     rdfs:label "SearXNG Instance" ;
     rdfs:comment "A SearXNG deployment that serves queries (a configured or randomly-chosen instance URL)." .
 
@@ -95,11 +96,11 @@
     rdfs:domain :SearchResult ;
     rdfs:range xsd:string .
 
-<http://knuckles.team/kg/searxng> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/searxng> a owl:Ontology ;
     rdfs:label "SearXNG Ontology" ;
     rdfs:comment """SearXNG metasearch domain extensions federated into the scion-sdk
     knowledge-graph hub: search queries, the ranked web results they return (also mirrored
     as shared :Document nodes), the aggregated search engines, and the serving instance.""" .
 
 # ontology-codemod R4
-<http://knuckles.team/kg#SearchResult> rdfs:subClassOf <http://knuckles.team/kg#Document> .
+<https://knuckles-team.github.io/ontology/connector/searxng#SearchResult> rdfs:subClassOf <https://knuckles-team.github.io/ontology/core#Document> .
