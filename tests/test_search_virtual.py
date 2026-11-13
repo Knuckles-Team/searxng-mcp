@@ -44,3 +44,32 @@ async def test_web_search_writes_nothing(monkeypatch: pytest.MonkeyPatch) -> Non
         body.get("results", body.get("result", {}).get("results")) == results["results"]
     )
     assert ingested == []
+
+
+@pytest.mark.spec("CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R002")
+async def test_unresponsive_engines_are_passed_through(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "results": [
+            {"url": "https://a.example", "title": "A", "engine": "bing"},
+            {"url": "https://b.example", "title": "B", "engine": "bing"},
+            {"url": "https://c.example", "title": "C", "engine": "duckduckgo"},
+        ],
+        "unresponsive_engines": [["brave", "timeout"], ["google", "CAPTCHA"]],
+    }
+    response = MagicMock()
+    response.json.return_value = payload
+    response.raise_for_status.return_value = None
+    monkeypatch.setattr(
+        server_module.requests, "get", lambda *_args, **_kwargs: response
+    )
+    monkeypatch.setenv("SEARXNG_INSTANCE_URL", "https://searx.example")
+    monkeypatch.setattr("sys.argv", ["searxng-mcp"])
+    mcp, _args, _mw, _tags = server_module.get_mcp_instance()
+    async with Client(mcp) as client:
+        result = await client.call_tool("web_search", {"query": "q"})
+    body = result.structured_content or {}
+    body = body.get("result", body) if "results" not in body else body
+    assert body["unresponsive_engines"] == [["brave", "timeout"], ["google", "CAPTCHA"]]
+    assert body["engine_counts"] == {"bing": 2, "duckduckgo": 1}
