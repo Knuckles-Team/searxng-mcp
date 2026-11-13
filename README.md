@@ -62,7 +62,7 @@ The table below is auto-generated from the MCP server — do not edit by hand.
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
-| `searxng_ingest_search` | `KGTOOL` | Run a SearXNG search and natively ingest its results into epistemic-graph. |
+| `searxng_ingest_search` | `KGTOOL` | Run a SearXNG search and natively ingest its results into medulla. |
 | `searxng_search_app` | `SEARCH_APPTOOL` | Launch an interactive SearXNG search-UI app: a query box, category filters, and a clickable results list, backed by the existing web_search tool through the host-mediated MCP Apps bridge. Use this when a human should see and interact with search results visually rather than read raw JSON. Does NOT drive a browser or render arbitrary web pages -- only this search workflow. |
 | `searxng_settings` | `CONFIGTOOL` | Read/edit the EMBEDDED SearXNG instance's settings.yml |
 | `web_search` | — | Perform a web search using a privacy-respecting SearXNG metasearch instance. |
@@ -99,7 +99,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `searxng-mcp[mcp]` to add
 > FastMCP / FastAPI through `scion-sdk`; the required Scion SDK core
-> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> still carries `medulla[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
 #### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
@@ -230,7 +230,7 @@ One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `example/searxng-mcp:mcp` | `--target mcp` | `searxng-mcp[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `searxng-mcp` |
+| `example/searxng-mcp:mcp` | `--target mcp` | `searxng-mcp[mcp]` — **connector-focused**, includes `medulla[full]`; no model-orchestration stack | `searxng-mcp` |
 
 ```bash
 docker build --target mcp   -t example/searxng-mcp:mcp    docker/   # connector-focused MCP server
