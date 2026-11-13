@@ -146,6 +146,17 @@ def register_tools(mcp: FastMCP) -> None:
             logger.error("Search failed: error_type=%s", type(e).__name__)
             return {"error": "Failed to perform search"}
 
+        if isinstance(data, dict):
+            # Per-engine result counts, tallied from each result's ``engine``;
+            # ``unresponsive_engines`` passes through exactly as SearXNG sent it.
+            counts: dict[str, int] = {}
+            for item in data.get("results") or []:
+                engine = item.get("engine") if isinstance(item, dict) else None
+                if engine:
+                    counts[engine] = counts.get(engine, 0) + 1
+            data["engine_counts"] = counts
+            data.setdefault("unresponsive_engines", [])
+
         # Search results are a short-lived virtual source: web_search never
         # writes them to the graph. searxng_ingest_search is the explicit,
         # opt-in ingest path.
