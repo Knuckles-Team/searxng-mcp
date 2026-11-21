@@ -16,7 +16,7 @@ This plan states how `searxng-mcp` delivers the rows of `CONN-SEARXNG-MCP-CONNEC
 - **Project Type**: connector
 - **Performance Goals**: N/A, the vendor service sets the latency
 - **Constraints**: vendor calls go through the SDK governed client; no connector-local transport
-- **Scale/Scope**: 2 active row(s) in this spec
+- **Scale/Scope**: 3 active row(s) in this spec
 
 ## Constitution Check
 
@@ -59,6 +59,7 @@ None. The constitution check passed.
 
 - `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R002`: an MCP client calls `web_search` (searxng_mcp/mcp_server.py:165), which calls the SearXNG client of `searxng_mcp/` and returns its response.
 - `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R001`: `searxng-mcp` in `pyproject.toml` runs `searxng_mcp.mcp_server:mcp_server`, which builds the server from the `scion_sdk.connector` entry point `searxng_mcp:connector` (`searxng_mcp/__init__.py:79`); the SDK `Connector` then lists the packaged skills, ontology and prompts.
+- `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R003`: the ontology loader reads `searxng_mcp/ontology/` at server start; the engine imports the served pack and finds no redeclared core term.
 
 ## Cross-repo seams
 

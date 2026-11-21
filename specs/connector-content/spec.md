@@ -30,6 +30,14 @@ The fleet operator and the engine rely on this behaviour of `searxng-mcp`: `pypr
 
 1. **Given** the `searxng-mcp` connector built from the default branch, **When** `tests/test_default_content_surfaces.py::test_default_content_surfaces` runs, **Then** `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt.
 
+### User Story 3 - The pack extends only the core ontology (Priority: P1)
+
+The fleet operator and the engine rely on this behaviour of ``: its pack adds terms under the core ontology and declares no second copy of a core term. It is proven independently of the other stories.
+
+**Acceptance Scenarios**:
+
+1. **Given** the `` connector built from the default branch, **When** `tests/test_ontology_extends_core.py::test_pack_declares_no_core_term` runs, **Then** the served Turtle declares none of the listed core terms.
+
 ### Edge Cases
 
 - The vendor service is unreachable or rejects the credential: the connector returns the SDK typed error and never a partial result.
@@ -39,11 +47,13 @@ The fleet operator and the engine rely on this behaviour of `searxng-mcp`: `pypr
 
 - **FR-001**: Pass through per-engine result counts and unresponsive_engines. Rows: `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R002`.
 - **FR-002**: Default content. Rows: `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R001`.
+- **FR-003**: The pack extends only the core ontology. Rows: `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R003`.
 
 ## Success Criteria
 
 - **SC-001**: Test: the tool result includes both fields. Rows: `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R002`.
 - **SC-002**: `resources/list` includes `skill://` and `ontology://`; `prompts/list` includes each packaged prompt. Rows: `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R001`.
+- **SC-003**: The served Turtle declares none of the listed core terms. Rows: `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R003`.
 
 ## Assumptions
 
@@ -60,3 +70,4 @@ Searched `specs/` of `searxng-mcp` with `git grep` for the terms of this spec. N
 |---|---|---|---|---|
 | FR-001 | `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R002` | plan.md Production caller chain | T-001 | tests/test_search_virtual.py::test_unresponsive_engines_are_passed_through |
 | FR-002 | `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R001` | plan.md Production caller chain | T-002 | tests/test_default_content_surfaces.py::test_default_content_surfaces |
+| FR-003 | `CONN-SEARXNG-MCP-CONNECTOR-CONTENT-R003` | plan.md Production caller chain | T-003 | tests/test_ontology_extends_core.py::test_pack_declares_no_core_term |

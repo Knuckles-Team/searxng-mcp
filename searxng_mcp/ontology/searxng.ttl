@@ -14,21 +14,6 @@
 # worth semantic search, so they are also ingested as the shared `:Document` class
 # (never redefined here) carrying the result text + source_uri.
 
-:SearchQuery a owl:Class ;
-    rdfs:subClassOf core:Event ;
-    rdfs:label "Search Query" ;
-    rdfs:comment "A query submitted to a SearXNG metasearch instance (web_search)." .
-
-:SearchResult a owl:Class ;
-    rdfs:subClassOf core:Document ;
-    rdfs:label "Search Result" ;
-    rdfs:comment "A single ranked web result returned for a SearchQuery (url + title + snippet). Also mirrored as a :Document for semantic search." .
-
-:SearchEngine a owl:Class ;
-    rdfs:subClassOf core:System ;
-    rdfs:label "Search Engine" ;
-    rdfs:comment "An underlying engine SearXNG aggregates (e.g. google, bing, duckduckgo, wikipedia)." .
-
 :SearxngInstance a owl:Class ;
     rdfs:subClassOf core:Server ;
     rdfs:label "SearXNG Instance" ;
@@ -39,19 +24,19 @@
 :resultOf a owl:ObjectProperty ;
     rdfs:label "result of" ;
     rdfs:comment "Links a SearchResult (or its :Document) to the SearchQuery that produced it." ;
-    rdfs:domain :SearchResult ;
-    rdfs:range :SearchQuery .
+    rdfs:domain core:SearchResult ;
+    rdfs:range core:SearchQuery .
 
 :fromEngine a owl:ObjectProperty ;
     rdfs:label "from engine" ;
     rdfs:comment "Links a SearchResult to the SearchEngine that surfaced it." ;
-    rdfs:domain :SearchResult ;
-    rdfs:range :SearchEngine .
+    rdfs:domain core:SearchResult ;
+    rdfs:range core:SearchEngine .
 
 :servedByInstance a owl:ObjectProperty ;
     rdfs:label "served by instance" ;
     rdfs:comment "Links a SearchQuery to the SearxngInstance that answered it." ;
-    rdfs:domain :SearchQuery ;
+    rdfs:domain core:SearchQuery ;
     rdfs:range :SearxngInstance .
 
 # --- fields (owl:DatatypeProperty) ---
@@ -64,19 +49,13 @@
 :queryText a owl:DatatypeProperty ;
     rdfs:label "query text" ;
     rdfs:comment "The raw query string submitted to SearXNG." ;
-    rdfs:domain :SearchQuery ;
+    rdfs:domain core:SearchQuery ;
     rdfs:range xsd:string .
-
-:resultUrl a owl:DatatypeProperty ;
-    rdfs:label "result url" ;
-    rdfs:comment "The URL of a SearchResult." ;
-    rdfs:domain :SearchResult ;
-    rdfs:range xsd:anyURI .
 
 :score a owl:DatatypeProperty ;
     rdfs:label "score" ;
     rdfs:comment "The relevance score SearXNG assigned to a SearchResult." ;
-    rdfs:domain :SearchResult ;
+    rdfs:domain core:SearchResult ;
     rdfs:range xsd:double .
 
 :category a owl:DatatypeProperty ;
@@ -87,13 +66,13 @@
 :language a owl:DatatypeProperty ;
     rdfs:label "language" ;
     rdfs:comment "The language code used for the query (e.g. en-US)." ;
-    rdfs:domain :SearchQuery ;
+    rdfs:domain core:SearchQuery ;
     rdfs:range xsd:string .
 
 :publishedDate a owl:DatatypeProperty ;
     rdfs:label "published date" ;
     rdfs:comment "The publication date a result reports, when available." ;
-    rdfs:domain :SearchResult ;
+    rdfs:domain core:SearchResult ;
     rdfs:range xsd:string .
 
 <https://knuckles-team.github.io/ontology/connector/searxng> a owl:Ontology ;
