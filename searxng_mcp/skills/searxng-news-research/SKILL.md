@@ -2,12 +2,7 @@
 name: searxng-news-research
 skill_type: skill
 description: >-
-  Time-sensitive news and topic monitoring via the searxng-mcp MCP server. Use when
-  the agent must gather what multiple news/social engines are currently reporting on a
-  topic — breaking events, product/security announcements, or ongoing coverage — by
-  scoping `web_search` to the `news`/`social_media` categories and paging for breadth.
-  Do NOT use for evergreen reference facts (use searxng-web-search), academic sources
-  (scholarx), or deep single-source reads (web-fetch).
+  Time-sensitive news and topic monitoring via the searxng-mcp MCP server by scoping web_search to the news and social_media categories and paging. Use for breaking events, announcements or ongoing coverage. Not for evergreen facts (searxng-web-search), academic papers (scholarx) or single-article reads (web-fetch).
 license: MIT
 tags: [searxng, news, monitoring, research, metasearch, mcp]
 metadata:
@@ -15,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # SearXNG News Research
+
+Scope: Time-sensitive news and topic monitoring via the searxng-mcp MCP server. Use when the agent must gather what multiple news/social engines are currently reporting on a topic — breaking events, product/security announcements, or ongoing coverage — by scoping `web_search` to the `news`/`social_media` categories and paging for breadth. Do NOT use for evergreen reference facts (use searxng-web-search), academic sources (scholarx), or deep single-source reads (web-fetch).
 
 News- and topic-monitoring workflow over the `searxng-mcp` server. Same `web_search`
 tool as general search, but scoped to the **`news`** (and optionally `social_media`)
@@ -30,6 +27,25 @@ categories and paged to collect broad, recent coverage from many outlets at once
 - Peer-reviewed or preprint literature → `scholarx`.
 - Reading / extracting one known article in full → `web-fetch` / `web-crawler`.
 - Structured social-platform pulls (X/Reddit/YouTube/HN) → `pulselink-mcp`.
+
+## Steps
+
+1. Scope the monitor with `query` and `categories` set to `["news"]`, adding `social_media` for chatter.
+   Verify the topic is specific enough to return recent items.
+2. Run `web_search` for page 1.
+   Verify the results are recent outlets and note any `publishedDate` values.
+3. Widen coverage with `web_search` and `pageno` 2 or 3.
+   Verify new URLs appear and stop when pages repeat or thin out.
+4. Persist a monitoring corpus with `searxng_ingest_search` when later synthesis is needed.
+   Verify the response reports `listed` and a non-null `ingested`.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Sparse or no news results | The instance enables few news engines | Switch `SEARXNG_INSTANCE_URL` to an instance with news engines, and run `web_search` again |
+| `ingested` is null | No medulla engine is reachable | Report that nothing was persisted, and keep the URLs from `results` for a later `searxng_ingest_search` |
+| Results differ between runs | News churns quickly | Capture the URLs immediately, or ingest them with `searxng_ingest_search` |
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server. Same env

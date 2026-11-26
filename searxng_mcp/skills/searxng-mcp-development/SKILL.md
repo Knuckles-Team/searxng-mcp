@@ -19,6 +19,27 @@ the affected module, and the relevant `specs/` status before editing. Keep the
 connector focused on the SearXNG MCP and A2A surfaces; graph facts and ontology
 ownership remain with the existing connector and engine contracts.
 
+## Steps
+
+1. Read `AGENTS.md` and the affected module, and find the owning requirement with `git grep -n "<term>" -- specs`.
+   Verify a row matches before editing.
+2. Make the change within the connector boundary under `searxng_mcp/`.
+   Verify it reuses existing connector and SDK pieces and adds no parallel framework.
+3. Run the narrowest relevant test with `uv run pytest -q`.
+   Verify it passes.
+4. Run the hooks with `pre-commit run --all-files`.
+   Verify every hook reports Passed.
+5. Stage reviewed paths with `git add -- <path>` and inspect `git diff --cached --name-status`.
+   Verify only intended files are listed before committing with a `Spec:` trailer.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| A hook fails | Formatting, spelling or a gate was violated | Read the hook output, fix the named file, and rerun `pre-commit run --all-files` |
+| Generated spec status shows as modified | It was hand-edited | Restore it with `git checkout -- <path>` for that file, and let the central pipeline tools regenerate it |
+| No spec row matches | The behavior is not yet specified | Extend the closest row in `specs` first, and cite its id in the `Spec:` trailer |
+
 ## Rapid delivery: the 5-minute contract
 
 For a small, reviewable change:

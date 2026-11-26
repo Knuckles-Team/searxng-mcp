@@ -2,12 +2,7 @@
 name: searxng-kg-ingestion
 skill_type: skill
 description: >-
-  Persist SearXNG search results into the medulla knowledge graph via the
-  searxng-mcp MCP server. Use when the agent must turn a web search into durable,
-  semantically-searchable KG memory — each result becomes a :Document (plus :SearchQuery
-  and :SearchEngine typed nodes with :resultOf / :fromEngine links) so later reasoning
-  can recall and cite it. Do NOT use for one-off reads you don't need to remember (use
-  searxng-web-search) or to ingest a specific page's full text (use web-crawler).
+  Persist SearXNG search results into the medulla knowledge graph via the searxng-mcp MCP server as :Document, :SearchQuery and :SearchEngine nodes. Use when a web search must become durable, citable KG memory. Not for one-off reads (searxng-web-search) or full page ingest (web-crawler).
 license: MIT
 tags: [searxng, ingestion, knowledge-graph, documents, mcp]
 metadata:
@@ -15,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # SearXNG KG Ingestion
+
+Scope: Persist SearXNG search results into the medulla knowledge graph via the searxng-mcp MCP server. Use when the agent must turn a web search into durable, semantically-searchable KG memory — each result becomes a :Document (plus :SearchQuery and :SearchEngine typed nodes with :resultOf / :fromEngine links) so later reasoning can recall and cite it. Do NOT use for one-off reads you don't need to remember (use searxng-web-search) or to ingest a specific page's full text (use web-crawler).
 
 Native "maximum ingestion" of SearXNG results into the ONE medulla knowledge
 graph. Runs a metasearch and pushes each result as a shared **`:Document`** (carrying
@@ -31,6 +28,25 @@ recallable, citable corpus from the open web.
 - Throwaway lookups you don't need to persist → `searxng-web-search`.
 - Ingesting the full body of one known page → `web-crawler` / `web-fetch`.
 - Structured records from an enterprise system → that system's own ingest tool.
+
+## Steps
+
+1. Confirm the topic is worth persisting.
+   Verify a plain `web_search` would not be enough.
+2. Run `searxng_ingest_search` with `query` and optional `categories`, `engines`, `language` and `pageno`.
+   Verify the response contains `listed` and `ingested`.
+3. Check that `ingested` is not null.
+   Verify the count of written nodes against `listed`, remembering empty-snippet results are skipped.
+4. Avoid double ingestion by not calling `web_search` for the same query.
+   Verify the same `query` was not ingested twice in this run.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| `ingested` is null | No medulla engine is reachable | Report that nothing was persisted, and rerun `searxng_ingest_search` once the engine is reachable |
+| `listed` exceeds nodes written | Results without a title or snippet are skipped | Report both counts, and refine `query` or `engines` for richer snippets |
+| Search returns an error | The instance is unreachable or blocks JSON | Set `SEARXNG_INSTANCE_URL` to a reachable instance, and rerun `searxng_ingest_search` |
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server. A reachable
