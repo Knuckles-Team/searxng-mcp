@@ -2,13 +2,7 @@
 name: searxng-web-search
 skill_type: skill
 description: >-
-  Privacy-respecting web metasearch via the searxng-mcp MCP server. Use when the
-  agent needs current, open-web results for a query and must NOT leak the query to a
-  single tracking engine — SearXNG aggregates many engines (Google, Bing, DuckDuckGo,
-  Wikipedia, …) behind one JSON tool. Use for general lookups, fact-finding, and
-  pulling candidate source URLs to read next. Do NOT use for academic papers (use
-  scholarx), for reading one already-known URL's full content (use web-fetch /
-  web-crawler), or for keyless social/forum research (use pulselink-mcp).
+  Privacy-respecting web metasearch via the searxng-mcp MCP server: one web_search call aggregates many engines behind one JSON tool. Use for current open-web results, fact-finding and candidate source URLs. Not for academic papers (scholarx), reading one known URL (web-fetch) or social research (pulselink-mcp).
 license: MIT
 tags: [searxng, search, metasearch, web, privacy, mcp]
 metadata:
@@ -16,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # SearXNG Web Search
+
+Scope: Privacy-respecting web metasearch via the searxng-mcp MCP server. Use when the agent needs current, open-web results for a query and must NOT leak the query to a single tracking engine — SearXNG aggregates many engines (Google, Bing, DuckDuckGo, Wikipedia, …) behind one JSON tool. Use for general lookups, fact-finding, and pulling candidate source URLs to read next. Do NOT use for academic papers (use scholarx), for reading one already-known URL's full content (use web-fetch / web-crawler), or for keyless social/forum research (use pulselink-mcp).
 
 Privacy-respecting **metasearch** over the `searxng-mcp` server. One `web_search`
 call fans a query across many upstream engines and returns a merged, ranked JSON
@@ -33,6 +29,25 @@ result set — without exposing the query to any single tracker.
   `web-crawler`.
 - Keyless social-platform research (X, Reddit, YouTube, HN) → `pulselink-mcp`.
 - You want results persisted into the knowledge graph → `searxng-kg-ingestion`.
+
+## Steps
+
+1. Frame the query and pick scope: `query` plus optional `categories`, `engines` and `language`.
+   Verify the query is non-empty and the category names are valid.
+2. Run `web_search` with those parameters.
+   Verify the response carries a `results` list and note `number_of_results`.
+3. Page deeper with `web_search` and `pageno` when coverage is thin.
+   Verify new URLs appear on the next page.
+4. Hand candidate URLs to `web-fetch` for full reads.
+   Verify each chosen result has a `url` and `content` snippet worth following.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Empty results or a blocked JSON format | A public instance rate-limits or refuses the JSON `format` | Set `SEARXNG_INSTANCE_URL` to a self-hosted instance, or enable `USE_RANDOM_INSTANCE`, and run `web_search` again with the same `query` |
+| HTTP 401 from the instance | The protected instance needs basic auth | Set `SEARXNG_USERNAME` and `SEARXNG_PASSWORD` for the `searxng-mcp` server |
+| Results are off topic | The query is too broad or the category is wrong | Narrow `query`, set `categories` such as `["it"]`, or restrict `engines` |
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server.

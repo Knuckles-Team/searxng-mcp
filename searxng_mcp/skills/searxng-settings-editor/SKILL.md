@@ -2,15 +2,7 @@
 name: searxng-settings-editor
 skill_type: skill
 description: >-
-  Inspect and edit the EMBEDDED SearXNG instance's settings.yml (the private,
-  loopback-only, zero-config search fallback the searxng-mcp server can own
-  end to end when no external SEARXNG_URL is configured). Use when the agent
-  or operator wants to change what the embedded instance does — enable/
-  disable formats, flip privacy knobs (image_proxy, enable_metrics), route
-  outgoing requests through a proxy, or diagnose why embedded mode isn't
-  activating. Do NOT use this for an externally-configured instance
-  (SEARXNG_URL set) — that instance's settings.yml lives on its own host and
-  isn't managed by this server; use `searxng-web-search` for plain queries.
+  Inspect and edit the embedded SearXNG instance's settings.yml via the searxng-mcp MCP server (searxng_settings get, set, reset) and diagnose embedded mode. Use to change formats, privacy knobs or outgoing proxies of the embedded instance. Not for an external SEARXNG_URL instance or plain queries (searxng-web-search).
 license: MIT
 tags: [searxng, settings, config, embedded, privacy, doctor, mcp]
 metadata:
@@ -18,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # SearXNG Embedded Settings Editor
+
+Scope: Inspect and edit the EMBEDDED SearXNG instance's settings.yml (the private, loopback-only, zero-config search fallback the searxng-mcp server can own end to end when no external SEARXNG_URL is configured). Use when the agent or operator wants to change what the embedded instance does — enable/ disable formats, flip privacy knobs (image_proxy, enable_metrics), route outgoing requests through a proxy, or diagnose why embedded mode isn't activating. Do NOT use this for an externally-configured instance (SEARXNG_URL set) — that instance's settings.yml lives on its own host and isn't managed by this server; use `searxng-web-search` for plain queries.
 
 Reads and edits the **embedded** SearXNG instance's configuration
 (`searxng_mcp.embedded`, CONCEPT:SR-KG.compute.embedded-instance) — the private,
@@ -42,6 +36,27 @@ instead of falling back to a public instance.
   instance's config.
 - You just want to run a search → `searxng-web-search`.
 - You want results persisted to the KG → `searxng-kg-ingestion`.
+
+## Steps
+
+1. Diagnose the active configuration with `searxng-doctor --json`.
+   Verify `effective_source` is the embedded instance before editing.
+2. Read current settings with `searxng_settings` (`action` get).
+   Verify which file is in effect.
+3. Apply a change with `searxng_settings` (`action` set, `overrides_json` an object).
+   Verify the response confirms the merge and keeps `json` in `search.formats`.
+4. Check the result with `searxng-doctor --verify`.
+   Verify the embedded instance spawns healthy with the new settings.
+5. Revert with `searxng_settings` (`action` reset) if the change misbehaves.
+   Verify `get` reports the packaged default.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Error that the searx package is not installed | The `searxng-mcp[embedded]` extra is missing on the host | Install it with `pip install 'searxng-mcp[embedded]'` on the host, and confirm with `searxng-doctor` |
+| `overrides_json` rejected | The value is not a JSON object | Pass a JSON object string such as `{"search": {"formats": ["html", "json"]}}` |
+| Edits have no effect | `SEARXNG_URL` is set, so the embedded instance is unused | Read `effective_source` from `searxng-doctor`, and unset `SEARXNG_URL` or edit the external host instead |
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`searxng-mcp`** MCP server.
